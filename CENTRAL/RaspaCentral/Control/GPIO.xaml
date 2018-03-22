@@ -1,0 +1,20 @@
+﻿<UserControl
+    x:Class="RaspaCentral.GPIO"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RaspaCentral.Control"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="500"
+    d:DesignWidth="500">
+
+    <Grid Width="500" Height="500">
+        <Canvas x:Name="BASE" Width="500" Height="500">
+            <Image Source="ms-appx:///Assets/component_light.png" Canvas.Left="250" Canvas.Top="17" Height="190" Width="190" />
+            <Image Source="ms-appx:///Assets/component_light2.png" Canvas.Left="250" Canvas.Top="211" Height="190" Width="190" />
+
+        </Canvas>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,56 @@
+NODE1 
+	events pin 26
+		rules db.getrule(node:1,pin:26)
+		
+		rule.id			1
+		rule.enabled	1
+		
+		action db.getAction(rule:1)
+		
+		
+			action.id			1					
+			action.pos			1
+			action.line			1
+			action.action		message					manda messaggio al nodo 4 raggiungibile a 192.168.1.104 a cui dire che pin 6 deve andare a volore 1
+			action.ipv4			192.168.1.104
+			action.node			4
+			action.pin			6
+			action.value		1		
+			action.then			
+			action.else			
+
+			action.id			3
+			action.pos			2
+			action.line			2
+			action.action		wait					attendere 10 secondi
+			action.ipv4			
+			action.node			
+			action.pin			
+			action.value		10000		
+			action.then			
+			action.else			
+
+			action.id			4
+			action.pos			3
+			action.line			3
+			action.action		if						se GET nodo 4 (192.168.1.104) pin 6 vale 1 then linea 1 altrimenti linea 4
+			action.ipv4			192.168.1.104
+			action.node			4
+			action.pin			6
+			action.value		0		
+			action.then			2
+			action.else			4
+
+			action.id			1					
+			action.pos			1
+			action.line			1
+			action.action		message					manda messaggio al nodo 4 raggiungibile a 192.168.1.104 a cui dire che pin 6 deve andare a volore 0
+			action.ipv4			192.168.1.104
+			action.node			4
+			action.pin			6
+			action.value		0		
+			action.then			
+			action.else			
+
+NOTA : nel caso della temperatura che non vale 0 o 1 non è detto che questo sia sotto un pin devo iniziare a considerare l'opportunità che il software deve 
+lavorare sui componenti e saà il rasp client che trasforma il calore del componente in un concetto applicabile ai sensori

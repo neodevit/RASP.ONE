@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{E97E1300-5172-4779-86F6-700454A484C1}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RaspaCentral</RootNamespace>
+    <AssemblyName>RaspaCentral</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.16299.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
+    <PackageCertificateKeyFile>RaspaCentral_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Control\GPIO.xaml.cs">
+      <DependentUpon>GPIO.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="System\Drawing.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <None Include="RaspaCentral_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\acqua.png" />
+    <Content Include="Assets\acqua_off.png" />
+    <Content Include="Assets\acqua_on.png" />
+    <Content Include="Assets\battery.png" />
+    <Content Include="Assets\bell_active.png" />
+    <Content Include="Assets\bell_err.png" />
+    <Content Include="Assets\bell_off.png" />
+    <Content Include="Assets\bell_on.png" />
+    <Content Include="Assets\camera.png" />
+    <Content Include="Assets\camera_add.png" />
+    <Content Include="Assets\camera_delete.png" />
+    <Content Include="Assets\camera_edit.png" />
+    <Content Include="Assets\camera_error.png" />
+    <Content Include="Assets\camera_go.png" />
+    <Content Include="Assets\camera_link.png" />
+    <Content Include="Assets\camera_off.png" />
+    <Content Include="Assets\camera_on.png" />
+    <Content Include="Assets\camera_small.png" />
+    <Content Include="Assets\central.png" />
+    <Content Include="Assets\central_err.png" />
+    <Content Include="Assets\central_off.png" />
+    <Content Include="Assets\central_untrusted.png" />
+    <Content Include="Assets\component_light.png" />
+    <Content Include="Assets\component_light2.png" />
+    <Content Include="Assets\component_pir.png" />
+    <Content Include="Assets\component_pir2.png" />
+    <Content Include="Assets\computer.png" />
+    <Content Include="Assets\computer_add.png" />
+    <Content Include="Assets\computer_delete.png" />
+    <Content Include="Assets\computer_edit.png" />
+    <Content Include="Assets\computer_error.png" />
+    <Content Include="Assets\computer_go.png" />
+    <Content Include="Assets\computer_key.png" />
+    <Content Include="Assets\computer_link.png" />
+    <Content Include="Assets\connect.png" />
+    <Content Include="Assets\database.png" />
+    <Content Include="Assets\database_add.png" />
+    <Content Include="Assets\database_connect.png" />
+    <Content Include="Assets\database_delete.png" />
+    <Content Include="Assets\database_edit.png" />
+    <Content Include="Assets\database_error.png" />
+    <Content Include="Assets\database_gear.png" />
+    <Content Include="Assets\database_go.png" />
+    <Content Include="Assets\database_key.png" />
+    <Content Include="Assets\database_lightning.png" />
+    <Content Include="Assets\database_link.png" />
+    <Content Include="Assets\database_refresh.png" />
+    <Content Include="Assets\database_save.png" />
+    <Content Include="Assets\date.png" />
+    <Content Include="Assets\date_add.png" />
+    <Content Include="Assets\date_delete.png" />
+    <Content Include="Assets\date_edit.png" />
+    <Content Include="Assets\date_error.png" />
+    <Content Include="Assets\date_go.png" />
+    <Content Include="Assets\date_link.png" />
+    <Content Include="Assets\date_magnify.png" />
+    <Content Include="Assets\date_next.png" />
+    <Content Include="Assets\date_previous.png" />
+    <Content Include="Assets\delete.png" />
+    <Content Include="Assets\disconnect.png" />
+    <Content Include="Assets\disk.png" />
+    <Content Include="Assets\disk_multiple.png" />
+    <Content Include="Assets\door.png" />
+    <Content Include="Assets\door_in.png" />
+    <Content Include="Assets\door_open.png" />
+    <Content Include="Assets\door_out.png" />
+    <Content Include="Assets\email.png" />
+    <Content Include="Assets\email_add.png" />
+    <Content Include="Assets\email_attach.png" />
+    <Content Include="Assets\email_delete.png" />
+    <Content Include="Assets\email_edit.png" />
+    <Content Include="Assets\email_error.png" />
+    <Content Include="Assets\email_go.png" />
+    <Content Include="Assets\email_link.png" />
+    <Content Include="Assets\email_open.png" />
+    <Content Include="Assets\email_open_image.png" />
+    <Content Include="Assets\error.png" />
+    <Content Include="Assets\exclamation.png" />
+    <Content Include="Assets\eye.png" />
+    <Content Include="Assets\film.png" />
+    <Content Include="Assets\film_add.png" />
+    <Content Include="Assets\film_delete.png" />
+    <Content Include="Assets\film_edit.png" />
+    <Content Include="Assets\film_error.png" />
+    <Content Include="Assets\film_go.png" />
+    <Content Include="Assets\film_key.png" />
+    <Content Include="Assets\film_link.png" />
+    <Content Include="Assets\film_save.png" />
+    <Content Include="Assets\find.png" />
+    <Content Include="Assets\help.png" />
+    <Content Include="Assets\hourglass.png" />
+    <Content Include="Assets\hourglass_add.png" />
+    <Content Include="Assets\hourglass_delete.png" />
+    <Content Include="Assets\hourglass_go.png" />
+    <Content Include="Assets\hourglass_link.png" />
+    <Content Include="Assets\house.png" />
+    <Content Include="Assets\house_go.png" />
+    <Content Include="Assets\house_link.png" />
+    <Content Include="Assets\information.png" />
+    <Content Include="Assets\key.png" />
+    <Content Include="Assets\key_add.png" />
+    <Content Include="Assets\key_delete.png" />
+    <Content Include="Assets\key_go.png" />
+    <Content Include="Assets\lightbulb_add.png" />
+    <Content Include="Assets\lightning.png" />
+    <Content Include="Assets\lightning_add.png" />
+    <Content Include="Assets\lightning_go.png" />
+    <Content Include="Assets\light_disabled.png" />
+    <Content Include="Assets\light_err.png" />
+    <Content Include="Assets\light_off.png" />
+    <Content Include="Assets\light_on.png" />
+    <Content Include="Assets\link.png" />
+    <Content Include="Assets\link_add.png" />
+    <Content Include="Assets\link_break.png" />
+    <Content Include="Assets\link_delete.png" />
+    <Content Include="Assets\link_edit.png" />
+    <Content Include="Assets\link_go.png" />
+    <Content Include="Assets\lock.png" />
+    <Content Include="Assets\lock_add.png" />
+    <Content Include="Assets\lock_break.png" />
+    <Content Include="Assets\lock_delete.png" />
+    <Content Include="Assets\lock_edit.png" />
+    <Content Include="Assets\lock_go.png" />
+    <Content Include="Assets\lock_open.png" />
+    <Content Include="Assets\logo.png" />
+    <Content Include="Assets\mappa.png" />
+    <Content Include="Assets\mappa1.png" />
+    <Content Include="Assets\music.png" />
+    <Content Include="Assets\new.png" />
+    <Content Include="Assets\note.png" />
+    <Content Include="Assets\note_add.png" />
+    <Content Include="Assets\note_delete.png" />
+    <Content Include="Assets\note_edit.png" />
+    <Content Include="Assets\note_error.png" />
+    <Content Include="Assets\note_go.png" />
+    <Content Include="Assets\pencil.png" />
+    <Content Include="Assets\pencil_delete.png" />
+    <Content Include="Assets\phone.png" />
+    <Content Include="Assets\phone_add.png" />
+    <Content Include="Assets\phone_delete.png" />
+    <Content Include="Assets\phone_sound.png" />
+    <Content Include="Assets\plugin.png" />
+    <Content Include="Assets\plugin_add.png" />
+    <Content Include="Assets\plugin_delete.png" />
+    <Content Include="Assets\plugin_disabled.png" />
+    <Content Include="Assets\plugin_edit.png" />
+    <Content Include="Assets\plugin_error.png" />
+    <Content Include="Assets\plugin_go.png" />
+    <Content Include="Assets\plugin_link.png" />
+    <Content Include="Assets\raspberry.png" />
+    <Content Include="Assets\raspberry_err.png" />
+    <Content Include="Assets\raspberry_off.png" />
+    <Content Include="Assets\raspberry_untrusted.png" />
+    <Content Include="Assets\refresh.png" />
+    <Content Include="Assets\report.png" />
+    <Content Include="Assets\report_add.png" />
+    <Content Include="Assets\report_delete.png" />
+    <Content Include="Assets\report_disk.png" />
+    <Content Include="Assets\report_edit.png" />
+    <Content Include="Assets\report_go.png" />
+    <Content Include="Assets\report_key.png" />
+    <Content Include="Assets\report_link.png" />
+    <Content Include="Assets\report_magnify.png" />
+    <Content Include="Assets\report_picture.png" />
+    <Content Include="Assets\report_user.png" />
+    <Content Include="Assets\report_word.png" />
+    <Content Include="Assets\script.png" />
+    <Content Include="Assets\script_add.png" />
+    <Content Include="Assets\script_code.png" />
+    <Content Include="Assets\script_code_red.png" />
+    <Content Include="Assets\script_delete.png" />
+    <Content Include="Assets\script_edit.png" />
+    <Content Include="Assets\script_error.png" />
+    <Content Include="Assets\script_gear.png" />
+    <Content Include="Assets\script_go.png" />
+    <Content Include="Assets\script_key.png" />
+    <Content Include="Assets\script_lightning.png" />
+    <Content Include="Assets\script_link.png" />
+    <Content Include="Assets\script_save.png" />
+    <Content Include="Assets\sound.png" />
+    <Content Include="Assets\sound_add.png" />
+    <Content Include="Assets\sound_delete.png" />
+    <Content Include="Assets\sound_low.png" />
+    <Content Include="Assets\sound_mute.png" />
+    <Content Include="Assets\sound_none.png" />
+    <Content Include="Assets\telephone.png" />
+    <Content Include="Assets\telephone_add.png" />
+    <Content Include="Assets\telephone_delete.png" />
+    <Content Include="Assets\telephone_edit.png" />
+    <Content Include="Assets\telephone_error.png" />
+    <Content Include="Assets\telephone_go.png" />
+    <Content Include="Assets\telephone_key.png" />
+    <Content Include="Assets\telephone_link.png" />
+    <Content Include="Assets\television.png" />
+    <Content Include="Assets\television_add.png" />
+    <Content Include="Assets\television_delete.png" />
+    <Content Include="Assets\ventola.png" />
+    <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Control\GPIO.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.0.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp">
+      <Version>2.2.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LIB\RaspaDB\RaspaDB.csproj">
+      <Project>{202eadeb-b7b8-41ca-b76a-154bebafcd98}</Project>
+      <Name>RaspaDB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LIB\RaspaEntity\RaspaEntity.csproj">
+      <Project>{f35cda4b-2117-4a4f-b56e-297e5cd0b3fb}</Project>
+      <Name>RaspaEntity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LIB\RaspaTools\RaspaTools.csproj">
+      <Project>{b47fb5db-8814-4a24-90fb-4616d2bd824d}</Project>
+      <Name>RaspaTools</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
