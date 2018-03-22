@@ -9,15 +9,24 @@ namespace RaspaDB
     public partial class DBCentral
     {
 		string Server = "192.168.1.69";
+		string Istance = "SassoSec";
 		string User = "SassoSec";
 		string Password = "123456";
-		string Istance = "SassoSec";
 		string Port = "3307";
 		  
 		public DBCentral()
 		{
 
 		}
+		public DBCentral(string server,string istance,string user,string pass,string port)
+		{
+			Server = server;
+			Istance = istance;
+			User = user;
+			Password = pass;
+			Port = port;
+		}
+
 
 		public string GetConnectionString()
 		{

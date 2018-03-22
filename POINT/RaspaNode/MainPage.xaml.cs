@@ -31,9 +31,13 @@ namespace RaspaNode
     /// </summary>
     public sealed partial class MainPage : Page
     {
+		DBCentral DB;
         public MainPage()
         {
             this.InitializeComponent();
+			DBNode dbNode = new DBNode();
+			DB = dbNode.getDBCentral();
+
 			Start();
 
 		}

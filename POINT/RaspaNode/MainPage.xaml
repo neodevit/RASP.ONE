@@ -8,17 +8,37 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <CheckBox x:Name="flagEsito" Content="" HorizontalAlignment="Left" Margin="562,111,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="btnSend" Content="SEND" HorizontalAlignment="Left" Margin="1217,45,0,0" VerticalAlignment="Top" Height="104" Width="262" FontSize="48" FontWeight="Bold" Click="btnSend_Click" />
-        <Button x:Name="btnON_Server" Content="START SERVER" HorizontalAlignment="Left" Margin="16,41,0,0" VerticalAlignment="Top" Height="175" Width="358" FontSize="48" FontWeight="Bold" Click="btnON_Server_Click" />
-        <TextBlock HorizontalAlignment="Left" Margin="387,176,0,0" Text="RECEIVE" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
-        <TextBox x:Name="Remote" HorizontalAlignment="Left" Margin="582,44,0,0" Text="192.168.1.10" VerticalAlignment="Top" Height="46" Width="607" FontSize="24"/>
-        <TextBox x:Name="Message" TextChanging="Message_TextChanging" HorizontalAlignment="Left" Margin="585,103,0,0" Text="" VerticalAlignment="Top" Height="46" Width="604" FontSize="24"/>
-        <TextBox x:Name="Receive" IsReadOnly="True" HorizontalAlignment="Left" Margin="585,169,0,0" Text="" VerticalAlignment="Top" Height="121" Width="886" FontSize="24"/>
-        <TextBlock HorizontalAlignment="Left" Margin="387,110,0,0" Text="SEND" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
-        <TextBlock HorizontalAlignment="Left" Margin="387,53,0,0" Text="DESTINATARIO" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
-        <TextBlock HorizontalAlignment="Left" Margin="30,343,0,0" Text="STATO" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
-        <ListView x:Name="stato" HorizontalAlignment="Left" Height="579" Margin="31,388,0,0" VerticalAlignment="Top" Width="1409"/>
-        <CheckBox x:Name="flagConnection" Content="" HorizontalAlignment="Left" Margin="16,215,0,0" VerticalAlignment="Top"/>
+        <Pivot x:Name="Tabs"  >
+            <PivotItem x:Name="Login" Header="Login" >
+                <Grid >
+                    <RelativePanel >
+                    </RelativePanel>
+                </Grid>
+            </PivotItem>
+            <PivotItem x:Name="Settings" Header="Settings" >
+                <Grid>
+                    <RelativePanel >
+                    </RelativePanel>
+                </Grid>
+            </PivotItem>
+            <PivotItem x:Name="Trasmit" Header="Messaggi" >
+                <Grid>
+                    <RelativePanel >
+                        <CheckBox x:Name="flagEsito" Content="" HorizontalAlignment="Left" Margin="562,111,0,0" VerticalAlignment="Top"/>
+                        <Button x:Name="btnSend" Content="SEND" HorizontalAlignment="Left" Margin="1217,45,0,0" VerticalAlignment="Top" Height="104" Width="262" FontSize="48" FontWeight="Bold" Click="btnSend_Click" />
+                        <Button x:Name="btnON_Server" Content="START SERVER" HorizontalAlignment="Left" Margin="16,41,0,0" VerticalAlignment="Top" Height="175" Width="358" FontSize="48" FontWeight="Bold" Click="btnON_Server_Click" />
+                        <TextBlock HorizontalAlignment="Left" Margin="387,176,0,0" Text="RECEIVE" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
+                        <TextBox x:Name="Remote" HorizontalAlignment="Left" Margin="582,44,0,0" Text="192.168.1.10" VerticalAlignment="Top" Height="46" Width="607" FontSize="24"/>
+                        <TextBox x:Name="Message" TextChanging="Message_TextChanging" HorizontalAlignment="Left" Margin="585,103,0,0" Text="" VerticalAlignment="Top" Height="46" Width="604" FontSize="24"/>
+                        <TextBox x:Name="Receive" IsReadOnly="True" HorizontalAlignment="Left" Margin="585,169,0,0" Text="" VerticalAlignment="Top" Height="121" Width="886" FontSize="24"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="387,110,0,0" Text="SEND" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="387,53,0,0" Text="DESTINATARIO" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="30,343,0,0" Text="STATO" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
+                        <ListView x:Name="stato" HorizontalAlignment="Left" Height="579" Margin="31,388,0,0" VerticalAlignment="Top" Width="1409"/>
+                        <CheckBox x:Name="flagConnection" Content="" HorizontalAlignment="Left" Margin="16,215,0,0" VerticalAlignment="Top"/>
+                    </RelativePanel>
+                </Grid>
+            </PivotItem>
+        </Pivot>
     </Grid>
 </Page>
