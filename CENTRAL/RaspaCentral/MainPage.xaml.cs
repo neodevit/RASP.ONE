@@ -39,7 +39,7 @@ namespace RaspaCentral
     /// </summary>
     public sealed partial class MainPage : Page
     {
-		private string Utente = "Fabio";
+		public string Utente = "Fabio";
 
 		public MainPage()
         {
@@ -53,6 +53,8 @@ namespace RaspaCentral
 			StartCentral();
 			InitProperty();
 			initMappa();
+			// IPCAM
+
 		}
 
 		#region CENTRAL
@@ -409,15 +411,39 @@ namespace RaspaCentral
 		#endregion
 
 		#region WORKING
-		private void Comando(int IDComponente)
+		private void Comando(Image img,int IDComponente)
 		{
-
+			DBCentral DB = new DBCentral();
+			Componente componente = DB.GetComponenteByID(IDComponente);
+			if (componente ==  null)
+			{
+				messaggio.Text = "Nessun comando per il componente ID " + IDComponente + " non trovato sul DB";
+				return;
+			}
+			switch(componente.Tipo)
+			{
+				case enumComponente.centrale:
+					break;
+				case enumComponente.nodo:
+					break;
+				case enumComponente.pir:
+					break;
+				case enumComponente.light:
+					break;
+				case enumComponente.webcam_ip:
+					ipcam1.playIPCam(componente.Nome,componente.Value);
+					ipcam1.Margin = img.Margin;
+					ipcam1.Visibility = Visibility.Visible;
+					break;
+				case enumComponente.webcam_rasp:
+					break;
+			}
 		}
 		#endregion
 
 		#region MAPPA INTERATIVA
-		Componente Actualcomponente;
-		Image ActualImage;
+		public Componente Actualcomponente;
+		public Image ActualImage;
 		enumComponente ActualTipoComponente;
 		Image selectedTool = null;
 		PointerPoint selectedPointer = null;
@@ -434,8 +460,6 @@ namespace RaspaCentral
 				changeMode();
 				// popolate componenti
 				popolateComponenti();
-				// Inizilaizza Combo PIN
-				initPropertyComboPIN();
 			}
 			catch (Exception ex)
 			{
@@ -618,8 +642,6 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						// INIZIALIZZA COMBO NODI
-						initPropertyComboNodes();
 
 						break;
 					case enumComponente.pir:
@@ -636,10 +658,23 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						// INIZIALIZZA COMBO NODI
-						initPropertyComboNodes();
 
 						break;
+					case enumComponente.webcam_ip:
+						Actualcomponente.Nome = (item == null) ? "WEBCAM" : item.Nome;
+						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
+						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
+						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
+						ToolTipCustom = "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
+										"Attivo : " + ((Actualcomponente.Attivo == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
+										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
+										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
+										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
+										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+
+
+						break;
+
 				}
 
 				Actualcomponente.calcAction();
@@ -651,7 +686,7 @@ namespace RaspaCentral
 			}
 			return ToolTipCustom;
 		}
-		private Image create_object(enumComponente comp, Componente item = null)
+		public Image create_object(enumComponente comp, Componente item = null)
 		{
 			Image immagine = new Image();
 			try
@@ -781,6 +816,25 @@ namespace RaspaCentral
 					if (oggetto.Error)
 						res = new BitmapImage(new Uri("ms-appx:///Assets/central_err.png"));
 					break;
+				case enumComponente.webcam_ip:
+					res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.png"));
+					if (!oggetto.Enabled)
+						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_off.png"));
+					if (!oggetto.Trusted)
+						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_untrusted.png"));
+					if (oggetto.Error)
+						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_error.png"));
+					break;
+				case enumComponente.webcam_rasp:
+					res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.rasp.png"));
+					if (!oggetto.Enabled)
+						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.rasp_off.png"));
+					if (!oggetto.Trusted)
+						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.rasp_untrusted.png"));
+					if (oggetto.Error)
+						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_error.png"));
+					break;
+
 			}
 			return res;
 		}
@@ -821,6 +875,7 @@ namespace RaspaCentral
 
 				if (RaspaMode == enumMode.edit)
 				{
+					#region EDIT
 					// CLICCATO STESSO ELEMENTO
 					if (selImage == ActualImage)
 					{
@@ -876,13 +931,14 @@ namespace RaspaCentral
 							OpenProperty(ID);
 						}
 					}
+					#endregion
 				}
 				else
 				{
 					ActualImage = selImage;
 					ID = getImageID(ActualImage);
 					if (ID > 0)
-						Comando(ID);
+						Comando(ActualImage,ID);
 					else
 						messaggio.Text = "Nessun ID rilevato";
 				}
@@ -978,7 +1034,7 @@ namespace RaspaCentral
 				}
 
 				// visualizzare propeerty
-				showProperty();
+				showProperty(IDComponente, Actualcomponente.Tipo);
 
 				// evidenziazione
 				evidenzia(true);
@@ -1000,18 +1056,62 @@ namespace RaspaCentral
 				int ID = getImageID(selectedTool);
 				ActualTipoComponente = getImageComponenteType(selectedTool);
 				if (ID > 0)
-					EliminaDBActualComponente();
+					EliminaDBActualComponente(ID);
 				else
 					messaggio.Text = "Non ho decodificato il componente selezionato";
-				
+
+				ToolbarShow(enumShowToolbar.componenti);
+
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				messaggio.Text = "Errore Eliminazione : " + ex.Message;
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 
 		}
+		private void EliminaDBActualComponente(int ID)
+		{
+			RaspaResult esito = new RaspaResult(true);
+			messaggio.Text = "";
+			try
+			{
+				if (RaspaMode == enumMode.working)
+				{
+					messaggio.Text = "For delete go in Editing Mode";
+					return;
+				}
+
+				// DELETE DB
+				if (ID>0)
+				{
+					DBCentral DB = new DBCentral();
+					esito = DB.DelComponentiByID(ID);
+
+					// verifica esito
+					if (!esito.Esito)
+					{
+						messaggio.Text = "Errore Eliminazione : " + esito.Message;
+						return;
+					}
+				}
+
+				// Pulisci schermo
+				eliminaActualImage();
+
+				// Pivot a Toolbar
+				ToolbarShow(enumShowToolbar.componenti);
+
+				// azzera componente attuale
+				azzeraActualComponent();
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				messaggio.Text = "Errore Eliminazione : " + ex.Message;
+			}
+		}
+
 		#endregion
 
 		#region SCHEMA COMPONENT
@@ -1039,6 +1139,10 @@ namespace RaspaCentral
 					case enumComponente.pir:
 						gpio.drawGPIO_PIR(item.Node_Pin);
 						ToolbarShow(enumShowToolbar.schema);
+						break;
+					case enumComponente.webcam_ip:
+						break;
+					case enumComponente.webcam_rasp:
 						break;
 				}
 			}
@@ -1256,7 +1360,7 @@ namespace RaspaCentral
 					evidenzia(true);
 
 					//visualizza tabs property
-					showProperty();
+					showProperty(ID, ActualTipoComponente);
 
 					// SOLO se componente già sul DB
 					// Aggiorno le coordinate dello spostamento
@@ -1282,8 +1386,23 @@ namespace RaspaCentral
 		}
 		#endregion
 
+		#region PROPERTY
+		private void showProperty(int ID,enumComponente Tipo)
+		{
+			RaspaResult res = ComponentProperty.showProperty(ID, Tipo, this);
+			if (res.Esito)
+				Actualcomponente = ComponentProperty.componente;
+			else
+				messaggio.Text = res.Message;
+
+			// show
+			ToolbarShow(enumShowToolbar.property);
+		}
+		#endregion
+
+
 		#region ACTUAL IMAGE/COMPONENT
-		private void eliminaActualImage()
+		public void eliminaActualImage()
 		{
 			try
 			{
@@ -1296,7 +1415,7 @@ namespace RaspaCentral
 					ActualImage = null;
 
 					// spegnere tutti i pannelly property
-					ToolbarPropertyShow(enumShowToolbarProperty.logo);
+					ToolbarShow(enumShowToolbar.componenti);
 
 				}
 
@@ -1309,7 +1428,7 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-		private void eliminaActualImageSoloSeProvvisioria()
+		public void eliminaActualImageSoloSeProvvisioria()
 		{
 			try
 			{
@@ -1324,7 +1443,7 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-		private void evidenzia(bool stato)
+		public void evidenzia(bool stato)
 		{
 			try
 			{
@@ -1344,7 +1463,7 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-		private void azzeraActualComponent()
+		public void azzeraActualComponent()
 		{
 			try
 			{
@@ -1366,390 +1485,10 @@ namespace RaspaCentral
 		}
 
 		#endregion
-		#region ACTION PROPERTY : SAVE DELETE ANNULLA
-		private void btnPropertyAnnulla_Click(object sender, RoutedEventArgs e)
-		{
-			messaggio.Text = "";
-			try
-			{
-				if (RaspaMode == enumMode.working)
-					return;
-
-				// Pulisci schermo
-				eliminaActualImageSoloSeProvvisioria();
-
-				// toglie evidenziazione
-				evidenzia(false);
-
-				// spegnere tutti i pannelly property
-				ToolbarPropertyShow(enumShowToolbarProperty.logo);
-
-				// Pivot a Toolbar
-				ToolbarShow(enumShowToolbar.componenti);
-
-				// azzera componente attuale
-				azzeraActualComponent();
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		#region ELIMINA
-		private void btnPropertyElimina_Click(object sender, RoutedEventArgs e)
-		{
-			messaggio.Text = "";
-			try
-			{           
-
-				EliminaDBActualComponente();
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore Eliminazione : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		private void EliminaDBActualComponente()
-		{
-			RaspaResult esito = new RaspaResult(true);
-			try
-			{
-				if (RaspaMode == enumMode.working)
-				{
-					messaggio.Text = "For delete go in Editing Mode";
-					return;
-				}
-
-				// SAVE CHANGED PROPERTY TO ACTUAL
-				esito = saveProperty2Actual();
-				if (!esito.Esito)
-				{
-					messaggio.Text = "Errore Eliminazione : " + esito.Message;
-					return;
-				}
-
-				// DELETE DB
-				if (Actualcomponente.ID.HasValue)
-				{
-					DBCentral DB = new DBCentral();
-					esito = DB.DelComponentiByID(Actualcomponente.ID.Value);
-
-					// verifica esito
-					if (!esito.Esito)
-					{
-						messaggio.Text = "Errore Eliminazione : " + esito.Message;
-						return;
-					}
-				}
-
-				// Pulisci schermo
-				eliminaActualImage();
-
-				// Pivot a Toolbar
-				ToolbarShow(enumShowToolbar.componenti);
-
-				// azzera componente attuale
-				azzeraActualComponent();
-			}
-			catch (Exception ex)
-			{
-                if (Debugger.IsAttached) Debugger.Break();
-				messaggio.Text = "Errore Eliminazione : " + ex.Message;
-			}
-		}
-
-		#endregion
-
-		#region SALVA
-		private void btnPropertySalva_Click(object sender, RoutedEventArgs e)
-		{
-			messaggio.Text = "";
-			try
-			{
-				if (RaspaMode == enumMode.working)
-					return;
 
 
 
-				SalvaDBActualComponente();
 
-			}
-			catch (Exception ex)
-			{
-                if (Debugger.IsAttached) Debugger.Break();
-				messaggio.Text = "Errore Salvataggio : " + ex.Message;
-			}
-		}
-		private void SalvaDBActualComponente()
-		{
-			RaspaResult esito = new RaspaResult(false);
-			try
-			{
-				DBCentral DB = new DBCentral();
-
-				// SAVE CHANGED PROPERTY TO ACTUAL
-				esito = saveProperty2Actual();
-				if (!esito.Esito)
-				{
-					messaggio.Text = "Errore : " + esito.Message;
-					return;
-				}
-
-				// ---------------------------
-				// controlli formali
-				// ---------------------------
-				// NOME ESISTE GIA'
-				bool ExistAltroNomeUguale = DB.existAltroComponenteConStessoNome(Actualcomponente.ID, Actualcomponente.Nome);
-				if (ExistAltroNomeUguale)
-				{
-					messaggio.Text = "Errore : Esiste già il NOME : " + Actualcomponente.Nome;
-					return;
-				}
-
-				// PER TIPO COMPONENTE
-				switch (Actualcomponente.Tipo)
-				{
-					case enumComponente.nodo:
-					case enumComponente.centrale:
-						// NODE NUM OBBLIGATORIO
-						int num = Convert.ToInt32(Actualcomponente.Node_Num);
-						if (num==0)
-						{
-							messaggio.Text = "Errore : Specificare un NODE NUM > 0";
-							return;
-						}
-						// NODE NUM DOPPIO
-						bool ExistAltroNodoNum = DB.existAltroComponenteConStessoNodeNum(Actualcomponente.ID, Actualcomponente.Node_Num, enumComponente.nodo);
-						bool ExistAltroCentraleNum = DB.existAltroComponenteConStessoNodeNum(Actualcomponente.ID, Actualcomponente.Node_Num, enumComponente.centrale);
-						if (ExistAltroNodoNum || ExistAltroCentraleNum)
-						{
-							messaggio.Text = "Errore : Esiste già il NODO num : " + Actualcomponente.Node_Num;
-							return;
-						}
-						// IP OBBLIGATORIO
-						if (string.IsNullOrEmpty(Actualcomponente.IPv4))
-						{
-							messaggio.Text = "Errore : Indirizzo IP Obbligatorio: ";
-							return;
-						}
-						// IP DOPPIO
-						bool ExistAltroIPv4Nodo = DB.existAltroComponenteConStessoIPv4(Actualcomponente.ID, Actualcomponente.IPv4, enumComponente.nodo);
-						bool ExistAltroIPv4Centrale = DB.existAltroComponenteConStessoIPv4(Actualcomponente.ID, Actualcomponente.IPv4, enumComponente.centrale);
-						if (ExistAltroIPv4Nodo || ExistAltroIPv4Centrale)
-						{
-							messaggio.Text = "Errore : Esiste già il NODO con IPv4 : " + Actualcomponente.IPv4;
-							return;
-						}
-						break;
-					case enumComponente.pir:
-					case enumComponente.light:
-						// NODE NUM OBBLIGATORIO
-						int numN = Convert.ToInt32(Actualcomponente.Node_Num);
-						if (numN == 0)
-						{
-							messaggio.Text = "Errore : Specificare un NODE NUM";
-							return;
-						}
-						// PIN NUM OBBLIGATORIO
-						int numP = Convert.ToInt32(Actualcomponente.Node_Num);
-						if (numP == 0)
-						{
-							messaggio.Text = "Errore : Specificare un NODE PIN";
-							return;
-						}
-						// NoDE & PIN DOPPIO
-						bool ExistAltroNodePin = DB.existAltroComponenteConStessoNodeNumAndPin(Actualcomponente.ID,Actualcomponente.Node_Num, Actualcomponente.Node_Pin);
-						if (ExistAltroNodePin)
-						{
-							messaggio.Text = "Errore : Esiste già il Componente con NODO : " + Actualcomponente.Node_Num + " e PIN " + Actualcomponente.Node_Pin;
-							return;
-						}
-						break;
-				}
-
-
-				// SAVE DB
-				esito = DB.SetComponenti(Actualcomponente, Utente);
-
-				// verifica esito
-				if (!esito.Esito)
-				{
-					messaggio.Text = "Errore : " + esito.Message;
-					return;
-				}
-				// verifica id 
-				if (!esito.ID.HasValue)
-				{
-					messaggio.Text = "Errore non determino id Componente";
-					return;
-				}
-
-				// elimina image actual
-				eliminaActualImage();
-
-				// Rileggo componente
-				Actualcomponente = DB.GetComponenteByID(esito.ID.Value);
-
-				// rivisualizzo nuovo oggetto aggiornato del db
-				ActualImage = create_object(Actualcomponente.Tipo, Actualcomponente);
-
-				// spegnere tutti i pannelly property
-				ToolbarPropertyShow(enumShowToolbarProperty.logo);
-
-				// Pivot a Toolbar
-				ToolbarShow(enumShowToolbar.componenti);
-
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		#endregion
-		private RaspaResult saveProperty2Actual()
-		{
-			RaspaResult res = new RaspaResult(true);
-			try
-			{
-				switch (Actualcomponente.Tipo)
-				{
-					case enumComponente.nessuno:
-						break;
-					case enumComponente.nodo:
-						Actualcomponente.Enabled = (NODO_ENABLED.IsChecked.HasValue) ? NODO_ENABLED.IsChecked.Value : false;
-						Actualcomponente.Trusted = (NODO_TRUST.IsChecked.HasValue) ? NODO_TRUST.IsChecked.Value : false;
-						Actualcomponente.Nome = NODO_NOME.Text;
-						Actualcomponente.Descrizione = NODO_DESCR.Text;
-						Actualcomponente.Node_Num = Convert.ToInt32(NODO_NUM.Text);
-						Actualcomponente.IPv4 = NODO_IP.Text;
-						Actualcomponente.HWAddress = NODO_RETE.Text;
-						break;
-					case enumComponente.centrale:
-						Actualcomponente.Enabled = (CENTRAL_TRUST.IsChecked.HasValue) ? CENTRAL_TRUST.IsChecked.Value : false;
-						Actualcomponente.Trusted = (CENTRAL_TRUST.IsChecked.HasValue) ? CENTRAL_TRUST.IsChecked.Value : false;
-						Actualcomponente.Nome = CENTRAL_NOME.Text;
-						Actualcomponente.Descrizione = CENTRAL_DESCR.Text;
-						Actualcomponente.Node_Num = Convert.ToInt32(CENTRAL_NUM.Text);
-						Actualcomponente.IPv4 = CENTRAL_IP.Text;
-						Actualcomponente.HWAddress = CENTRAL_RETE.Text;
-						break;
-					case enumComponente.light:
-					case enumComponente.pir:
-						Actualcomponente.Enabled = (ENABLED.IsChecked.HasValue) ? ENABLED.IsChecked.Value : false;
-						Actualcomponente.Nome = NOME.Text;
-						Actualcomponente.IPv4 = IP.Text;
-						Actualcomponente.Node_Num = Convert.ToInt32(NODO.SelectedValue);
-						Actualcomponente.Node_Pin = Convert.ToInt32(PIN.SelectedValue);
-						Actualcomponente.Value = (ATTIVO.IsOn)?"1":"0";
-						break;
-				}
-			}
-			catch(Exception ex)
-			{
-				res = new RaspaResult(false,ex.Message);
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-			return res;
-		}
-		#endregion
-
-
-		#region PROPERTY PANEL
-		#region SHOW PROPERTY
-		private void showProperty()
-		{
-			try
-			{
-				ActualTipoComponente = Actualcomponente.Tipo;
-				// TIPO
-				switch (Actualcomponente.Tipo)
-				{
-					case enumComponente.nessuno:
-						break;
-					case enumComponente.nodo:
-						TITOLO_TOOLBAR.Text = "NODE " + Actualcomponente.Node_Num.ToString() + " - " + (Actualcomponente.IPv4 ?? "");
-						ToolbarPropertyShow(enumShowToolbarProperty.nodo);
-
-						NODO_ID.Text = (Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-";
-						NODO_ENABLED.IsChecked = Actualcomponente.Enabled;
-						NODO_TRUST.IsChecked = Actualcomponente.Trusted;
-
-						NODO_NOME.Text = Actualcomponente.Nome ?? "";
-						NODO_DESCR.Text = Actualcomponente.Descrizione ?? "";
-						NODO_NUM.Text = Actualcomponente.Node_Num.ToString();
-						if (NODO_NUM.Text == "")
-							NODO_NUM.Focus(FocusState.Pointer);
-						NODO_IP.Text = Actualcomponente.IPv4 ?? "";
-						NODO_RETE.Text = Actualcomponente.HWAddress ?? "";
-						break;
-					case enumComponente.centrale:
-						TITOLO_TOOLBAR.Text = "CENTRAL " + " - " + (Actualcomponente.IPv4 ?? "");
-						ToolbarPropertyShow(enumShowToolbarProperty.central);
-
-						CENTRAL_ID.Text = (Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-";
-						CENTRAL_ENABLED.IsChecked = Actualcomponente.Enabled;
-						CENTRAL_TRUST.IsChecked = Actualcomponente.Trusted;
-						CENTRAL_NOME.Text = Actualcomponente.Nome ?? "";
-						CENTRAL_DESCR.Text = Actualcomponente.Descrizione ?? "";
-						CENTRAL_NUM.Text = Actualcomponente.Node_Num.ToString();
-						if (CENTRAL_NUM.Text == "")
-							CENTRAL_NUM.Focus(FocusState.Pointer);
-						CENTRAL_IP.Text = Actualcomponente.IPv4 ?? "";
-						CENTRAL_RETE.Text = Actualcomponente.HWAddress ?? "";
-
-						break;
-					case enumComponente.light:
-						TITOLO_TOOLBAR.Text = "LIGHT " + Actualcomponente.Node_Num.ToString() + "/" + Actualcomponente.Node_Pin + " - " + (Actualcomponente.IPv4 ?? "");
-						ToolbarPropertyShow(enumShowToolbarProperty.component);
-
-						ID.Text = (Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-";
-						ENABLED.IsChecked = Actualcomponente.Enabled;
-						ATTIVO.IsOn = Actualcomponente.Attivo == enumStato.on;
-						NOME.Text = Actualcomponente.Nome ?? "";
-						IP.Text = Actualcomponente.IPv4 ?? "";
-
-						// NODE NUM
-						NODO.SelectedValue = Actualcomponente.Node_Num;
-						PIN.SelectedValue = Actualcomponente.Node_Pin;
-
-						// NODE PIN VALUE
-						VALUE.Text = Actualcomponente.Value ?? "";
-						break;
-					case enumComponente.pir:
-						TITOLO_TOOLBAR.Text = "PIR " + Actualcomponente.Node_Num.ToString() + "/" + Actualcomponente.Node_Pin + " - " + (Actualcomponente.IPv4 ?? "");
-						ToolbarPropertyShow(enumShowToolbarProperty.component);
-
-						ID.Text = (Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-";
-						ENABLED.IsChecked = Actualcomponente.Enabled;
-						ATTIVO.IsOn = Actualcomponente.Attivo == enumStato.on;
-						NOME.Text = Actualcomponente.Nome ?? "";
-						IP.Text = Actualcomponente.IPv4 ?? "";
-
-						// NODE NUM
-						NODO.SelectedValue = Actualcomponente.Node_Num;
-						PIN.SelectedValue = Actualcomponente.Node_Pin;
-
-						// NODE PIN VALUE
-						VALUE.Text = Actualcomponente.Value ?? "";
-						break;
-				}
-
-				// Action
-				btnPropertyElimina.Visibility = (Actualcomponente.ID.HasValue) ? Visibility.Visible : Visibility.Collapsed;
-				btnPropertyAnnulla.Visibility = Visibility.Visible;
-				btnPropertySalva.Visibility = Visibility.Visible;
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		#endregion
 
 		#region SHOW TABS
 		private void InitProperty()
@@ -1777,7 +1516,7 @@ namespace RaspaCentral
 			info = 3,
 			schema = 4,
 		}
-		private void ToolbarShow(enumShowToolbar show)
+		public void ToolbarShow(enumShowToolbar show)
 		{
 			ToolbarComponenti.Visibility = Visibility.Collapsed;
 			ToolbarInfo.Visibility = Visibility.Collapsed;
@@ -1809,126 +1548,12 @@ namespace RaspaCentral
 			}
 		}
 
-		public enum enumShowToolbarProperty
-		{
-			logo = 0,
-			nodo = 1,
-			central = 2,
-			component = 3,
-		}
-		private void ToolbarPropertyShow(enumShowToolbarProperty show)
-		{
-			ToolbarShow(enumShowToolbar.property);
-			LOGO_Property.Visibility = Visibility.Collapsed;
-			NODO_Property.Visibility = Visibility.Collapsed;
-			CENTRAL_Property.Visibility = Visibility.Collapsed;
-			OGGETTO_Property.Visibility = Visibility.Collapsed;
-			ComponentProperty.Visibility = Visibility.Collapsed;
-			switch (show)
-			{
-				case enumShowToolbarProperty.logo:
-					TITOLO_TOOLBAR.Text = "";
-					LOGO_Property.Visibility = Visibility.Visible;
-					ComponentProperty.Visibility = Visibility.Collapsed;
-					break;
-				case enumShowToolbarProperty.nodo:
-					NODO_Property.Visibility = Visibility.Visible;
-					ComponentProperty.Visibility = Visibility.Visible;
-					break;
-				case enumShowToolbarProperty.central:
-					CENTRAL_Property.Visibility = Visibility.Visible;
-					ComponentProperty.Visibility = Visibility.Visible;
-					break;
-				case enumShowToolbarProperty.component:
-					ComponentProperty.Visibility = Visibility.Visible;
-					OGGETTO_Property.Visibility = Visibility.Visible;
-					break;
-			}
-		}
 		#endregion
 
-		#region COMBO
-		Dictionary<int, int> elencoNODI;
-		private void initPropertyComboNodes()
-		{
-			try
-			{
-				// Dictionary
-				elencoNODI = new Dictionary<int, int>();
-				NODO.Items.Clear();
 
-				// Inizializza dal DB
-				DBCentral DB = new DBCentral();
-				Componenti recs = DB.GetComponentedByTipoAndEnableAndTrustedAndAttivo(enumComponente.nodo, true, null, null);
-				foreach (Componente rec in recs)
-					if (rec.ID.HasValue)
-					{
-						elencoNODI.Add(rec.ID.Value, rec.Node_Num);
-						NODO.Items.Add(rec.Node_Num);
-					}
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		private void NODO_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			try
-			{
-				if ((ActualTipoComponente == enumComponente.light || ActualTipoComponente == enumComponente.pir) && NODO.SelectedValue != null)
-				{
-					// Leggo NODO ID selected
-					int Node_Num = Convert.ToInt32(NODO.SelectedValue.ToString());
-					// leggo dal db il nodo
-					DBCentral DB = new DBCentral();
-					Componenti recs = DB.GetComponenteByNodeNum(Node_Num);
-					if (recs.Count>0)
-						IP.Text = recs[0].IPv4;
-				}
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		Dictionary<int, int> elencoPIN;
-		Dictionary<string, string> elencoPINvsFisico;
-		private void initPropertyComboPIN()
-		{
-			try
-			{
-
-				// Dictionary
-				elencoPIN = new Dictionary<int, int>();
-				elencoPINvsFisico = new Dictionary<string, string>();
-				PIN.Items.Clear();
-
-				// Inizializza dal DB
-				DBCentral DB = new DBCentral();
-				List<enumTipoPIN> tipi = new List<enumTipoPIN>() { enumTipoPIN.gpio, enumTipoPIN.gpioAndOther };
-				GPIOPins recs = DB.GetGPIOPinTipe(tipi);
-				foreach (GPIOPin rec in recs)
-					if (rec.ID.HasValue)
-					{
-						elencoPIN.Add(rec.ID.Value, rec.GPIO);
-						elencoPINvsFisico.Add(rec.GPIO.ToString(),rec.NUM.ToString());
-						PIN.Items.Add(rec.GPIO);
-					}
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		#endregion
 
 		#endregion
 
-		#endregion
 
 	}
 }

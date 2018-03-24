@@ -28,6 +28,8 @@ namespace RaspaEntity
 		pir = 2,
 		nodo = 3,
 		centrale = 4,
+		webcam_ip=5,
+		webcam_rasp=6,
 	}
 	public enum enumAzione
 	{

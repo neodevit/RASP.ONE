@@ -12,7 +12,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.16299.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -98,6 +98,12 @@
     <Compile Include="Control\GPIO.xaml.cs">
       <DependentUpon>GPIO.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Control\IPCam.xaml.cs">
+      <DependentUpon>IPCam.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Control\Property.xaml.cs">
+      <DependentUpon>Property.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -129,6 +135,16 @@
     <Content Include="Assets\camera_off.png" />
     <Content Include="Assets\camera_on.png" />
     <Content Include="Assets\camera_small.png" />
+    <Content Include="Assets\categ_220.png" />
+    <Content Include="Assets\categ_gps.png" />
+    <Content Include="Assets\categ_houseSecure.png" />
+    <Content Include="Assets\categ_light.png" />
+    <Content Include="Assets\categ_map.png" />
+    <Content Include="Assets\categ_node.png" />
+    <Content Include="Assets\categ_photo.png" />
+    <Content Include="Assets\categ_pir.png" />
+    <Content Include="Assets\categ_stat.png" />
+    <Content Include="Assets\categ_webcam.png" />
     <Content Include="Assets\central.png" />
     <Content Include="Assets\central_err.png" />
     <Content Include="Assets\central_off.png" />
@@ -209,6 +225,18 @@
     <Content Include="Assets\house.png" />
     <Content Include="Assets\house_go.png" />
     <Content Include="Assets\house_link.png" />
+    <Content Include="Assets\ico_cancel.png" />
+    <Content Include="Assets\ico_clock.png" />
+    <Content Include="Assets\ico_conflitti.png" />
+    <Content Include="Assets\ico_connection_off.png" />
+    <Content Include="Assets\ico_eject.png" />
+    <Content Include="Assets\ico_off.png" />
+    <Content Include="Assets\ico_pause.png" />
+    <Content Include="Assets\ico_play.png" />
+    <Content Include="Assets\ico_rec.png" />
+    <Content Include="Assets\ico_repeat.png" />
+    <Content Include="Assets\ico_stop.png" />
+    <Content Include="Assets\ico_work.png" />
     <Content Include="Assets\information.png" />
     <Content Include="Assets\key.png" />
     <Content Include="Assets\key_add.png" />
@@ -308,6 +336,15 @@
     <Content Include="Assets\television_add.png" />
     <Content Include="Assets\television_delete.png" />
     <Content Include="Assets\ventola.png" />
+    <Content Include="Assets\webcam.png" />
+    <Content Include="Assets\webcam.rasp.png" />
+    <Content Include="Assets\webcam.rasp_off.png" />
+    <Content Include="Assets\webcam.rasp_untrusted.png" />
+    <Content Include="Assets\webcam_add.png" />
+    <Content Include="Assets\webcam_delete.png" />
+    <Content Include="Assets\webcam_error.png" />
+    <Content Include="Assets\webcam_off.png" />
+    <Content Include="Assets\webcam_untrusted.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -323,6 +360,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Control\GPIO.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Control\IPCam.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Control\Property.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

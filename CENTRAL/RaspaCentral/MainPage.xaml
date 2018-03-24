@@ -22,6 +22,8 @@
                                HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="0,0,0,0" 
                                 Tapped="Mappa_Tapped"    />
 
+                            <local:IPCam x:Name="ipcam1" Width="200" Height="200" CanDrag="True" Visibility="Collapsed"/>
+
                             <Ellipse x:Name="evidenziazione" 
                                  Height="36" Width="36" 
                                  Fill="Transparent" Visibility="Collapsed"
@@ -30,7 +32,7 @@
                         </RelativePanel>
                     </Grid>
 
-                    <TextBlock x:Name="messaggio" HorizontalAlignment="Left" Margin="0,500,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="994" Height="32"/>
+                    <TextBlock x:Name="messaggio" x:FieldModifier="public" HorizontalAlignment="Left" Margin="0,500,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="994" Height="32"/>
                     <!--TOOLBAR-->
                     <RelativePanel x:Name="ToolBar" Margin="631,1,0,39">
                         <TextBlock x:Name="TITOLO_TOOLBAR" HorizontalAlignment="Left" Margin="11,6,-24,419" Text="..." TextWrapping="Wrap" Width="348" FontWeight="Bold" FontSize="18" TextAlignment="Left" />
@@ -39,21 +41,26 @@
                         <RelativePanel x:Name="ToolbarComponenti" Visibility="Collapsed" >
                             <Grid>
                                 <TextBlock HorizontalAlignment="Left" Margin="27,38,0,345" Text="Luce" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_light" Tag="1" Margin="6,41,323,387" Source="/Assets/light_off.png" 
+                                <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="6,41,323,387" Source="/Assets/light_off.png" 
                                        CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                        Width="16" Height="16"   />
                                 <TextBlock HorizontalAlignment="Left" Margin="27,68,0,317" Text="PIR" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_pir" Tag="2" Margin="5,70,324,358" Source="/Assets/bell_on.png" 
+                                <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="5,70,324,358" Source="/Assets/bell_on.png" 
                                        CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                        Width="16" Height="16"  />
 
+                                <TextBlock HorizontalAlignment="Left"  Text="WEBCAM IP" TextWrapping="Wrap" Margin="28,98,0,330" />
+                                <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam.png" 
+                                       CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                       Width="16" Height="16" Margin="6,98,323,330"  />
+
                                 <TextBlock HorizontalAlignment="Left" Margin="225,39,0,346" Text="NODO" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_node" Tag="3" Margin="205,42,124,386" Source="Assets/raspberry.png" 
+                                <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="205,42,124,386" Source="Assets/raspberry.png" 
                                        CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                        Width="16" Height="16"  />
 
                                 <TextBlock HorizontalAlignment="Left" Margin="225,65,0,320" Text="CENTRALE" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_central" Tag="4" Margin="205,68,124,360" Source="Assets/central.png" 
+                                <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="205,68,124,360" Source="Assets/central.png" 
                                        CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                        Width="16" Height="16"  />
 
@@ -61,79 +68,12 @@
                             </Grid>
                         </RelativePanel>
                         <!--PROPERTY-->
-                        <RelativePanel x:Name="ToolBarProperty" Visibility="Collapsed" HorizontalAlignment="Left"  >
-                            <Grid>
-                                <RelativePanel x:Name="LOGO_Property" Visibility="Collapsed" >
-                                    <Image Source="Assets/logo.png" Margin="28,32,-28,-32" />
-                                    <TextBlock Height="72" Text="RASPA" TextWrapping="Wrap" VerticalAlignment="Top" Margin="11,10,-10,-62" FontWeight="Bold" FontSize="48"/>
-                                    <TextBlock HorizontalAlignment="Left" Height="20" Text="Ver 1.0.0" TextWrapping="Wrap" VerticalAlignment="Top" Width="91" Margin="73,58,-102,-58" TextAlignment="Right"/>
-                                    <TextBlock HorizontalAlignment="Left" Height="20" Text="..:: Neodev :: CopyLeft 2018 ::.." TextWrapping="Wrap" VerticalAlignment="Top" Width="340" Margin="3,383,-281,-383" TextAlignment="Center"/>
-                                    <TextBlock HorizontalAlignment="Left" Height="20" Text="Neodev" TextWrapping="Wrap" VerticalAlignment="Top" Width="91" Margin="14,9,-43,-9" TextAlignment="Left"/>
-                                </RelativePanel>
-                                <RelativePanel x:Name="ComponentProperty" Visibility="Visible" >
-                                    <RelativePanel x:Name="NODO_Property" Visibility="Collapsed" >
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,55,0,0" Text="ID" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NODO_ID" IsEnabled="False" HorizontalAlignment="Left" Margin="125,55,0,0" Text="..." VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,90,0,0" Text="ENABLED" VerticalAlignment="Top"/>
-                                        <CheckBox x:Name="NODO_ENABLED" HorizontalAlignment="Left" Margin="125,90,0,0" Content=""  VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,125,0,0" Text="TRUST" VerticalAlignment="Top"/>
-                                        <CheckBox x:Name="NODO_TRUST" HorizontalAlignment="Left" Margin="125,125,0,0" Content=""  VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,160,0,0" Text="NOME" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NODO_NOME" HorizontalAlignment="Left" Margin="125,160,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,195,0,0" Text="DESCR" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NODO_DESCR" HorizontalAlignment="Left" Margin="125,195,0,-69" Text="..." VerticalAlignment="Top" Width="210" Height="101"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,300,0,0" Text="NUM" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NODO_NUM" HorizontalAlignment="Left" Margin="125,300,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,335,0,0" Text="IP" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NODO_IP" HorizontalAlignment="Left" Margin="125,335,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,370,0,0" Text="HW ADDRESS" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NODO_RETE" HorizontalAlignment="Left" Margin="125,370,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                    </RelativePanel>
-                                    <RelativePanel x:Name="CENTRAL_Property" Visibility="Collapsed">
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,55,0,0" Text="ID" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="CENTRAL_ID" IsEnabled="False" HorizontalAlignment="Left" Margin="125,55,0,0" Text="..." VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,90,0,0" Text="ENABLED" VerticalAlignment="Top"/>
-                                        <CheckBox x:Name="CENTRAL_ENABLED" HorizontalAlignment="Left" Margin="125,90,0,0" Content=""  VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,125,0,0" Text="TRUST" VerticalAlignment="Top"/>
-                                        <CheckBox x:Name="CENTRAL_TRUST" HorizontalAlignment="Left" Margin="125,125,0,0" Content=""  VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,160,0,0" Text="NOME" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="CENTRAL_NOME" HorizontalAlignment="Left" Margin="125,160,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,195,0,0" Text="DESCR" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="CENTRAL_DESCR" HorizontalAlignment="Left" Margin="125,195,0,-69" Text="..." VerticalAlignment="Top" Width="210" Height="101"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,300,0,0" Text="NUM" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="CENTRAL_NUM" HorizontalAlignment="Left" Margin="125,300,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,335,0,0" Text="IP" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="CENTRAL_IP" HorizontalAlignment="Left" Margin="125,335,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,370,0,0" Text="HW ADDRESS" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="CENTRAL_RETE" HorizontalAlignment="Left" Margin="125,370,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                    </RelativePanel>
-                                    <RelativePanel x:Name="OGGETTO_Property" Visibility="Visible">
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,55,0,0" Text="ID" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="ID" IsEnabled="False" HorizontalAlignment="Left" Margin="125,55,0,0" Text="..." VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,90,0,0" Text="ENABLED" VerticalAlignment="Top"/>
-                                        <CheckBox x:Name="ENABLED" HorizontalAlignment="Left" Margin="125,90,0,0" Content=""  VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,125,0,0" Text="Nome" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="NOME" HorizontalAlignment="Left" Margin="125,125,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,160,0,0" Text="ATTIVO" VerticalAlignment="Top"/>
-                                        <ToggleSwitch x:Name="ATTIVO" HorizontalAlignment="Left" Margin="125,160,0,0"   VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,195,0,0" Text="Nodo" VerticalAlignment="Top"/>
-                                        <ComboBox x:Name="NODO" HorizontalAlignment="Left" Margin="125,195,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,264,0,-34" Text="PIN" VerticalAlignment="Top"/>
-                                        <ComboBox x:Name="PIN" HorizontalAlignment="Left" Margin="125,264,0,-34" VerticalAlignment="Top"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,299,0,-34" Text="Value" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="VALUE" HorizontalAlignment="Left" Margin="125,299,0,-34" Text="..." VerticalAlignment="Top" Width="210"/>
-                                        <TextBlock HorizontalAlignment="Left" Margin="16,230,0,0" Text="IP" VerticalAlignment="Top"/>
-                                        <TextBox x:Name="IP" IsReadOnly="True" HorizontalAlignment="Left" Margin="125,230,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-                                    </RelativePanel>
-                                    <Button x:Name="btnPropertyElimina" Content="ELIMINA" HorizontalAlignment="Left" Margin="15,407,0,-16" VerticalAlignment="Top" Click="btnPropertyElimina_Click"/>
-                                    <Button x:Name="btnPropertyAnnulla" Content="ANNULLA" HorizontalAlignment="Left" Margin="140,407,0,-16" VerticalAlignment="Top" Click="btnPropertyAnnulla_Click"/>
-                                    <Button x:Name="btnPropertySalva" Content="SALVA" HorizontalAlignment="Left" Margin="275,407,0,-16" VerticalAlignment="Top" Click="btnPropertySalva_Click"/>
-                                </RelativePanel>
-                            </Grid>
+                        <RelativePanel x:Name="ToolBarProperty" Visibility="Visible" HorizontalAlignment="Left"  >
+                            <local:Property x:Name="ComponentProperty" Width="500" Height="500" />
                         </RelativePanel>
-                        <RelativePanel x:Name="ToolBarSchema" Visibility="Visible" >
+                        <RelativePanel x:Name="ToolBarSchema" Visibility="Collapsed" >
                             <Grid x:Name="schemaGPIO">
-                                <local:GPIO x:Name="gpio" Width="500" Height="500" />
+                                <local:GPIO x:Name="gpio" Width="400" Height="500" />
                             </Grid>
                         </RelativePanel>
 
