@@ -22,7 +22,6 @@
                                HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="0,0,0,0" 
                                 Tapped="Mappa_Tapped"    />
 
-                            <local:IPCam x:Name="ipcam1" Width="200" Height="200" CanDrag="True" Visibility="Collapsed"/>
 
                             <Ellipse x:Name="evidenziazione" 
                                  Height="36" Width="36" 
@@ -102,6 +101,9 @@
                             </Grid>
                         </RelativePanel>
                     </RelativePanel>
+
+                    <!--IP CAM-->
+                    <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed" Margin="0,0,633,269" />
                 </Grid>
             </PivotItem>
             <PivotItem x:Name="TabsSettings" Header="Setting" >

@@ -68,13 +68,15 @@ namespace RaspaCentral
 			{
 				play = true;
 				playPause.Source = new BitmapImage(new Uri("ms-appx:///Assets/ico_pause.png"));
-				dispatcherTimer.Start();
+				if (dispatcherTimer != null)
+					dispatcherTimer.Start();
 			}
 			else
 			{
 				play = false;
 				playPause.Source = new BitmapImage(new Uri("ms-appx:///Assets/ico_play.png"));
-				dispatcherTimer.Stop();
+				if (dispatcherTimer != null)
+					dispatcherTimer.Stop();
 			}
 		}
 		private void esci_Tapped(object sender, TappedRoutedEventArgs e)

@@ -432,7 +432,6 @@ namespace RaspaCentral
 					break;
 				case enumComponente.webcam_ip:
 					ipcam1.playIPCam(componente.Nome,componente.Value);
-					ipcam1.Margin = img.Margin;
 					ipcam1.Visibility = Visibility.Visible;
 					break;
 				case enumComponente.webcam_rasp:

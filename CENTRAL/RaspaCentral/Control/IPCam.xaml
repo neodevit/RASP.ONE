@@ -6,24 +6,29 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="150"
-    d:DesignWidth="150">
+    d:DesignHeight="483"
+    d:DesignWidth="630">
 
     <Grid>
         <RelativePanel>
             <Rectangle Fill="Black"
-               Width="150"
-               Height="150"/>
-        <Image x:Name="IPCamImmagine" HorizontalAlignment="Center" Height="150" VerticalAlignment="Center" Width="150" Stretch="Uniform" FocusVisualSecondaryBrush="Black" />
-        <TextBlock x:Name="IPcamNome" Text="xxxxxxxxxx"  Margin="4,3,-148,-12" Foreground="White" FontWeight="Bold" TextAlignment="Center" FontSize="10" />
+               Width="630"
+               Height="483"/>
+            <Image x:Name="IPCamImmagine" HorizontalAlignment="Center" Width="620" Height="450" VerticalAlignment="Center"  Stretch="Uniform" FocusVisualSecondaryBrush="Black" Margin="1,10,-1,-10" />
+            <TextBlock x:Name="IPcamNome" Text="xxxxxxxxxx"  Foreground="White" FontWeight="Bold" TextAlignment="Center" FontSize="20" Margin="0,9,-610,-9" />
             <Rectangle Fill="Transparent"
-            Width="150"
-            Height="150"
+            Width="630"
             Stroke="Black"
-            StrokeThickness="5" />
-            <Image x:Name="playPause" HorizontalAlignment="Center" Height="16" VerticalAlignment="Center" Width="16" Stretch="Uniform" Source="ms-appx:///Assets/ico_pause.png" Margin="61,131,-61,-131" Tapped="playPause_Tapped"/>
-            <Image x:Name="esci" HorizontalAlignment="Center" Height="16" VerticalAlignment="Center" Width="16" Stretch="Uniform" Source="ms-appx:///Assets/ico_off.png" Margin="131,131,-131,-131" Tapped="esci_Tapped"/>
+            StrokeThickness="2"  />
+
+            <Ellipse 
+                Fill="Black"
+                Height="40"
+                Width="40" Margin="293,441,-293,-441"/>
+            
+            <Image x:Name="playPause" HorizontalAlignment="Center" Height="24" VerticalAlignment="Center" Width="24" Stretch="Uniform" Source="ms-appx:///Assets/ico_pause.png" Margin="301,449,-301,-449" Tapped="playPause_Tapped"/>
+            <Image x:Name="esci" HorizontalAlignment="Center" Height="24" VerticalAlignment="Center" Width="24" Stretch="Uniform" Source="ms-appx:///Assets/ico_off.png" Margin="584,14,-584,-14" Tapped="esci_Tapped" RenderTransformOrigin="0.312,0.312"/>
 
         </RelativePanel>
-        </Grid>
+    </Grid>
 </UserControl>
