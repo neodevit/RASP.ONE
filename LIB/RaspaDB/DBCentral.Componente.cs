@@ -254,7 +254,7 @@ namespace RaspaDB
 			return res;
 		}
 
-		public Componenti GetComponentedByTipoAndEnableAndTrustedAndAttivo(enumComponente Tipo,bool? Enabled,bool? Trusted, bool? Attivo)
+		public Componenti GetComponentedByTipoAndEnableAndTrustedAndAttivoOrderByNode(enumComponente Tipo,bool? Enabled,bool? Trusted, bool? Attivo)
 		{
 			Componenti res = null;
 			try
@@ -269,6 +269,7 @@ namespace RaspaDB
 					sql += " AND Trusted = @Trusted";
 				if (Attivo.HasValue)
 					sql += " AND Attivo = @Attivo";
+				sql += " ORDER BY Node_Num";
 
 				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
 				{
@@ -585,6 +586,11 @@ namespace RaspaDB
 						else
 							item.Value = "";
 
+						if (!reader.IsDBNull(reader.GetOrdinal("Options")))
+							item.Options = reader.GetString("Options");
+						else
+							item.Options = "";
+
 						if (!reader.IsDBNull(reader.GetOrdinal("IPv4")))
 							item.IPv4 = reader.GetString("IPv4");
 						else
@@ -662,9 +668,9 @@ namespace RaspaDB
 			{
 				string sql = "";
 				sql += "INSERT INTO `70_COMPONENTE`";
-				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
+				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
 				sql += " VALUES";
-				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@Utente,NOW(),@Utente,NOW());";
+				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@Options,@Utente,NOW(),@Utente,NOW());";
 				sql += " select LAST_INSERT_ID() as ID;";
 
 				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
@@ -685,11 +691,12 @@ namespace RaspaDB
 
 						mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
 						mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
-						mySqlCommand.Parameters.AddWithValue("@Value", value.Value);
+						mySqlCommand.Parameters.AddWithValue("@Value", value.Value??"");
 
 						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
 						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
 						mySqlCommand.Parameters.AddWithValue("@HWAddress", value.IPv6);
+						mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
 
 						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
 						mySqlCommand.Connection.Open();
@@ -745,6 +752,7 @@ namespace RaspaDB
 				sql += "    ,`IPv4` = @IPv4";
 				sql += "    ,`IPv6` = @IPv6";
 				sql += "    ,`HWAddress` = @HWAddress";
+				sql += "    ,`Options` = @Options";
 
 				sql += "    ,`UserMod` = @Utente";
 				sql += "    ,`DataMod` = NOW()";
@@ -774,6 +782,7 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
 						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
 						mySqlCommand.Parameters.AddWithValue("@HWAddress", value.HWAddress);
+						mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
 
 						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
 						mySqlCommand.Connection.Open();

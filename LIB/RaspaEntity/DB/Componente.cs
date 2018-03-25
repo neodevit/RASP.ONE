@@ -81,6 +81,7 @@ namespace RaspaEntity
 		public string Value { get; set; }
 		public string IPv4 { get; set; }
 		public string IPv6 { get; set; }
+		public string Options { get; set; }
 		public string HWAddress { get; set; }
 		public Follow follow { get; set; }
 

@@ -30,13 +30,15 @@ namespace RaspaCentral
 		public Componente componente;
 		public MainPage chiamante;
 		public RaspaResult esito;
+		public Thickness Position;
 
-		public RaspaResult showProperty(int ID, enumComponente tipo, MainPage pagina)
+		public RaspaResult showProperty(int ID, enumComponente tipo, Thickness position, MainPage pagina)
 		{
 			RaspaResult res = new RaspaResult(true);
 			try
 			{
 				chiamante = pagina;
+				Position = position;
 
 				DBCentral DB = new DBCentral();
 				componente = DB.GetComponenteByID(ID);
@@ -44,6 +46,10 @@ namespace RaspaCentral
 				{
 					componente = new Componente();
 					componente.Tipo = tipo;
+					componente.Enabled = true;
+					componente.Trusted = true;
+					componente.IPv4 = "192.168.1.";
+					componente.Options = "0";
 				}
 
 
@@ -100,6 +106,10 @@ namespace RaspaCentral
 						LIGHT_NODO.SelectedValue = componente.Node_Num;
 						LIGHT_PIN.SelectedValue = componente.Node_Pin;
 
+						// OPTIONS
+						LIGHT_Low.IsChecked = (componente.Options == "0" || componente.Options == "") ? true : false;
+						LIGHT_High.IsChecked = (componente.Options == "1") ? true : false;
+
 						break;
 					case enumComponente.pir:
 						ToolbarPropertyShow(componente.Tipo);
@@ -119,6 +129,10 @@ namespace RaspaCentral
 						PIR_NODO.SelectedValue = componente.Node_Num;
 						PIR_PIN.SelectedValue = componente.Node_Pin;
 
+						// OPTIONS
+						PIR_falling.IsChecked = (componente.Options == "0" || componente.Options == "") ? true : false;
+						PIR_rising.IsChecked = (componente.Options == "1") ? true : false;
+
 						break;
 
 					case enumComponente.webcam_ip:
@@ -128,6 +142,7 @@ namespace RaspaCentral
 						WEBCAM_NOME.Text = componente.Nome ?? "";
 						WEBCAM_IP.Text = componente.IPv4 ?? "";
 						WEBCAM_VALUE.Text = componente.Value ?? "";
+						WEBCAM_RETE.Text = componente.HWAddress ?? "";
 						break;
 					case enumComponente.webcam_rasp:
 						ToolbarPropertyShow(componente.Tipo);
@@ -249,6 +264,13 @@ namespace RaspaCentral
 				if (componente == null)
 					return new RaspaResult(false, "Componente Not found");
 
+				// Salva Posizione
+				componente.PositionTop = Position.Top;
+				componente.PositionLeft = Position.Left;
+				componente.PositionRight = Position.Right;
+				componente.PositionBottom = Position.Bottom;
+
+				// Salva specifica per tipo
 				switch (componente.Tipo)
 				{
 					case enumComponente.nodo:
@@ -277,6 +299,7 @@ namespace RaspaCentral
 						componente.Node_Num = Convert.ToInt32(LIGHT_NODO.SelectedValue);
 						componente.Node_Pin = Convert.ToInt32(LIGHT_PIN.SelectedValue);
 						componente.Value = (LIGHT_ATTIVO.IsOn) ? "1" : "0";
+						componente.Options = (LIGHT_Low.IsChecked.HasValue && LIGHT_Low.IsChecked.Value) ? "0" : "1";
 						break;
 					case enumComponente.pir:
 						componente.Enabled = (PIR_ENABLED.IsChecked.HasValue) ? PIR_ENABLED.IsChecked.Value : false;
@@ -286,12 +309,14 @@ namespace RaspaCentral
 						componente.Node_Num = Convert.ToInt32(PIR_NODO.SelectedValue);
 						componente.Node_Pin = Convert.ToInt32(PIR_PIN.SelectedValue);
 						componente.Value = (PIR_ATTIVO.IsOn) ? "1" : "0";
+						componente.Options = (PIR_falling.IsChecked.HasValue && PIR_falling.IsChecked.Value) ? "0" : "1";
 						break;
 					case enumComponente.webcam_ip:
 						componente.Enabled = (WEBCAM_ENABLED.IsChecked.HasValue) ? WEBCAM_ENABLED.IsChecked.Value : false;
 						componente.Nome = WEBCAM_NOME.Text;
 						componente.IPv4 = WEBCAM_IP.Text;
 						componente.Value = WEBCAM_VALUE.Text;
+						componente.HWAddress = WEBCAM_RETE.Text;
 						break;
 					case enumComponente.webcam_rasp:
 						break;
@@ -321,6 +346,10 @@ namespace RaspaCentral
 				// ---------------------------
 				// controlli formali
 				// ---------------------------
+				// NOME OBBLIGATORIO
+				if (string.IsNullOrEmpty(componente.Nome))
+					return new RaspaResult(false, "Errore : Nome Obbligatorio ");
+
 				// NOME ESISTE GIA'
 				bool ExistAltroNomeUguale = DB.existAltroComponenteConStessoNome(componente.ID, componente.Nome);
 				if (ExistAltroNomeUguale)
@@ -498,7 +527,7 @@ namespace RaspaCentral
 
 				// Inizializza dal DB
 				DBCentral DB = new DBCentral();
-				Componenti recs = DB.GetComponentedByTipoAndEnableAndTrustedAndAttivo(enumComponente.nodo, true, null, null);
+				Componenti recs = DB.GetComponentedByTipoAndEnableAndTrustedAndAttivoOrderByNode(enumComponente.nodo, true, null, null);
 				foreach (Componente rec in recs)
 					if (rec.ID.HasValue)
 					{
@@ -555,7 +584,7 @@ namespace RaspaCentral
 				// Inizializza dal DB
 				DBCentral DB = new DBCentral();
 				List<enumTipoPIN> tipi = new List<enumTipoPIN>() { enumTipoPIN.gpio, enumTipoPIN.gpioAndOther };
-				GPIOPins recs = DB.GetGPIOPinTipe(tipi);
+				GPIOPins recs = DB.GetGPIOPinTipeOrderByGPIO(tipi);
 				foreach (GPIOPin rec in recs)
 					if (rec.ID.HasValue)
 					{

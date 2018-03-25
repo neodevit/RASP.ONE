@@ -40,7 +40,7 @@ namespace RaspaDB
 			}
 			return res;
 		}
-		public GPIOPins GetGPIOPinTipe(List<enumTipoPIN> tipi)
+		public GPIOPins GetGPIOPinTipeOrderByNum(List<enumTipoPIN> tipi)
 		{
 			GPIOPins res = null;
 			try
@@ -57,6 +57,42 @@ namespace RaspaDB
 				}
 				sql += where;
 				sql += " ORDER BY NUM asc";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Connection.Open();
+
+						res = GetRecGPIOPin(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - GPIO PIN : " + ex.Message);
+			}
+			return res;
+		}
+		public GPIOPins GetGPIOPinTipeOrderByGPIO(List<enumTipoPIN> tipi)
+		{
+			GPIOPins res = null;
+			try
+			{
+				string sql = "";
+				string where = "";
+				sql += "SELECT *";
+				sql += " FROM `60_GPIO_PIN`";
+				sql += " WHERE 1=1";
+				foreach (enumTipoPIN tipo in tipi)
+				{
+					where += (where == "") ? " AND " : " OR ";
+					where += " Tipo=" + (int)tipo;
+				}
+				sql += where;
+				sql += " ORDER BY GPIO asc";
 
 				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
 				{

@@ -1033,7 +1033,7 @@ namespace RaspaCentral
 				}
 
 				// visualizzare propeerty
-				showProperty(IDComponente, Actualcomponente.Tipo);
+				showProperty(IDComponente, Actualcomponente.Tipo, Actualcomponente.Margin);
 
 				// evidenziazione
 				evidenzia(true);
@@ -1303,11 +1303,14 @@ namespace RaspaCentral
 		private void Mappa_Drop(object sender, DragEventArgs e)
 		{
 			messaggio.Text = "";
+			Componente item = null;
 			try
 			{
 
 				if (RaspaMode == enumMode.working)
 					return;
+
+				DBCentral DB = new DBCentral();
 
 				// azzsera immagine trascinata
 				ActualImage = null;
@@ -1320,20 +1323,19 @@ namespace RaspaCentral
 				// se è un componente sul DB
 				if (ID > 0)
 				{
+					// rileggo dati dal db
+					item = DB.GetComponenteByID(ID);
+
 					// verifico se ha cambiato icona
 					// rispetto ai dati mostrati nelle property
 					if (Actualcomponente == null || Actualcomponente.ID != ID)
 					{
-						// rileggo dati dal db
-						DBCentral DB = new DBCentral();
-						Componente item = DB.GetComponenteByID(ID);
 						// reinizializzo componente attuale
 						initActualComponente(ActualTipoComponente, item);
 					}
 
 					// memorizzo come immagine attuale
 					ActualImage = selectedTool;
-
 				}
 				else
 				{
@@ -1355,25 +1357,29 @@ namespace RaspaCentral
 					ActualImage.Margin = new Thickness(p.X - X, p.Y - Y, 0, 0);
 					Actualcomponente.Margin = ActualImage.Margin;
 
-					// evidenziazione
-					evidenzia(true);
-
-					//visualizza tabs property
-					showProperty(ID, ActualTipoComponente);
-
-					// SOLO se componente già sul DB
-					// Aggiorno le coordinate dello spostamento
-					// SAVE DB
-					if (Actualcomponente.ID.HasValue)
+					// SALVO POSIZIONI CAMBIATE
+					if (item != null)
 					{
-						DBCentral DB = new DBCentral();
-						RaspaResult esito = DB.SetComponenti(Actualcomponente, Utente);
-						if (!esito.Esito)
-						{
-							messaggio.Text = "Errore Salvataggio posizione oggetto: " + esito.Message;
-							return;
-						}
+						item.PositionLeft = ActualImage.Margin.Left;
+						item.PositionTop = ActualImage.Margin.Top;
+						item.PositionRight = ActualImage.Margin.Right;
+						item.PositionBottom = ActualImage.Margin.Bottom;
+						DB.SetComponenti(item, Utente);
 					}
+
+
+					//visualizza tabs property solo se nuovo
+					if (ID > 0)
+						ToolbarShow(enumShowToolbar.componenti);
+					else
+					{
+						// evidenziazione
+						evidenzia(true);
+
+						// show property
+						showProperty(ID, ActualTipoComponente, Actualcomponente.Margin);
+					}
+
 				}
 			}
 			catch (Exception ex)
@@ -1386,9 +1392,9 @@ namespace RaspaCentral
 		#endregion
 
 		#region PROPERTY
-		private void showProperty(int ID,enumComponente Tipo)
+		private void showProperty(int ID,enumComponente Tipo, Thickness Position)
 		{
-			RaspaResult res = ComponentProperty.showProperty(ID, Tipo, this);
+			RaspaResult res = ComponentProperty.showProperty(ID, Tipo, Position, this);
 			if (res.Esito)
 				Actualcomponente = ComponentProperty.componente;
 			else
