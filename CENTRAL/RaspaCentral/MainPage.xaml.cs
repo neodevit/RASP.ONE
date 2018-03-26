@@ -175,7 +175,7 @@ namespace RaspaCentral
 		private void writeLogVideo(string Messaggio)
 		{
 			// scrivi log
-			Trasmission.Items.Insert(0, Messaggio);
+			Trasmission.Items.Insert(0, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")+ " " + Messaggio);
 			// pulisci log vecchi
 			try
 			{
