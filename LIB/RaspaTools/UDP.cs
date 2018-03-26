@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 using Windows.Networking;
+using RaspaEntity;
+using Windows.ApplicationModel.Core;
 
 namespace RaspaTools
 {
@@ -14,7 +16,8 @@ namespace RaspaTools
 	public class UDP
 	{
 		StreamSocketListener SoketListener;
-		private static string PortNumber = "6969";
+		private static string PortNumberReceive = "6969";
+		private static string PortNumberConnect = "7070";
 		public event SocketMessage Receive = delegate { };
 		public event SocketMessage Logging = delegate { };
 		public event SocketEsito ConnectionResult = delegate { };
@@ -36,6 +39,9 @@ namespace RaspaTools
 			{
 				writeLog("Connection ...");
 
+				if (CoreApplication.Properties.ContainsKey("listener"))
+					return;
+
 				SoketListener = new StreamSocketListener();
 				SoketListener.ConnectionReceived -= this.listener_ConnectionReceived;
 				SoketListener.ConnectionReceived += this.listener_ConnectionReceived;
@@ -43,7 +49,9 @@ namespace RaspaTools
 				// da valutare
 				SoketListener.Control.KeepAlive = true;
 
-				await SoketListener.BindServiceNameAsync(PortNumber);
+				await SoketListener.BindServiceNameAsync(PortNumberReceive);
+
+				CoreApplication.Properties.Add("listener", SoketListener);
 
 				writeLog("Connected");
 				ConnectionResult(true);
@@ -64,26 +72,24 @@ namespace RaspaTools
 				writeLog("Receiving ...");
 				using (var streamReader = new StreamReader(args.Socket.InputStream.AsStreamForRead()))
 				{
-					request = await streamReader.ReadLineAsync();
+					request = await streamReader.ReadToEndAsync();
 				}
-
-				// Evento di ricezione del risultato
-				Receive?.Invoke(request);
-				writeLog("Receive " + request);
 
 
 				// Echo the request back as the response.
-				using (Stream outputStream = args.Socket.OutputStream.AsStreamForWrite())
-				{
-					using (var streamWriter = new StreamWriter(outputStream))
-					{
-						await streamWriter.WriteLineAsync("OK");
-						await streamWriter.FlushAsync();
-					}
-				}
+				//using (Stream outputStream = args.Socket.OutputStream.AsStreamForWrite())
+				//{
+				//	using (var streamWriter = new StreamWriter(outputStream))
+				//	{
+				//		await streamWriter.WriteLineAsync("OK");
+				//		await streamWriter.FlushAsync();
+				//	}
+				//}
 
-				// Invio OK ricevimento
-				//sender.Dispose();
+				// Evento di ricezione del risultato
+				Receive?.Invoke(request);
+				writeLog("Receive message");
+
 			}
 			catch (Exception ex)
 			{
@@ -93,7 +99,7 @@ namespace RaspaTools
 		#endregion
 
 		#region SENDER
-		public async Task<bool> SendMessage(string destination, string request)
+		public async Task<bool> SendMessage(RaspaProtocol protocol)
 		{
 			bool esito = false;
 			try
@@ -105,35 +111,36 @@ namespace RaspaTools
 				{
 					// Connect
 					socket.Control.KeepAlive = false;
-					var hostName = new HostName(destination);
-					await socket.ConnectAsync(hostName, PortNumber);
+					var hostName = new HostName(protocol.Destinatario.IPv4);
+					await socket.ConnectAsync(hostName, PortNumberConnect);
 
 					// Send a request to the echo server.
 					using (Stream outputStream = socket.OutputStream.AsStreamForWrite())
 					{
 						using (var streamWriter = new StreamWriter(outputStream))
 						{
-							await streamWriter.WriteLineAsync(request);
+							await streamWriter.WriteLineAsync(protocol.BuildJson());
 							await streamWriter.FlushAsync();
 						}
 					}
 
-					writeLog("Send : " + request);
+					writeLog("Send to " + protocol.Destinatario.IPv4);
 
 					// Read data from the echo server.
-					string response;
-					using (Stream inputStream = socket.InputStream.AsStreamForRead())
-					{
-						using (StreamReader streamReader = new StreamReader(inputStream))
-						{
-							response = await streamReader.ReadLineAsync();
-						}
-					}
-					esito = (response.ToUpperInvariant() == "OK") ? true : false;
+					//string response;
+					//using (Stream inputStream = socket.InputStream.AsStreamForRead())
+					//{
+					//	using (StreamReader streamReader = new StreamReader(inputStream))
+					//	{
+					//		response = await streamReader.ReadLineAsync();
+					//	}
+					//}
+					//esito = (response.ToUpperInvariant() == "OK") ? true : false;
 
-					writeLog("->Echo : " + response);
+					//writeLog("Send : " + response.ToUpperInvariant());
 
 				}
+
 			}
 			catch (Exception ex)
 			{

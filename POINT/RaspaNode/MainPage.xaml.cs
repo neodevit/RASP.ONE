@@ -1,4 +1,5 @@
-﻿using RaspaAction;
+﻿using MQTTnet.Protocol;
+using RaspaAction;
 using RaspaDB;
 using RaspaEntity;
 using RaspaTools;
@@ -31,32 +32,27 @@ namespace RaspaNode
     /// </summary>
     public sealed partial class MainPage : Page
     {
-		DBCentral DB;
-        public MainPage()
+		private string mqTT_Server = "192.168.1.10";
+
+
+		public MainPage()
         {
             this.InitializeComponent();
-			DBNode dbNode = new DBNode();
-			DB = dbNode.getDBCentral();
-
 			Start();
-
+			Tabs.SelectedIndex = 2;
 		}
 
 
 		private const string IPCentrale = "192.168.1.10";
+		RaspaProtocol OriginalMessage;
+
+		bool flgGPIO = true;
+		bool flgNodo = true;
+		bool flgMQTT = true;
 		public async void Start()
 		{
 
-			bool flgGPIO = true;
-			bool flgNodo = true;
-			bool flgActual = false;
-			bool flgUDP = true;
 
-			// --------------------------------------
-			// INIT UDP
-			// --------------------------------------
-			if (flgUDP)
-				INIT_UDP();
 
 			// --------------------------------------
 			// GPIO
@@ -78,136 +74,87 @@ namespace RaspaNode
 				if (!resNode.Esito)
 					System.Diagnostics.Debug.WriteLine("NODE not TRUSTED : " + resNode.Message);
 
-				// Aggiorna i dati del nodo sul DB
-				RaspaResult resUpdNode = UPDATE_NODE();
-				if (!resUpdNode.Esito)
-					System.Diagnostics.Debug.WriteLine("NODE not UPDATE on DB : " + resUpdNode.Message);
-
-				// visualizza dati nella videata
-				//NODE_SHOW();
 			}
 
 			// --------------------------------------
-			// ACTUAL
+			// INIT MQTT
 			// --------------------------------------
-			if (flgActual)
-			{
-				// ACTUALS : legge dal DB le ultime configurazioni dei pin del NODO e li rivalorizza
-				RaspaResult resActual = await INIT_ACTUAL();
-				if (!resActual.Esito)
-					System.Diagnostics.Debug.WriteLine("ACTUAL not INITIALIZZATED GPIO : " + resActual.Message);
-			}
+			if (flgMQTT)
+				INIT_MQTT();
 
 			// --------------------------------------
 			// ACTION
 			// --------------------------------------
 			if (stato_gpio)
 			{
-				action = new Azione(udp, GPIO, PIN);
+				action = new Azione(GPIO, PIN);
 				action.ActionNotify -= ActionNotify;
 				action.ActionNotify += ActionNotify;
 			}
 
-			// --------------------------------------
-			// START UDP LISTENER
-			// --------------------------------------
-			if (flgUDP)
-				udp.StartListener();
 
 		}
+		#region MQTT
+		MQTT mqTT;
 
-		#region MESSAGGING
-		UDP udp;
-		bool FlgUDPisON = false;
-		private void INIT_UDP()
+		private void INIT_MQTT()
 		{
-			try
-			{
-				if (FlgUDPisON)
-					return;
-				udp = new UDP();
-				udp.Receive -= UDPReceive;
-				udp.Receive += UDPReceive;
+			mqTT = new MQTT(nodo.ID.Value,nodo.Nome,nodo.IPv4);
+			mqTT.createClient();
+			mqTT.startClient();
+			mqTT.Receive -= MQTTReceive;
+			mqTT.Receive += MQTTReceive;
+			mqTT.Logging -= MQTTLogging;
+			mqTT.Logging += MQTTLogging;
 
-				udp.Logging -= UDPLogging;
-				udp.Logging += UDPLogging;
-
-				udp.ConnectionResult -= UDPConnectionResult;
-				udp.ConnectionResult += UDPConnectionResult;
-			}
-			catch (Exception ex)
-			{
-
-			}
 		}
-		private void btnON_Server_Click(object sender, RoutedEventArgs e)
-		{
-			udp.StartListener();
-		}
-		private void UDPConnectionResult(bool esito)
-		{
-			FlgUDPisON = esito;
-
-			var ignore = flagEsito.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-			{
-				flagConnection.IsChecked = esito;
-			});
-		}
-		private void UDPReceive(string Messaggio)
-		{
-			var ignore = Receive.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-			{
-				Receive.Text = Messaggio;
-			});
-			MessageUDPInput(Messaggio);
-		}
-		private void UDPLogging(string Messaggio)
+		private void MQTTReceive(string Topic, string Payload, MqttQualityOfServiceLevel QoS, bool Retain)
 		{
 			var ignore = stato.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 			{
-				stato.Items.Insert(0, Messaggio);
+				writeLogVideo("Receive " + Topic + "-" + Payload + "-" + QoS.ToString() + "-" + Retain.ToString());
+			});
+
+			MessageUDPInput(Payload);
+		}
+		private void MQTTLogging(string Messaggio)
+		{
+			var ignore = stato.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			{
+				writeLogVideo(Messaggio);
 			});
 		}
-		private void Message_TextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
+		private void writeLogVideo(string Messaggio)
 		{
-			flagEsito.IsChecked = false;
-		}
-		private void btnSend_Click(object sender, RoutedEventArgs e)
-		{
-			flagEsito.IsChecked = false;
-			Send(Remote.Text, Message.Text);
-		}
-		private async void Send(string address, string mess)
-		{
+			// scrivi log
+			stato.Items.Insert(0, Messaggio);
+			// pulisci log vecchi
 			try
 			{
-				bool esito = await udp.SendMessage(address, mess);
-				var ignore = flagEsito.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-				{
-					flagEsito.IsChecked = esito;
-				});
+				if (stato.Items.Count > 50)
+					for (int i = 50; i <= stato.Items.Count; i++)
+						stato.Items.RemoveAt(i);
 			}
-			catch (Exception ex)
-			{
-
-			}
+			catch { }
 		}
 
 		#endregion
 
+
+
 		#region COMANDI
 		Azione action = null;
-		private async void MessageUDPInput(string message)
+		RaspaResult EsitoComando = new RaspaResult(false, "NA");
+		private void MessageUDPInput(string message)
 		{
-			RaspaProtocol Protocol = new RaspaProtocol(message);
-			RaspaResult res = new RaspaResult(false, "Elaborazione Comando non inizializzata");
+			OriginalMessage  = new RaspaProtocol(message);
+			EsitoComando = new RaspaResult(false, "Elaborazione Comando non inizializzata");
 
-			
 			if (action != null)
-				res = action.Execute(Protocol);
+				EsitoComando = action.Execute(OriginalMessage);
 
-			if (!res.Esito)
-				ActionNotify(res.Esito, res.Message, Protocol.Componente.Tipo, Protocol.Componente.Pin, Convert.ToInt32(Protocol.Componente.Value));
+			if (!EsitoComando.Esito)
+				ActionNotify(EsitoComando.Esito, EsitoComando.Message, OriginalMessage.Destinatario.Tipo, OriginalMessage.Destinatario.Node_Pin, Convert.ToInt32(OriginalMessage.Value));
 
 		}
 
@@ -215,48 +162,14 @@ namespace RaspaNode
 		{
 			try
 			{
-				if (nodo != null && nodo.Trusted && nodo.Network != null && nodo.Network.IPv4 != null)
-				{
-					DBCentral DB = new DBCentral();
-					RaspaResult res = DB.SetCommand(nodo.Num, pin, value.ToString(), nodo.Network.HostName);
-
-					// MANDA MESSAGGI UDP AGLI ABBONATI
-					Subscriptions subscriptions = DB.GetSubscriptionByNODOSubscriptionAndPIN(nodo.Num, pin);
-					foreach (Subscription subscription in subscriptions)
-					{
-						// evita loop di notify a se stesso
-						if (subscription.NODE_IPv4 == nodo.Network.IPv4)
-							continue;
-
-
-						// PREPARA MESSAGGIO
-						RaspaProtocol messRule = new RaspaProtocol(Esito,
-																	Messaggio,
-																	subscription.ID,
-																	enumComando.notify,
-																	new RaspaProtocol_Nodo(nodo.ID, nodo.Enabled, nodo.Trusted, nodo.Num, nodo.Network.IPv4),
-																	new RaspaProtocol_Nodo(null, null, null, subscription.NODE_subscriber, subscription.NODE_IPv4),
-																	new RaspaProtocol_Componente(null, componente, null, pin, value.ToString(), null));
-
-						
-
-						// invia messaggio
-						SendMessagePoint(subscription.NODE_IPv4, messRule.BuildJson());
-					}
-				}
+				OriginalMessage.swapMittDest();
+				OriginalMessage.Comando = enumComando.notify;
+				OriginalMessage.Esito = Esito;
+				OriginalMessage.Message = Messaggio;
+				OriginalMessage.Value = value.ToString();
+				mqTT.Publish(OriginalMessage);
 			}
 			catch { }
-		}
-		private async void SendMessagePoint(string address, string mess)
-		{
-			try
-			{
-				Send(address, mess);
-			}
-			catch (Exception ex)
-			{
-
-			}
 		}
 
 		#endregion
@@ -379,7 +292,8 @@ namespace RaspaNode
 		#endregion
 
 		#region NODE
-		private Node nodo = null;
+		private Componente nodo = null;
+
 		private RaspaResult INIT_NODE()
 		{
 			RaspaResult res = new RaspaResult(true);
@@ -387,13 +301,21 @@ namespace RaspaNode
 			try
 			{
 				RaspBerry client = new RaspBerry();
-				string IPv4 = client.GetLocalIPv4();
+				NetworkInfo net = Tools.GetDeviceNetwork();
 
 				DBCentral db = new DBCentral();
-				nodo = db.GetNODEByIPv4(IPv4);
+				nodo = db.GetComponenteByIPv4(net.IPv4);
 
 				if (nodo == null)
 					res = new RaspaResult(false, "Nodo non riconosciuto nel sistema");
+
+				nodo.HostName = net.HostName;
+				nodo.IPv4 = net.IPv4;
+				nodo.IPv6 = net.IPv6;
+				nodo.HWAddress = net.HWAddress;
+				nodo.BlueTooth = net.BlueTooth;
+
+				res = db.SetComponenti(nodo, nodo.HostName);
 
 			}
 			catch (Exception ex)
@@ -404,64 +326,8 @@ namespace RaspaNode
 			}
 			return res;
 		}
-		private RaspaResult UPDATE_NODE()
-		{
-			RaspaResult res = new RaspaResult(true);
-
-			try
-			{
-				if (nodo == null)
-				{
-					nodo = new Node();
-					nodo.Network = new NetworkInfo();
-				}
-
-				RaspBerry client = new RaspBerry();
-				string IPv4 = client.GetLocalIPv4();
-
-				// AGGIORNA NODO 
-				NetworkInfo net = Tools.GetDeviceNetwork();
-				nodo.Stato = enumStato.on;
-				nodo.Network.HostName = net.HostName;
-				nodo.Network.BlueTooth = net.BlueTooth;
-				nodo.Network.HWAddress = "";
-				nodo.Network.IPv4 = net.IPv4;
-				nodo.Network.IPv6 = net.IPv6;
-
-				// SALVA NODO
-				DBCentral db = new DBCentral();
-				db.SetNODE(nodo, net.HostName);
-			}
-			catch (Exception ex)
-			{
-				res = new RaspaResult(false, "FAILED : " + ex.Message);
-				System.Diagnostics.Debug.WriteLine("UPDATE_NODE : " + ex.Message);
-				if (Debugger.IsAttached) Debugger.Break();
-			}
-			return res;
-		}
 		#endregion
 
-		#region ACTUAL
-		private Actuals actuals = null;
-		private async Task<RaspaResult> INIT_ACTUAL()
-		{
-			RaspaResult res = new RaspaResult(true);
-
-			try
-			{
-
-
-			}
-			catch (Exception ex)
-			{
-				res = new RaspaResult(false, "FAILED : " + ex.Message);
-				System.Diagnostics.Debug.WriteLine("INIT_ACTUAL : " + ex.Message);
-				if (Debugger.IsAttached) Debugger.Break();
-			}
-			return res;
-		}
-		#endregion
 		#endregion
 
 	}

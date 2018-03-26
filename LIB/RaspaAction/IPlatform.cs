@@ -10,7 +10,7 @@ namespace RaspaAction
 {
 	interface IPlatform
 	{
-		RaspaResult RUN(GpioPin gpioPIN, GpioPinEdge? Edge, int value);
+		RaspaResult RUN(GpioPin gpioPIN, RaspaProtocol protocol);
 		event ActionNotify ActionNotify;
 	}
 }

@@ -12,16 +12,18 @@ namespace RaspaAction
 	public class PlatForm_GET: IPlatform
 	{
 		public event ActionNotify ActionNotify;
-		int numEventi = 0;
-		public RaspaResult RUN(GpioPin gpioPIN, GpioPinEdge? Edge, int value)
+		public RaspaResult RUN(GpioPin gpioPIN,RaspaProtocol Protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			GpioPinValue PinValue = GpioPinValue.Low;
-			numEventi = 0;
 			try
 			{
+				GpioPinValue valoreON = (Protocol.Destinatario.Options == "0") ? GpioPinValue.Low : GpioPinValue.High;
+				GpioPinValue valoreOFF = (Protocol.Destinatario.Options == "0") ? GpioPinValue.High : GpioPinValue.Low;
+
 				PinValue = gpioPIN.Read();
-				res.Value = (PinValue == GpioPinValue.Low) ? "1" : "0";
+				res.Value = (PinValue == valoreON) ? "1" : "0";
+
 			}
 			catch (Exception ex)
 			{

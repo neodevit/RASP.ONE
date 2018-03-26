@@ -106,7 +106,13 @@
                     <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed" Margin="0,0,633,269" />
                 </Grid>
             </PivotItem>
-            <PivotItem x:Name="TabsSettings" Header="Setting" >
+            <PivotItem x:Name="TabsServer" Header="Comunication" >
+                <Grid>
+                    <ListView x:Name="Trasmission" HorizontalAlignment="Left" Height="705" Margin="8,26,0,0" VerticalAlignment="Top" Width="1235"/>
+                </Grid>
+            </PivotItem>
+
+            <PivotItem x:Name="TabsSettings" Header="Central Info" >
                 <Grid>
                     <TextBlock HorizontalAlignment="Left" Margin="334,3,0,0" Text="RASPA Information" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold"/>
                     <TextBlock HorizontalAlignment="Left" Margin="61,118,0,0" Text="HOSTNAME" TextWrapping="Wrap" VerticalAlignment="Top"/>

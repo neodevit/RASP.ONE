@@ -13,14 +13,20 @@ namespace RaspaAction
 	{
 		public event ActionNotify ActionNotify;
 		int numEventi = 0;
-		public RaspaResult RUN(GpioPin gpioPIN, GpioPinEdge? Edge, int value)
+		public RaspaResult RUN(GpioPin gpioPIN,RaspaProtocol Protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			GpioPinValue PinValue = GpioPinValue.Low;
 			numEventi = 0;
 			try
 			{
-				GpioPinValue? nuovo_valore = (value == 1) ? GpioPinValue.Low : GpioPinValue.High;
+				// value
+				int value = Convert.ToInt32(Protocol.Value);
+
+				GpioPinValue valoreON = (Protocol.Destinatario.Options == "0") ? GpioPinValue.Low : GpioPinValue.High;
+				GpioPinValue valoreOFF = (Protocol.Destinatario.Options == "0") ? GpioPinValue.High : GpioPinValue.Low;
+				GpioPinValue? nuovo_valore = (Protocol.Value == "1") ? valoreON : valoreOFF;
+
 				gpioPIN.ValueChanged -= PinSet_ValueChanged;
 				gpioPIN.ValueChanged += PinSet_ValueChanged;
 
@@ -33,7 +39,7 @@ namespace RaspaAction
 				if (PinValue != nuovo_valore)
 					return new RaspaResult(false, "Non sono riuscito a settare SET.valore " + nuovo_valore.ToString(), "0");
 				else
-					res.Value = (PinValue == GpioPinValue.Low) ? "1" : "0";
+					res.Value = (PinValue == valoreON) ? "1" : "0";
 			}
 			catch (Exception ex)
 			{

@@ -78,7 +78,7 @@ namespace RaspaDB
 			bool res = false;
 			try
 			{
-				Componenti nodeNums = GetComponenteByIPv4(IPv4);
+				Componenti nodeNums = GetComponentiByIPv4(IPv4);
 				if (nodeNums.Count == 0 ||
 				   (IDCorrente.HasValue && nodeNums.Count == 1 && nodeNums[0].ID == IDCorrente.Value) ||
 				   (IDCorrente.HasValue == false && nodeNums.Count == 1))
@@ -193,7 +193,7 @@ namespace RaspaDB
 			}
 			return res;
 		}
-		public Componenti GetComponenteByIPv4(string IPv4)
+		public Componenti GetComponentiByIPv4(string IPv4)
 		{
 			Componenti res = null;
 			try
@@ -222,6 +222,70 @@ namespace RaspaDB
 			}
 			return res;
 		}
+
+		public Componente GetComponenteByIPv4(string IPv4)
+		{
+			Componente res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE IPv4 = @IPv4";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@IPv4", IPv4);
+						mySqlCommand.Connection.Open();
+
+						Componenti results = GetRecComponenti(mySqlCommand);
+						if (results.Count > 0)
+							res = results[0];
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+		public Componente GetComponenteByHWAddress(string HWAddress)
+		{
+			Componente res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE HWAddress = @HWAddress";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@HWAddress", HWAddress);
+						mySqlCommand.Connection.Open();
+
+						Componenti results = GetRecComponenti(mySqlCommand);
+						if (results.Count > 0)
+							res = results[0];
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+
 		public Componenti GetComponenteByIPv4(string IPv4, enumComponente Tipo)
 		{
 			Componenti res = null;
@@ -543,6 +607,11 @@ namespace RaspaDB
 							item.Tipo = enumComponente.nessuno;
 						}
 
+						if (!reader.IsDBNull(reader.GetOrdinal("HostName")))
+							item.Nome = reader.GetString("HostName");
+						else
+							item.HostName = "";
+
 						if (!reader.IsDBNull(reader.GetOrdinal("Nome")))
 							item.Nome = reader.GetString("Nome");
 						else
@@ -603,7 +672,11 @@ namespace RaspaDB
 							item.HWAddress = reader.GetString("HWAddress");
 						else
 							item.HWAddress = "";
-
+						if (!reader.IsDBNull(reader.GetOrdinal("BlueTooth")))
+							item.BlueTooth = reader.GetString("BlueTooth");
+						else
+							item.BlueTooth = "";
+						
 
 						// FOLLOW
 						if (!reader.IsDBNull(reader.GetOrdinal("UserIns")))
@@ -668,9 +741,9 @@ namespace RaspaDB
 			{
 				string sql = "";
 				sql += "INSERT INTO `70_COMPONENTE`";
-				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
+				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`HostName`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`BlueTooth`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
 				sql += " VALUES";
-				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@Options,@Utente,NOW(),@Utente,NOW());";
+				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@HostName,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@BlueTooth,@Options,@Utente,NOW(),@Utente,NOW());";
 				sql += " select LAST_INSERT_ID() as ID;";
 
 				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
@@ -681,6 +754,7 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
 						mySqlCommand.Parameters.AddWithValue("@Trusted", value.Enabled);
 						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
+						mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
 						mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
 						mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
 
@@ -696,6 +770,8 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
 						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
 						mySqlCommand.Parameters.AddWithValue("@HWAddress", value.IPv6);
+						mySqlCommand.Parameters.AddWithValue("@BlueTooth", value.BlueTooth);
+						
 						mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
 
 						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
@@ -737,6 +813,7 @@ namespace RaspaDB
 				sql += "    ,`Trusted` = @Trusted";
 				sql += "    ,`IDComponenteTipo` = @IDComponenteTipo";
 				
+				sql += "    ,`HostName` = @HostName";
 				sql += "    ,`Nome` = @Nome";
 				sql += "    ,`Descrizione` = @Descrizione";
 
@@ -752,6 +829,8 @@ namespace RaspaDB
 				sql += "    ,`IPv4` = @IPv4";
 				sql += "    ,`IPv6` = @IPv6";
 				sql += "    ,`HWAddress` = @HWAddress";
+				sql += "    ,`BlueTooth` = @BlueTooth";
+				
 				sql += "    ,`Options` = @Options";
 
 				sql += "    ,`UserMod` = @Utente";
@@ -767,6 +846,7 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
 						mySqlCommand.Parameters.AddWithValue("@Trusted", value.Trusted);
 						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
+						mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
 						mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
 						mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
 
@@ -782,6 +862,8 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
 						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
 						mySqlCommand.Parameters.AddWithValue("@HWAddress", value.HWAddress);
+						mySqlCommand.Parameters.AddWithValue("@BlueTooth", value.BlueTooth);
+						
 						mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
 
 						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);

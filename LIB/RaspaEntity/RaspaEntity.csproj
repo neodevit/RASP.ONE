@@ -113,7 +113,6 @@
     <Compile Include="enum.cs" />
     <Compile Include="Follow.cs" />
     <Compile Include="DB\GPIOPin.cs" />
-    <Compile Include="DB\Node.cs" />
     <Compile Include="Node.NetworkInfo.cs" />
     <Compile Include="RaspaProtocol.cs" />
     <Compile Include="RaspaTag.cs" />

@@ -113,7 +113,6 @@
     <Compile Include="DBCentral.cs" />
     <Compile Include="DBCentral.ComponenteTipo.cs" />
     <Compile Include="DBCentral.Componente.cs" />
-    <Compile Include="DBCentral.Node.cs" />
     <Compile Include="DBCentral.Rule.cs" />
     <Compile Include="DBCentral.Subscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

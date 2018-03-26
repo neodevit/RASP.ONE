@@ -17,41 +17,34 @@ using Windows.UI.Core;
 
 namespace RaspaAction
 {
-	public delegate void ActionNotify(bool Esito,string Messaggio,enumComponente componente, int pin, int value);
+	public delegate void ActionNotify(bool Esito,string Message, enumComponente componente,int Pin,int Value);
 	public class Azione
 	{
 		public event ActionNotify ActionNotify;
 
 		GpioController GPIO = null;
 		Dictionary<int,GpioPin> PIN = null;
-		UDP udpRoot;
 		RaspaProtocol Protocol;
-		public Azione(UDP udp,GpioController gpio, Dictionary<int, GpioPin> pin)
+		public Azione(GpioController gpio, Dictionary<int, GpioPin> pin)
 		{
 			// ASSIGN
-			udpRoot = udp;
 			GPIO = gpio;
 			PIN = pin;
 
 		}
-		public RaspaResult Execute(RaspaProtocol Message)
+		public RaspaResult Execute(RaspaProtocol Protocol)
 		{
 			IPlatform Platform;
 			RaspaResult res = new RaspaResult(true);
-			Protocol = Message;
 			try
 			{
 				//-----------------------------------------
 				// PREPARA INPUT
 				//-----------------------------------------
 				// PIN
-				int pin = Convert.ToInt32(Protocol.Componente.Pin);
+				int pin = Convert.ToInt32(Protocol.Destinatario.Node_Pin);
 				if (pin == 0)
 					return new RaspaResult(false, "PIN zero", "");
-				// value
-				int value = Convert.ToInt32(Protocol.Componente.Value);
-				// EDGE
-				GpioPinEdge? edge = Protocol.Componente.Edge;
 				// GPIO
 				if (PIN == null || !PIN.ContainsKey(pin))
 					return new RaspaResult(false, "PIN " + pin + " invalid", "");
@@ -71,31 +64,31 @@ namespace RaspaAction
 						Platform = new PlatForm_GET();
 						Platform.ActionNotify -= PlatformNotify;
 						Platform.ActionNotify += PlatformNotify;
-						res = Platform.RUN(gpioPIN, edge, value);
+						res = Platform.RUN(gpioPIN, Protocol);
 						break;
 					case enumComando.set:
 						Platform = new PlatForm_SET();
 						Platform.ActionNotify -= PlatformNotify;
 						Platform.ActionNotify += PlatformNotify;
-						res = Platform.RUN(gpioPIN, edge, value);
+						res = Platform.RUN(gpioPIN, Protocol);
 						break;
 					case enumComando.comando:
-						switch(Protocol.Componente.Tipo)
+						switch(Protocol.Destinatario.Tipo)
 						{
 							case enumComponente.light:
 								Platform = new PlatForm_Light();
 								Platform.ActionNotify -= PlatformNotify;
 								Platform.ActionNotify += PlatformNotify;
-								res = Platform.RUN(gpioPIN, edge, value);
+								res = Platform.RUN(gpioPIN, Protocol);
 								break;
 							case enumComponente.pir:
 								Platform = new PlatForm_PIR();
 								Platform.ActionNotify -= PlatformNotify;
 								Platform.ActionNotify += PlatformNotify;
-								res = Platform.RUN(gpioPIN, edge, value);
+								res = Platform.RUN(gpioPIN, Protocol);
 								break;
 							default:
-								res = new RaspaResult(false, "COMPONENTE : " + Protocol.Componente.Tipo.ToString() + " non esistente", "");
+								res = new RaspaResult(false, "COMPONENTE : " + Protocol.Destinatario.Tipo.ToString() + " non esistente", "");
 								break;
 						}
 						break;

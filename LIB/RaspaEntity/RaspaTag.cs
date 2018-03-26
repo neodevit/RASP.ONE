@@ -14,33 +14,27 @@ namespace RaspaEntity
 		public RaspaTag()
 		{
 		}
-
-		public RaspaTag(enumComponente componente, int node, int pin, string value,string type)
+		public RaspaTag(int id,enumComponente tipo, string value)
 		{
-			Node_componente = componente;
-			Node_num = node;
-			Node_pin = pin;
-			Node_value = value;
-			Node_type = type;
+			ID = id;
+			Tipo = tipo;
+			Value = value;
 		}
 		public RaspaTag(string tag)
 		{
 			string[] ANodo = tag.Split('_');
-			if (ANodo.Length < 5)
+			if (ANodo.Length < 3)
 				return;
-			Node_num = Convert.ToInt32(ANodo[0]);
-			Node_pin = Convert.ToInt32(ANodo[1]);
-			Node_value = ANodo[2];
-			Node_componente = (enumComponente)Convert.ToInt32(ANodo[3]);
-			Node_type = ANodo[4];
+			ID = Convert.ToInt32(ANodo[1]);
+			Tipo = (enumComponente)Convert.ToInt32(ANodo[2]);
+			Value = ANodo[3];
 		}
 
 		public bool CompareDestinatario(RaspaProtocol message)
 		{
 			bool res = false;
-			if (Node_num == message.Destinatario.Num &&
-				Node_pin == message.Componente.Pin &&
-				Node_componente == message.Componente.Tipo)
+			if (ID == message.Destinatario.ID &&
+				Tipo == message.Destinatario.Tipo)
 				res = true;
 
 			return res;
@@ -48,9 +42,8 @@ namespace RaspaEntity
 		public bool CompareMittente(RaspaProtocol message)
 		{
 			bool res = false;
-			if (Node_num == message.Mittente.Num &&
-				Node_pin == message.Componente.Pin &&
-				Node_componente == message.Componente.Tipo)
+			if (ID == message.Mittente.ID &&
+				Tipo == message.Mittente.Tipo)
 				res = true;
 
 			return res;
@@ -58,17 +51,15 @@ namespace RaspaEntity
 
 		public string BuildTag()
 		{
-			return Node_num + "_" + Node_pin + "_" + Node_value + "_" + (int)Node_componente + "_" + Node_type;
+			return "RASP.ONE_" + ID + "_" + (int)Tipo + "_" + Value;
 		}
 		public string BuildTag(RaspaProtocol message)
 		{
-			return message.Destinatario.Num + "_" + message.Componente.Pin + "_" + message.Componente.Value + "_" + ((int)message.Componente.Edge).ToString();
+			return "RASP.ONE_" + message.Destinatario.ID + "_" + (int)message.Destinatario.Tipo + "_" + message.Value;
 		}
 
-		public enumComponente Node_componente { get; set; }
-		public int Node_num { get; set; }
-		public int Node_pin { get; set; }
-		public string Node_value { get; set; }
-		public string Node_type { get; set; }
+		public int ID { get; set; }
+		public enumComponente Tipo { get; set; }
+		public string Value { get; set; }
 	}
 }

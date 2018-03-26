@@ -15,6 +15,14 @@ namespace RaspaEntity
 			Action = new ComponenteAction();
 			follow = new Follow();
 		}
+		public Componente(int id,bool enabled, bool trusted,int num,string ipv4)
+		{
+			ID = id;
+			Enabled = enabled;
+			Trusted = trusted;
+			Node_Num = num;
+			IPv4 = ipv4;
+		}
 		public int? ID { get; set; }
 		public bool Enabled { get; set; }
 		public bool Trusted { get; set; }
@@ -23,6 +31,7 @@ namespace RaspaEntity
 		public string ErrorMessage { get; set; }
 
 		public string Nome { get; set; }
+		public string HostName { get; set; }
 		public string Descrizione { get; set; }
 
 		public int IDComponenteTipo { get; set; }
@@ -81,6 +90,8 @@ namespace RaspaEntity
 		public string Value { get; set; }
 		public string IPv4 { get; set; }
 		public string IPv6 { get; set; }
+		public string BlueTooth { get; set; }
+		
 		public string Options { get; set; }
 		public string HWAddress { get; set; }
 		public Follow follow { get; set; }
