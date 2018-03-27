@@ -110,7 +110,7 @@ namespace RaspaCentral
 
 				EasClientDeviceInformation sysInfo = client.GetDeviceInfo();
 				centrale.SystemProductName = sysInfo.SystemProductName;
-				centrale.SystemFirmwareVersion = sysInfo.SystemFirmwareVersion;
+				centrale.SystemID = sysInfo.Id.ToString();
 
 				res = db.SetComponenti(centrale, Utente);
 
