@@ -106,20 +106,15 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DB\ComponenteTipo.cs" />
     <Compile Include="DB\Componente.cs" />
-    <Compile Include="DB\Actual.cs" />
-    <Compile Include="DB\Comando.cs" />
     <Compile Include="enum.cs" />
     <Compile Include="Follow.cs" />
     <Compile Include="DB\GPIOPin.cs" />
-    <Compile Include="Node.NetworkInfo.cs" />
     <Compile Include="RaspaProtocol.cs" />
     <Compile Include="RaspaTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaspaResult.cs" />
     <Compile Include="DB\Rules.cs" />
-    <Compile Include="DB\Subscription.cs" />
     <EmbeddedResource Include="Properties\RaspaEntity.rd.xml" />
   </ItemGroup>
   <ItemGroup>

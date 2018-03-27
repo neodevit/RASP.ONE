@@ -17,7 +17,7 @@ using Windows.UI.Core;
 
 namespace RaspaAction
 {
-	public delegate void ActionNotify(bool Esito,string Message, enumComponente componente,int Pin,int Value);
+	public delegate void ActionNotify(bool Esito,string Message, enumComponente componente,int Pin,string Value);
 	public class Azione
 	{
 		public event ActionNotify ActionNotify;
@@ -107,7 +107,7 @@ namespace RaspaAction
 			return res;
 		}
 
-		private void PlatformNotify(bool Esito, string Messaggio, enumComponente componente, int pin, int value)
+		private void PlatformNotify(bool Esito, string Messaggio, enumComponente componente, int pin, string value)
 		{
 			try
 			{

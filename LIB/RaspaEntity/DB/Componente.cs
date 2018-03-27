@@ -23,6 +23,7 @@ namespace RaspaEntity
 			Node_Num = num;
 			IPv4 = ipv4;
 		}
+
 		public int? ID { get; set; }
 		public bool Enabled { get; set; }
 		public bool Trusted { get; set; }
@@ -32,6 +33,12 @@ namespace RaspaEntity
 
 		public string Nome { get; set; }
 		public string HostName { get; set; }
+		public string OSVersion { get; set; }
+		public string NodeSWVersion { get; set; }
+		public string SystemProductName { get; set; }
+		public string SystemID { get; set; }
+		
+
 		public string Descrizione { get; set; }
 
 		public int IDComponenteTipo { get; set; }
@@ -49,8 +56,10 @@ namespace RaspaEntity
 						res = (Enabled && Trusted) ? enumStato.on : enumStato.off;
 						break;
 					case enumComponente.light:
-					case enumComponente.pir:
 						res = (Enabled && Trusted && Value=="1") ? enumStato.on : enumStato.off;
+						break;
+					case enumComponente.pir:
+						res = (Enabled && Trusted && Value=="2") ? enumStato.on : enumStato.off;
 						break;
 				}
 				return res;
@@ -91,7 +100,7 @@ namespace RaspaEntity
 		public string IPv4 { get; set; }
 		public string IPv6 { get; set; }
 		public string BlueTooth { get; set; }
-		
+
 		public string Options { get; set; }
 		public string HWAddress { get; set; }
 		public Follow follow { get; set; }

@@ -7,13 +7,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Globalization.DateTimeFormatting;
+using Windows.Networking;
+using Windows.Networking.Sockets;
+using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -51,8 +59,8 @@ namespace RaspaNode
 		bool flgMQTT = true;
 		public async void Start()
 		{
-
-
+			// Sync NODE with Correct Date Time
+			SyncDateTime();
 
 			// --------------------------------------
 			// GPIO
@@ -94,6 +102,14 @@ namespace RaspaNode
 
 
 		}
+		#region SYNC DATE TIME
+		public void SyncDateTime()
+		{
+			RaspBerry RB = new RaspBerry();
+			RB.SyncDateTime();
+		}
+		#endregion
+
 		#region MQTT
 		MQTT mqTT;
 
@@ -154,11 +170,11 @@ namespace RaspaNode
 				EsitoComando = action.Execute(OriginalMessage);
 
 			if (!EsitoComando.Esito)
-				ActionNotify(EsitoComando.Esito, EsitoComando.Message, OriginalMessage.Destinatario.Tipo, OriginalMessage.Destinatario.Node_Pin, Convert.ToInt32(OriginalMessage.Value));
+				ActionNotify(EsitoComando.Esito, EsitoComando.Message, OriginalMessage.Destinatario.Tipo, OriginalMessage.Destinatario.Node_Pin, OriginalMessage.Value);
 
 		}
 
-		private void ActionNotify(bool Esito,string Messaggio,enumComponente componente, int pin, int value)
+		private void ActionNotify(bool Esito,string Messaggio,enumComponente componente, int pin, string value)
 		{
 			try
 			{
@@ -166,7 +182,7 @@ namespace RaspaNode
 				OriginalMessage.Comando = enumComando.notify;
 				OriginalMessage.Esito = Esito;
 				OriginalMessage.Message = Messaggio;
-				OriginalMessage.Value = value.ToString();
+				OriginalMessage.Value = value;
 				mqTT.Publish(OriginalMessage);
 			}
 			catch { }
@@ -177,11 +193,10 @@ namespace RaspaNode
 
 
 
-		#region PHISICAL
+		#region GPIO
 		bool stato_gpio = false;
 
 
-		#region GPIO
 		internal GpioController GPIO;
 		internal Dictionary<int, GpioPin> PIN;
 
@@ -291,6 +306,8 @@ namespace RaspaNode
 		}
 		#endregion
 
+
+
 		#region NODE
 		private Componente nodo = null;
 
@@ -301,19 +318,25 @@ namespace RaspaNode
 			try
 			{
 				RaspBerry client = new RaspBerry();
-				NetworkInfo net = Tools.GetDeviceNetwork();
+				string IPv4 = client.GetLocalIPv4();
 
 				DBCentral db = new DBCentral();
-				nodo = db.GetComponenteByIPv4(net.IPv4);
+				nodo = db.GetComponenteByIPv4(IPv4);
 
 				if (nodo == null)
 					res = new RaspaResult(false, "Nodo non riconosciuto nel sistema");
 
-				nodo.HostName = net.HostName;
-				nodo.IPv4 = net.IPv4;
-				nodo.IPv6 = net.IPv6;
-				nodo.HWAddress = net.HWAddress;
-				nodo.BlueTooth = net.BlueTooth;
+				nodo.HostName = client.GetHostName();
+				nodo.IPv4 = IPv4;
+				nodo.IPv6 = "";
+				nodo.HWAddress = client.GetHWAddress();
+				nodo.BlueTooth = "";
+				nodo.OSVersion = client.GetOSVersion();
+				nodo.NodeSWVersion = client.GetRASPANodeVersion();
+
+				EasClientDeviceInformation sysInfo= client.GetDeviceInfo();
+				nodo.SystemProductName = sysInfo.SystemProductName;
+				nodo.SystemID = sysInfo.Id.ToString();
 
 				res = db.SetComponenti(nodo, nodo.HostName);
 
@@ -327,8 +350,5 @@ namespace RaspaNode
 			return res;
 		}
 		#endregion
-
-		#endregion
-
 	}
 }

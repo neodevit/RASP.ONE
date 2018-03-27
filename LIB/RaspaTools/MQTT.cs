@@ -24,7 +24,7 @@ namespace RaspaTools
 		public string ClientIP;
 		public string ClientName;
 
-		public const string MQTTServer = "192.168.1.10"; // "test.mosquitto.org";
+		public const string MQTTServer = "192.168.1.69"; // SYNOLOGY
 		public const int Port = 1883;
 		private const string ServerUser = "sassoribelle";
 		private const string ServerPass = "123456Ab";

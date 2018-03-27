@@ -110,8 +110,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaspBerry.cs" />
     <Compile Include="Tools.cs" />
-    <Compile Include="Tools.Device.network.cs" />
-    <Compile Include="UDP.cs" />
     <EmbeddedResource Include="Properties\RaspaTools.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +131,11 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsIoT, Version=10.0.16299.0">
+      <Name>Windows IoT Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

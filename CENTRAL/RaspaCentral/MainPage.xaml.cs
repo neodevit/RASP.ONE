@@ -30,6 +30,7 @@ using Windows.UI.Input;
 using Windows.UI.Xaml.Shapes;
 using System.Reflection;
 using MQTTnet.Protocol;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -55,6 +56,8 @@ namespace RaspaCentral
 			// MAPPA
 			InitProperty();
 			initMappa();
+			// Init from node
+			initComponentiFromNode();
 
 		}
 
@@ -89,19 +92,25 @@ namespace RaspaCentral
 			try
 			{
 				RaspBerry client = new RaspBerry();
-				NetworkInfo net = Tools.GetDeviceNetwork();
+				string IPv4 = client.GetLocalIPv4();
 
 				DBCentral db = new DBCentral();
-				centrale = db.GetComponenteByIPv4(net.IPv4);
+				centrale = db.GetComponenteByIPv4(IPv4);
 
 				if (centrale == null)
-					res = new RaspaResult(false, "Nodo non riconosciuto nel sistema");
+					res = new RaspaResult(false, "Centrale non riconosciuto nel sistema");
 
-				centrale.HostName = net.HostName;
-				centrale.IPv4 = net.IPv4;
-				centrale.IPv6 = net.IPv6;
-				centrale.HWAddress = net.HWAddress;
-				centrale.BlueTooth = net.BlueTooth;
+				centrale.HostName = client.GetHostName();
+				centrale.IPv4 = IPv4;
+				centrale.IPv6 = "";
+				centrale.HWAddress = client.GetHWAddress();
+				centrale.BlueTooth = "";
+				centrale.OSVersion = client.GetOSVersion();
+				centrale.NodeSWVersion = client.GetRASPANodeVersion();
+
+				EasClientDeviceInformation sysInfo = client.GetDeviceInfo();
+				centrale.SystemProductName = sysInfo.SystemProductName;
+				centrale.SystemFirmwareVersion = sysInfo.SystemFirmwareVersion;
 
 				res = db.SetComponenti(centrale, Utente);
 
@@ -139,6 +148,7 @@ namespace RaspaCentral
 		}
 
 		#region MQTT
+		bool FlgMQTT_CentralServer = false;
 		MQTT mqTT;
 		private void INIT_MQTT()
 		{
@@ -146,8 +156,11 @@ namespace RaspaCentral
 			{
 				mqTT = new MQTT(centrale.ID.Value, centrale.Nome, centrale.IPv4);
 
-				mqTT.createServer();
-				mqTT.startServer();
+				if (FlgMQTT_CentralServer)
+				{
+					mqTT.createServer();
+					mqTT.startServer();
+				}
 
 				mqTT.createClient();
 				mqTT.startClient();
@@ -205,6 +218,64 @@ namespace RaspaCentral
 		}
 		#endregion
 
+		#region INIT
+		private void initComponentiFromNode()
+		{
+			RaspaProtocol protocol;
+			messaggio.Text = "";
+			try
+			{
+				// Inizializza componenti mappa leggendoli dal DB
+				DBCentral DB = new DBCentral();
+				Componenti recs = DB.GetComponenti();
+				foreach (Componente rec in recs)
+				{
+					switch (rec.Tipo)
+					{
+						case enumComponente.centrale:
+							break;
+						case enumComponente.nodo:
+							break;
+						case enumComponente.light:
+							protocol = new RaspaProtocol();
+							protocol.Mittente = centrale;
+							protocol.Destinatario = rec;
+							protocol.Comando = enumComando.get;
+
+							writeLogVideo("INIT --> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+							MQTTRSend(protocol);
+
+							break;
+						case enumComponente.pir:
+							if (rec.Enabled)
+							{
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = rec;
+								protocol.Comando = enumComando.comando;
+								protocol.Value = "1";
+
+								writeLogVideo("INIT --> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+								MQTTRSend(protocol);
+							}
+							break;
+						case enumComponente.webcam_ip:
+							break;
+						case enumComponente.webcam_rasp:
+							break;
+
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
+		#endregion
+
 		#region RECEVICE
 		private void MQTTReceive(string Topic, string Payload, MqttQualityOfServiceLevel QoS, bool Retain)
 		{
@@ -218,26 +289,23 @@ namespace RaspaCentral
 			RaspaProtocol protocol = new RaspaProtocol(message);
 			try
 			{
-
-				switch (protocol.Comando)
+				// Modifica interfaccia a fronte della notifica
+				foreach (var control in GridMappa.Children)
 				{
-					case enumComando.notify:
-						#region MAPPA
-						// Modifica interfaccia a fronte della notifica
-						foreach (var control in GridMappa.Children)
+					var img = control as Image;
+					if (img == null)
+						continue;
+
+					if (img.Tag == null)
+						continue;
+
+					RaspaTag tag = new RaspaTag(img.Tag.ToString());
+					if (tag.CompareMittente(protocol))
+					{
+						switch (protocol.Comando)
 						{
-
-
-							var img = control as Image;
-							if (img == null)
-								continue;
-
-							if (img.Tag == null)
-								continue;
-
-							RaspaTag tag = new RaspaTag(img.Tag.ToString());
-							if (tag.CompareMittente(protocol))
-							{
+							case enumComando.notify:
+								#region NOTIFY
 								// aggiorno il tag value
 								tag.Value = protocol.Value;
 								img.Tag = tag.BuildTag();
@@ -263,37 +331,47 @@ namespace RaspaCentral
 										}
 										break;
 								}
-
-							}
+								break;
+								#endregion
+							case enumComando.get:
+								#region GET
+								//-------------------------------------
+								//               GET
+								//-------------------------------------
+								switch (protocol.Mittente.Tipo)
+								{
+									case enumComponente.light:
+										img.Source = (tag.Value == "0") ? light_off.Source : light_on.Source;
+										break;
+									case enumComponente.pir:
+										switch (tag.Value)
+										{
+											case "0": // spento
+												img.Source = bell_off.Source;
+												break;
+											case "1": // acceso
+												img.Source = bell_on.Source;
+												break;
+											case "2": // segnale passaggio
+												img.Source = bell_active.Source;
+												break;
+										}
+										break;
+								}
+								#endregion
+								break;
+							case enumComando.set:
+								#region SET
+								#endregion
+								break;
+							case enumComando.comando:
+								#region comando
+								#endregion
+								break;
+							default:
+								break;
 						}
-
-						#endregion
-						#region REGOLE
-						//if (protocol.IDSubcription.HasValue && protocol.Esito )
-						//{
-						//	DBCentral DB = new DBCentral();
-						//	Rules rules = DB.GetRulesByIDSubscription(protocol.IDSubcription.Value, protocol.Value);
-						//	foreach (Rule rule in rules)
-						//	{
-						//		// PREPARA MESSAGGIO
-						//		RaspaProtocol messRule = new RaspaProtocol(rule.IDSubscription,
-						//													rule.COMANDO,
-						//													new Componente(centrale.ID.Value, centrale.Enabled, centrale.Trusted, centrale.Node_Num, centrale.IPv4),
-						//													new RaspaProtocol_Nodo(null, null, null, rule.NODE, rule.IPv4),
-						//													new RaspaProtocol_Componente(null, rule.COMPONENTE, (int)rule.Edge, rule.PIN, rule.VALUE, null));
-
-						//		// SEND UDP COMMAND
-						//		Send(rule.IPv4, messRule.BuildJson());
-						//	}
-						//}
-						#endregion
-						break;
-					case enumComando.get:
-					case enumComando.set:
-					case enumComando.comando:
-						break;
-					default:
-						break;
+					}
 				}
 			}
 			catch (Exception ex)
@@ -308,8 +386,10 @@ namespace RaspaCentral
 		#endregion
 
 		#region WORKING
-		private void Comando(Image img,int IDComponente)
+		private RaspaResult Comando(Image img,int IDComponente)
 		{
+			RaspaProtocol protocol;
+			RaspaResult res = new RaspaResult(true);
 			try
 			{
 				DBCentral DB = new DBCentral();
@@ -317,7 +397,7 @@ namespace RaspaCentral
 				if (componente == null)
 				{
 					messaggio.Text = "Nessun comando per il componente ID " + IDComponente + " non trovato sul DB";
-					return;
+					return new RaspaResult(false, "Nessun comando per il componente ID " + IDComponente + " non trovato sul DB");
 				}
 
 				RaspaTag tag = new RaspaTag(img.Tag.ToString());
@@ -329,10 +409,34 @@ namespace RaspaCentral
 					case enumComponente.nodo:
 						break;
 					case enumComponente.pir:
+						// SE ALLARME ATTIVO
+						if (tag.Value == "2")
+						{
+							// COMPONGO NOTIFICA
+							// DI SPEGNI ALLARME
+							protocol = new RaspaProtocol();
+							protocol.Mittente = componente;
+							protocol.Destinatario = centrale;
+							protocol.Comando = enumComando.notify;
+							protocol.Value = "1";
+							AggiornaFormConIRisultati(protocol.BuildJson());
+						}
+						else
+						{
+							// SE ACCESO o SPENTO CAMBIO STATO
+							protocol = new RaspaProtocol();
+							protocol.Mittente = centrale;
+							protocol.Destinatario = componente;
+							protocol.Comando = enumComando.comando;
+							protocol.Value = (tag.Value == "0") ? "1" : "0";
+
+							writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+							MQTTRSend(protocol);
+						}
 						break;
 					case enumComponente.light:
-						// Protocol
-						RaspaProtocol protocol = new RaspaProtocol();
+						// ON OFF
+						protocol = new RaspaProtocol();
 						protocol.Mittente = centrale;
 						protocol.Destinatario = componente;
 						protocol.Comando = enumComando.comando;
@@ -353,7 +457,9 @@ namespace RaspaCentral
 			{
 				messaggio.Text = ex.Message;
 				if (Debugger.IsAttached) Debugger.Break();
+				res = new RaspaResult(false, ex.Message);
 			}
+			return res;
 		}
 		#endregion
 
@@ -954,6 +1060,8 @@ namespace RaspaCentral
 
 				// evidenziazione
 				evidenzia(true);
+
+
 			}
 			catch (Exception ex)
 			{

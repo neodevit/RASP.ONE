@@ -621,6 +621,23 @@ namespace RaspaDB
 						else
 							item.Descrizione = "";
 
+						if (!reader.IsDBNull(reader.GetOrdinal("OSVersion")))
+							item.OSVersion = reader.GetString("OSVersion");
+						else
+							item.OSVersion = "";
+						if (!reader.IsDBNull(reader.GetOrdinal("NodeSWVersion")))
+							item.NodeSWVersion = reader.GetString("NodeSWVersion");
+						else
+							item.NodeSWVersion = "";
+						if (!reader.IsDBNull(reader.GetOrdinal("SystemProductName")))
+							item.SystemProductName = reader.GetString("SystemProductName");
+						else
+							item.SystemProductName = "";
+						if (!reader.IsDBNull(reader.GetOrdinal("SystemID")))
+							item.SystemID = reader.GetString("SystemID");
+						else
+							item.SystemID = "";
+						
 
 						// POSITION
 						if (!reader.IsDBNull(reader.GetOrdinal("PositionTop")))
@@ -741,9 +758,9 @@ namespace RaspaDB
 			{
 				string sql = "";
 				sql += "INSERT INTO `70_COMPONENTE`";
-				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`HostName`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`BlueTooth`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
+				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`HostName`,`OSVersion`,`NodeSWVersion`,`SystemProductName`,`SystemID`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`BlueTooth`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
 				sql += " VALUES";
-				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@HostName,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@BlueTooth,@Options,@Utente,NOW(),@Utente,NOW());";
+				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@HostName,@OSVersion,@NodeSWVersion,@SystemProductName,@SystemID,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@BlueTooth,@Options,@Utente,NOW(),@Utente,NOW());";
 				sql += " select LAST_INSERT_ID() as ID;";
 
 				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
@@ -755,6 +772,11 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@Trusted", value.Enabled);
 						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
 						mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
+						mySqlCommand.Parameters.AddWithValue("@OSVersion", value.OSVersion);
+						mySqlCommand.Parameters.AddWithValue("@NodeSWVersion", value.NodeSWVersion);
+						mySqlCommand.Parameters.AddWithValue("@SystemProductName", value.SystemProductName);
+						mySqlCommand.Parameters.AddWithValue("@SystemID", value.SystemID);
+						
 						mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
 						mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
 
@@ -814,6 +836,12 @@ namespace RaspaDB
 				sql += "    ,`IDComponenteTipo` = @IDComponenteTipo";
 				
 				sql += "    ,`HostName` = @HostName";
+				sql += "    ,`OSVersion` = @OSVersion";
+				sql += "    ,`NodeSWVersion` = @NodeSWVersion";
+				sql += "    ,`SystemProductName` = @SystemProductName";
+				sql += "    ,`SystemID` = @SystemID";
+				
+
 				sql += "    ,`Nome` = @Nome";
 				sql += "    ,`Descrizione` = @Descrizione";
 
@@ -847,6 +875,11 @@ namespace RaspaDB
 						mySqlCommand.Parameters.AddWithValue("@Trusted", value.Trusted);
 						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
 						mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
+						mySqlCommand.Parameters.AddWithValue("@OSVersion", value.OSVersion);
+						mySqlCommand.Parameters.AddWithValue("@NodeSWVersion", value.NodeSWVersion);
+						mySqlCommand.Parameters.AddWithValue("@SystemProductName", value.SystemProductName);
+						mySqlCommand.Parameters.AddWithValue("@SystemID", value.SystemID);
+						
 						mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
 						mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
 

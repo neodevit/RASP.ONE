@@ -64,7 +64,7 @@ namespace RaspaAction
 				return;
 
 			int value = (sender.Read() == GpioPinValue.Low) ? 1 : 0;
-			this.ActionNotify(true, "Pin SET Change", enumComponente.light, sender.PinNumber, value);
+			this.ActionNotify(true, "Pin SET Change", enumComponente.light, sender.PinNumber, value.ToString());
 		}
 
 	}

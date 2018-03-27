@@ -15,7 +15,7 @@ namespace RaspaAction
 		bool firstTime = false;
 		public RaspaResult RUN(GpioPin gpioPIN,RaspaProtocol Protocol)
 		{
-			RaspaResult res = new RaspaResult(true, "");
+			RaspaResult res = new RaspaResult(false, "NA");
 			try
 			{
 				GpioPinEdge edge = (Protocol.Destinatario.Options == "0") ? GpioPinEdge.FallingEdge : GpioPinEdge.RisingEdge;
@@ -37,6 +37,7 @@ namespace RaspaAction
 							gpioPIN.ValueChanged += Pir_RisingEdge_ValueChanged;
 
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
+						ActionNotify(res.Esito, res.Message, enumComponente.pir, gpioPIN.PinNumber, res.Value);
 						break;
 					case "0": // SPENGO
 						firstTime = true; // sto spegnendo non voglio una falsa segnalazione di presenza
@@ -46,8 +47,10 @@ namespace RaspaAction
 						res.Message = "PIR OFF";
 						gpioPIN.ValueChanged -= Pir_FallingEdge_ValueChanged;
 						gpioPIN.ValueChanged -= Pir_RisingEdge_ValueChanged;
+						ActionNotify(res.Esito, res.Message, enumComponente.pir, gpioPIN.PinNumber, res.Value);
 						break;
 				}
+
 			}
 			catch (Exception ex)
 			{
@@ -62,14 +65,14 @@ namespace RaspaAction
 		{
 			// se rilevato mando messaggio
 			if (e.Edge == GpioPinEdge.FallingEdge && firstTime==false)
-				ActionNotify(true, "Pir Change", enumComponente.pir, sender.PinNumber, 2);
+				ActionNotify(true, "Pir Change", enumComponente.pir, sender.PinNumber, "2");
 			firstTime = false;
 		}
 		private void Pir_RisingEdge_ValueChanged(GpioPin sender, GpioPinValueChangedEventArgs e)
 		{
 			// se rilevato mando messaggio
 			if (e.Edge == GpioPinEdge.RisingEdge && firstTime == false)
-				ActionNotify(true, "Pir Change", enumComponente.pir, sender.PinNumber, 2);
+				ActionNotify(true, "Pir Change", enumComponente.pir, sender.PinNumber, "2");
 			firstTime = false;
 		}
 
