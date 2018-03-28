@@ -127,18 +127,19 @@ namespace RaspaCentral
 		{
 			try
 			{
-				Stato.IsOn = (centrale.Enabled) ? true : false;
 
 				NodeNum.Text = centrale.Node_Num.ToString();
 				NodeName.Text = centrale.Nome ?? "";
 
-				HostName.Text = centrale.HostName ?? "";
-				IPv4.Text = centrale.IPv4 ?? "";
-				IPv6.Text = centrale.IPv6 ?? "";
-				HWAddress.Text = centrale.HWAddress ?? "";
+				CENTRALHostName.Text = centrale.HostName ?? "";
+				CENTRAL_IPv4.Text = centrale.IPv4 ?? "";
+				CENTRAL_IPv6.Text = centrale.IPv6 ?? "";
+				CENTRAL_OS.Text = "Windows (" + centrale.OSVersion + ")" ?? "";
+				CENTRAL_Platform.Text = centrale.SystemProductName ?? "";
+				CENTRAL_Serial.Text = centrale.SystemID ?? "";
 
-				NodeUser.Text = "administrator";
-				NodePassword.Text = "p@ssw0rd";
+				CENTRAL_SWVer.Text = "RASP.one CENTRALE : ver " + centrale.NodeSWVersion ?? "";
+
 			}
 			catch (Exception ex)
 			{
@@ -874,8 +875,12 @@ namespace RaspaCentral
 				// deseleziono
 				evidenzia(false);
 
-				// visualizza toolbar componenti
-				ToolbarShow(enumShowToolbar.componenti);
+				if (RaspaMode == enumMode.edit)
+				{
+
+					// visualizza toolbar componenti
+					ToolbarShow(enumShowToolbar.componenti);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -1378,7 +1383,7 @@ namespace RaspaCentral
 					var p = e.GetPosition(Mappa);
 					var X = (selectedPointer != null && selectedPointer.Position != null) ? selectedPointer.Position.X : 0;
 					var Y = (selectedPointer != null && selectedPointer.Position != null) ? selectedPointer.Position.Y : 0;
-					ActualImage.Margin = new Thickness(p.X - X, p.Y - Y, 0, 0);
+					ActualImage.Margin = new Thickness(p.X - X-4, p.Y - Y-4, 0, 0);
 					Actualcomponente.Margin = ActualImage.Margin;
 
 					// SALVO POSIZIONI CAMBIATE
