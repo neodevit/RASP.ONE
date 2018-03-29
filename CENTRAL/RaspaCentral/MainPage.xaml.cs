@@ -49,6 +49,7 @@ namespace RaspaCentral
 
 		}
 
+		bool flgINIT_NODO_Component = false;
 		protected override async void OnNavigatedTo(NavigationEventArgs e)
 		{
 			// CENTRAL
@@ -57,7 +58,8 @@ namespace RaspaCentral
 			InitProperty();
 			initMappa();
 			// Init from node
-			initComponentiFromNode();
+			if (flgINIT_NODO_Component)
+				initComponentiFromNode();
 
 		}
 
@@ -95,7 +97,7 @@ namespace RaspaCentral
 				string IPv4 = client.GetLocalIPv4();
 
 				DBCentral db = new DBCentral();
-				centrale = db.GetComponenteByIPv4(IPv4);
+				centrale = db.GetComponenteByIPv4(IPv4, enumComponente.centrale);
 
 				if (centrale == null)
 					res = new RaspaResult(false, "Centrale non riconosciuto nel sistema");
@@ -108,9 +110,8 @@ namespace RaspaCentral
 				centrale.OSVersion = client.GetOSVersion();
 				centrale.NodeSWVersion = client.GetRASPANodeVersion();
 
-				EasClientDeviceInformation sysInfo = client.GetDeviceInfo();
-				centrale.SystemProductName = sysInfo.SystemProductName;
-				centrale.SystemID = sysInfo.Id.ToString();
+				centrale.SystemProductName = client.SystemProductName();
+				centrale.SystemID = client.GetHardwareID();
 
 				res = db.SetComponenti(centrale, Utente);
 
@@ -155,7 +156,7 @@ namespace RaspaCentral
 		{
 			try
 			{
-				mqTT = new MQTT(centrale.ID.Value, centrale.Nome, centrale.IPv4);
+				mqTT = new MQTT(centrale.SystemID, centrale.HostName, centrale.IPv4);
 
 				if (FlgMQTT_CentralServer)
 				{
@@ -254,7 +255,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = rec;
 								protocol.Comando = enumComando.comando;
-								protocol.Value = "1";
+								protocol.Value = ((int)enumPirValue.on).ToString();
 
 								writeLogVideo("INIT --> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
 								MQTTRSend(protocol);
@@ -290,6 +291,7 @@ namespace RaspaCentral
 			RaspaProtocol protocol = new RaspaProtocol(message);
 			try
 			{
+				DBCentral DB = new DBCentral();
 				// Modifica interfaccia a fronte della notifica
 				foreach (var control in GridMappa.Children)
 				{
@@ -307,27 +309,57 @@ namespace RaspaCentral
 						{
 							case enumComando.notify:
 								#region NOTIFY
-								// aggiorno il tag value
-								tag.Value = protocol.Value;
-								img.Tag = tag.BuildTag();
+
+								// -----------------------------------------------
+								// Aggiorno value sul DB
+								// -----------------------------------------------
+								RaspaResult res = DB.ModComponentiValue(tag.ID, protocol.Value, Utente);
+								if (!res.Esito)
+								{
+									messaggio.Text = "Errore Receive command but not found ID " + tag.ID + " on DB";
+									return;
+								}
 
 								// aggiorno immagine
 								switch (protocol.Mittente.Tipo)
 								{
 									case enumComponente.light:
-										img.Source = (tag.Value == "0") ? light_off.Source : light_on.Source;
+										enumPINValue valueLight = (enumPINValue)Convert.ToInt32(protocol.Value);
+										switch (valueLight)
+										{
+											case enumPINValue.nessuno:
+												img.Source = light_err.Source;
+												break;
+											case enumPINValue.off:
+												img.Source = light_off.Source;
+												break;
+											case enumPINValue.on:
+												img.Source = light_on.Source;
+												break;
+											case enumPINValue.err:
+												img.Source = light_err.Source;
+												break;
+										}
 										break;
 									case enumComponente.pir:
-										switch (tag.Value)
+										enumPirValue valuePir = (enumPirValue)Convert.ToInt32(protocol.Value);
+
+										switch (valuePir)
 										{
-											case "0": // spento
+											case enumPirValue.nessuno: // nessuno
+												img.Source = bell_err.Source;
+												break;
+											case enumPirValue.off: // spento
 												img.Source = bell_off.Source;
 												break;
-											case "1": // acceso
+											case enumPirValue.on: // acceso
 												img.Source = bell_on.Source;
 												break;
-											case "2": // segnale passaggio
+											case enumPirValue.signal: // segnale passaggio
 												img.Source = bell_active.Source;
+												break;
+											case enumPirValue.err: // segnale passaggio
+												img.Source = bell_err.Source;
 												break;
 										}
 										break;
@@ -342,19 +374,52 @@ namespace RaspaCentral
 								switch (protocol.Mittente.Tipo)
 								{
 									case enumComponente.light:
-										img.Source = (tag.Value == "0") ? light_off.Source : light_on.Source;
+										// -----------------------------------------------
+										// Aggiorno value sul DB
+										// -----------------------------------------------
+										RaspaResult resGet = DB.ModComponentiValue(tag.ID, protocol.Value, Utente);
+										if (!resGet.Esito)
+										{
+											messaggio.Text = "Errore Receive GET but not found ID " + tag.ID + " on DB";
+											return;
+										}
+
+										enumPINValue valueGET = (enumPINValue)Convert.ToInt32(protocol.Value);
+										switch (valueGET)
+										{
+											case enumPINValue.nessuno:
+												img.Source = light_err.Source;
+												break;
+											case enumPINValue.off:
+												img.Source = light_off.Source;
+												break;
+											case enumPINValue.on:
+												img.Source = light_on.Source;
+												break;
+											case enumPINValue.err:
+												img.Source = light_err.Source;
+												break;
+										}
 										break;
 									case enumComponente.pir:
-										switch (tag.Value)
+										enumPirValue valuePir = (enumPirValue)Convert.ToInt32(protocol.Value);
+
+										switch (valuePir)
 										{
-											case "0": // spento
+											case enumPirValue.nessuno: // nessuno
+												img.Source = bell_err.Source;
+												break;
+											case enumPirValue.off: // spento
 												img.Source = bell_off.Source;
 												break;
-											case "1": // acceso
+											case enumPirValue.on: // acceso
 												img.Source = bell_on.Source;
 												break;
-											case "2": // segnale passaggio
+											case enumPirValue.signal: // segnale passaggio
 												img.Source = bell_active.Source;
+												break;
+											case enumPirValue.err: // segnale passaggio
+												img.Source = bell_err.Source;
 												break;
 										}
 										break;
@@ -367,6 +432,65 @@ namespace RaspaCentral
 								break;
 							case enumComando.comando:
 								#region comando
+								#endregion
+								break;
+							case enumComando.nodeInit:
+								#region NODE INIT
+								// leggo il nodo da iniziare sul DB
+								Componente nodo2INIT = DB.GetComponenteByIPv4(protocol.Mittente.IPv4, enumComponente.nodo);
+
+								// se il componente è effettivamente un nodo
+								if (nodo2INIT.Tipo== enumComponente.nodo && protocol.Mittente != null)
+								{
+									// Aggiorno i dati del nodo
+									nodo2INIT.HostName = protocol.Mittente.HostName;
+									nodo2INIT.HWAddress = protocol.Mittente.HWAddress;
+									nodo2INIT.IPv4 = protocol.Mittente.IPv4;
+									nodo2INIT.IPv6 = protocol.Mittente.IPv6;
+									nodo2INIT.NodeSWVersion = protocol.Mittente.NodeSWVersion;
+									nodo2INIT.OSVersion = protocol.Mittente.OSVersion;
+									nodo2INIT.SystemID = protocol.Mittente.SystemID;
+									nodo2INIT.SystemProductName = protocol.Mittente.SystemProductName;
+
+									// salvo i dati aggiornati sul database
+									RaspaResult resNodeInit = DB.SetComponenti(nodo2INIT, Utente);
+								}
+								break;
+
+							#endregion
+							case enumComando.nodeReload:
+								#region NODE RELOAD
+								// leggo il nodo da reload sul DB
+								Componenti componenti = DB.GetComponentiByIPv4(protocol.Mittente.IPv4);
+
+								// analizza i componenti
+								foreach (Componente componente in componenti)
+								{
+									switch (componente.Tipo)
+									{
+										case enumComponente.nessuno:
+										case enumComponente.centrale:
+										case enumComponente.nodo:
+											break;
+										case enumComponente.pir:
+											// manda messaggio al nodo per inizializzare questo PIR
+											// con i dati presenti nel DB
+
+											break;
+										case enumComponente.light:
+											// manda messaggio al nodo per inizializzare questa LIGHT
+											// con i dati presenti nel DB
+											RaspaProtocol initLight = new RaspaProtocol();
+											protocol.Comando = enumComando.comando;
+											protocol.Mittente = centrale;
+											protocol.Destinatario = componente;
+											protocol.Value = componente.Value;
+
+											MQTTRSend(protocol);
+											break;
+									}
+								}
+								
 								#endregion
 								break;
 							default:
@@ -401,8 +525,6 @@ namespace RaspaCentral
 					return new RaspaResult(false, "Nessun comando per il componente ID " + IDComponente + " non trovato sul DB");
 				}
 
-				RaspaTag tag = new RaspaTag(img.Tag.ToString());
-
 				switch (componente.Tipo)
 				{
 					case enumComponente.centrale:
@@ -410,41 +532,113 @@ namespace RaspaCentral
 					case enumComponente.nodo:
 						break;
 					case enumComponente.pir:
-						// SE ALLARME ATTIVO
-						if (tag.Value == "2")
-						{
-							// COMPONGO NOTIFICA
-							// DI SPEGNI ALLARME
-							protocol = new RaspaProtocol();
-							protocol.Mittente = componente;
-							protocol.Destinatario = centrale;
-							protocol.Comando = enumComando.notify;
-							protocol.Value = "1";
-							AggiornaFormConIRisultati(protocol.BuildJson());
-						}
-						else
-						{
-							// SE ACCESO o SPENTO CAMBIO STATO
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = componente;
-							protocol.Comando = enumComando.comando;
-							protocol.Value = (tag.Value == "0") ? "1" : "0";
 
-							writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
-							MQTTRSend(protocol);
+						enumPirValue valuePIR = (enumPirValue)Convert.ToInt32(componente.Value);
+						switch(valuePIR)
+						{
+							case enumPirValue.nessuno:
+								// ---------------------------------
+								//            PIR ERR
+								// ---------------------------------
+								if (Debugger.IsAttached) Debugger.Break();
+								break;
+							case enumPirValue.err:
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.get;
+								protocol.Value = ((int)enumPirValue.off).ToString();
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " GET ");
+								MQTTRSend(protocol);
+								break;
+							case enumPirValue.off:
+								// ---------------------------------
+								// chiama nodo per PIR ON
+								// ---------------------------------
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Value = ((int)enumPirValue.on).ToString();
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+								MQTTRSend(protocol);
+								break;
+							case enumPirValue.on:
+								// ---------------------------------
+								// chiama nodo per PIR OFF
+								// ---------------------------------
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Value = ((int)enumPirValue.off).ToString();
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+								MQTTRSend(protocol);
+
+								break;
+							case enumPirValue.signal:
+								// ---------------------------------
+								//         CANCEL SIGNAL
+								// aggiorna solo la form risultati
+								// ---------------------------------
+								protocol = new RaspaProtocol();
+								protocol.Mittente = componente;
+								protocol.Destinatario = centrale;
+								protocol.Comando = enumComando.notify;
+								protocol.Value = ((int)enumPirValue.on).ToString();
+								AggiornaFormConIRisultati(protocol.BuildJson());
+
+								break;
 						}
 						break;
 					case enumComponente.light:
-						// ON OFF
-						protocol = new RaspaProtocol();
-						protocol.Mittente = centrale;
-						protocol.Destinatario = componente;
-						protocol.Comando = enumComando.comando;
-						protocol.Value = (tag.Value == "0") ? "1" : "0";
+						enumPINValue valueLIGHT = (enumPINValue)Convert.ToInt32(componente.Value);
 
-						writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
-						MQTTRSend(protocol);
+						switch(valueLIGHT)
+						{
+							case enumPINValue.nessuno:
+								// ---------------------------------
+								//         LIGT ERR
+								// ---------------------------------
+								if (Debugger.IsAttached) Debugger.Break();
+								break;
+							case enumPINValue.err:
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.get;
+								protocol.Value = ((int)enumPINValue.off).ToString();
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " GET ");
+								MQTTRSend(protocol);
+								break;
+							case enumPINValue.off:
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Value = ((int)enumPINValue.on).ToString();
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+								MQTTRSend(protocol);
+								break;
+							case enumPINValue.on:
+								// ---------------------------------
+								// chiama nodo per LIGHT OFF
+								// ---------------------------------
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Value = ((int)enumPINValue.off).ToString();
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " value : " + protocol.Value);
+								MQTTRSend(protocol);
+								break;
+						}
 						break;
 					case enumComponente.webcam_ip:
 						ipcam1.playIPCam(componente.Nome, componente.Value);
@@ -582,7 +776,7 @@ namespace RaspaCentral
 				}
 				else
 				{
-					ToolbarShow(enumShowToolbar.regole);
+					ToolbarShow(enumShowToolbar.help);
 					RaspaMode = enumMode.working;
 
 					// Elimina componenti in sospeso
@@ -718,7 +912,7 @@ namespace RaspaCentral
 				string ToolTipCustom = initActualComponente(comp, item);
 
 				// creo TAG : ID_VALUE_COMP
-				string Tag = "RASP.ONE_" + ((item != null && item.ID.HasValue) ? item.ID.Value + "_" + ((int)comp).ToString() + "_0" : "0_" + ((int)comp).ToString() + "_0");
+				string Tag = "RASP.ONE_" + ((item != null && item.ID.HasValue) ? item.ID.Value + "_" + ((int)comp).ToString() : "0_" + ((int)comp).ToString() );
 				// se esiste già una immagine con quel tag non la ricreo
 				if (ExistComponentWithTagInPage(Tag))
 					return null;
@@ -756,13 +950,15 @@ namespace RaspaCentral
 				MenuFlyoutItem a4 = new MenuFlyoutItem();
 				MenuFlyoutItem a5 = new MenuFlyoutItem();
 				MenuFlyoutItem a6 = new MenuFlyoutItem();
+				MenuFlyoutItem a7 = new MenuFlyoutItem();
 
-				a1 = new MenuFlyoutItem { Text = "Enabled", IsEnabled = Actualcomponente.Action.Enabled, Tag = Actualcomponente.ID };
-				a2 = new MenuFlyoutItem { Text = "Disabled", IsEnabled = Actualcomponente.Action.Disabled, Tag = Actualcomponente.ID };
-				a3 = new MenuFlyoutItem { Text = "Schema", IsEnabled = Actualcomponente.Action.Schema, Tag = Actualcomponente.ID };
-				a4 = new MenuFlyoutItem { Text = "Reset", IsEnabled = Actualcomponente.Action.Reset, Tag = Actualcomponente.ID };
-				a5 = new MenuFlyoutItem { Text = "Property", IsEnabled = Actualcomponente.Action.Property, Tag = Actualcomponente.ID };
-				a6 = new MenuFlyoutItem { Text = "Remove", IsEnabled = Actualcomponente.Action.Remove, Tag = Actualcomponente.ID };
+				a1 = new MenuFlyoutItem { Text = "Reset", IsEnabled = Actualcomponente.Action.Reset, Tag = Actualcomponente.ID };
+				a2 = new MenuFlyoutItem { Text = "Enabled", IsEnabled = Actualcomponente.Action.Enabled, Tag = Actualcomponente.ID };
+				a3 = new MenuFlyoutItem { Text = "Disabled", IsEnabled = Actualcomponente.Action.Disabled, Tag = Actualcomponente.ID };
+				a4 = new MenuFlyoutItem { Text = "Schema", IsEnabled = Actualcomponente.Action.Schema, Tag = Actualcomponente.ID };
+				a5 = new MenuFlyoutItem { Text = "Regole", IsEnabled = Actualcomponente.Action.Regole, Tag = Actualcomponente.ID };
+				a6 = new MenuFlyoutItem { Text = "Property", IsEnabled = Actualcomponente.Action.Property, Tag = Actualcomponente.ID };
+				a7 = new MenuFlyoutItem { Text = "Remove", IsEnabled = Actualcomponente.Action.Remove, Tag = Actualcomponente.ID };
 
 
 				a1.Click += MenuFlyoutItem_Click;
@@ -771,6 +967,7 @@ namespace RaspaCentral
 				a4.Click += MenuFlyoutItem_Click;
 				a5.Click += MenuFlyoutItem_Click;
 				a6.Click += MenuFlyoutItem_Click;
+				a7.Click += MenuFlyoutItem_Click;
 				myFlyout.Items.Add(a1);
 				myFlyout.Items.Add(a2);
 				myFlyout.Items.Add(a3);
@@ -804,22 +1001,45 @@ namespace RaspaCentral
 					res = new BitmapImage(new Uri("ms-appx:///Assets/error.png"));
 					break;
 				case enumComponente.light:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/light_off.png"));
-					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/light_disabled.png"));
-					if (oggetto.Attivo == enumStato.on)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/light_on.png"));
-					if (oggetto.Error)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/light_err.png"));
+					enumPINValue valueLight = (enumPINValue)Convert.ToInt32(oggetto.Value);
+					switch (valueLight)
+					{
+						case enumPINValue.nessuno:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/light_disabled.png"));
+							break;
+						case enumPINValue.off:
+						res = new BitmapImage(new Uri("ms-appx:///Assets/light_off.png"));
+							break;
+						case enumPINValue.on:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/light_on.png"));
+							break;
+						case enumPINValue.err:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/light_err.png"));
+							break;
+					}
 					break;
 				case enumComponente.pir:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/bell_on.png"));
-					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/bell_off.png"));
-					if (oggetto.Attivo == enumStato.on)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/bell_active.png"));
-					if (oggetto.Error)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/bell_err.png"));
+
+					enumPirValue valuePIR = (enumPirValue)Convert.ToInt32(oggetto.Value);
+					switch(valuePIR)
+					{
+						case enumPirValue.nessuno:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/bell_err.png"));
+							break;
+						case enumPirValue.off:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/bell_off.png"));
+							break;
+						case enumPirValue.on:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/bell_on.png"));
+							break;
+						case enumPirValue.signal:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/bell_active.png"));
+							break;
+						case enumPirValue.err:
+							res = new BitmapImage(new Uri("ms-appx:///Assets/bell_err.png"));
+							break;
+					}
+
 					break;
 				case enumComponente.nodo:
 					res = new BitmapImage(new Uri("ms-appx:///Assets/raspberry.png"));
@@ -1032,6 +1252,10 @@ namespace RaspaCentral
 					case "Reset":
 					case "Schema":
 						ShowSchema(IDComponente);
+						break;
+					case "Regole":
+						Regole.INIT(IDComponente);
+						ToolbarShow(enumShowToolbar.regole);
 						break;
 					case "Property":
 						OpenProperty(IDComponente);
@@ -1549,6 +1773,7 @@ namespace RaspaCentral
 			regole = 2,
 			info = 3,
 			schema = 4,
+			help = 5,
 		}
 		public void ToolbarShow(enumShowToolbar show)
 		{
@@ -1557,9 +1782,17 @@ namespace RaspaCentral
 			ToolBarProperty.Visibility = Visibility.Collapsed;
 			ToolbarComponenti.Visibility = Visibility.Collapsed;
 			ToolBarSchema.Visibility = Visibility.Collapsed;
+			ToolBarHelp.Visibility = Visibility.Collapsed;
+			ToolbarRegole.Visibility = Visibility.Collapsed;
+			
 
 			switch (show)
 			{
+				case enumShowToolbar.help:
+					TITOLO_TOOLBAR.Text = "HELP";
+					ToolBarHelp.Visibility = Visibility.Visible;
+					break;
+
 				case enumShowToolbar.componenti:
 					TITOLO_TOOLBAR.Text = "TOOLS";
 					ToolbarComponenti.Visibility = Visibility.Visible;

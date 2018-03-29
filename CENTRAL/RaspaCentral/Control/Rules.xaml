@@ -1,0 +1,48 @@
+﻿<UserControl
+    x:Class="RaspaCentral.Rules"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RaspaCentral"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="500"
+    d:DesignWidth="500">
+
+    <Grid Width="500" Height="500">
+        <RelativePanel x:Name="lista" Visibility="Collapsed"  RenderTransformOrigin="0,0" >
+            <ListView x:Name="regole" Width="500" Height="500" DoubleTapped="regole_DoubleTapped" />
+        </RelativePanel>
+
+        <RelativePanel x:Name="scheda" Visibility="Visible" RenderTransformOrigin="0,0" >
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SE " TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,67,-56,-67"/>
+            <ComboBox x:Name="se_componente" HorizontalAlignment="Left" Margin="121,61,-295,0" VerticalAlignment="Top" Width="363" SelectionChanged="condizione_componente_SelectionChanged"/>
+
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="VALORE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
+            <ComboBox x:Name="se_condizione" HorizontalAlignment="Left" Margin="121,100,-92,-39" VerticalAlignment="Top" Width="160" SelectionChanged="se_condizione_SelectionChanged"/>
+            <TextBox x:Name="se_valore" Margin="293,100,-483,-100" />
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="ALLORA" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,145,-56,-145"/>
+            <ComboBox x:Name="allora_componente" HorizontalAlignment="Left" Margin="121,139,-293,-36" VerticalAlignment="Top" Width="361" SelectionChanged="allora_componente_SelectionChanged"/>
+
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="ATTENDI" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,183,-56,-183"/>
+            <TextBox x:Name="allora_attendi" Margin="121,178,-282,-178" />
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="Secondi" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="294,183,-331,-183"/>
+
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="AZIONE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,228,-56,-228"/>
+            <ComboBox x:Name="allora_condizione" HorizontalAlignment="Left" Margin="121,222,-93,-119" VerticalAlignment="Top" Width="161" SelectionChanged="allora_condizione_2_SelectionChanged"/>
+            <TextBox x:Name="allora_valore" Margin="293,223,-483,-223" />
+
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="ATTENDI" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,268,-56,-268"/>
+            <TextBox x:Name="allora_attendi_2" Margin="121,263,-282,-263" />
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="Secondi" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="294,268,-331,-268"/>
+
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="AZIONE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,311,-56,-311"/>
+            <ComboBox x:Name="allora_condizione_2" HorizontalAlignment="Left" Margin="121,305,-93,-202" VerticalAlignment="Top" Width="161" SelectionChanged="allora_condizione_SelectionChanged"/>
+            <TextBox x:Name="allora_valore_2" Margin="293,306,-483,-306" />
+
+            <Button x:Name="btnSave" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="65" Margin="416,457,-416,-457" Tapped="btnSave_Tapped"/>
+        </RelativePanel>
+
+
+    </Grid>
+</UserControl>

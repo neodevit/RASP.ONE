@@ -40,6 +40,9 @@
                     <!--TOOLBAR-->
                     <RelativePanel x:Name="ToolBar" Margin="631,1,0,39">
                         <TextBlock x:Name="TITOLO_TOOLBAR" HorizontalAlignment="Left" Margin="11,6,-24,419" Text="..." TextWrapping="Wrap" Width="348" FontWeight="Bold" FontSize="18" TextAlignment="Left" />
+                        <!--HELP-->
+                        <RelativePanel x:Name="ToolBarHelp" Visibility="Collapsed" HorizontalAlignment="Left"  >
+                        </RelativePanel>
 
                         <!--COMPONENTI-->
                         <RelativePanel x:Name="ToolbarComponenti" Visibility="Collapsed" >
@@ -75,16 +78,16 @@
                         <RelativePanel x:Name="ToolBarProperty" Visibility="Collapsed" HorizontalAlignment="Left"  >
                             <local:Property x:Name="ComponentProperty" Width="500" Height="500" />
                         </RelativePanel>
-                        <RelativePanel x:Name="ToolBarSchema" Visibility="Visible" >
+                        <RelativePanel x:Name="ToolBarSchema" Visibility="Collapsed" >
                             <Grid x:Name="schemaGPIO">
                                 <local:GPIO x:Name="gpio" Width="600" Height="500" />
                             </Grid>
                         </RelativePanel>
 
                         <!--REGOLE-->
-                        <RelativePanel x:Name="ToolbarRegole" Visibility="Collapsed" >
+                        <RelativePanel x:Name="ToolbarRegole" Visibility="Collapsed" Margin="5,40,-5,-40" >
                             <Grid >
-
+                                <local:Rules x:Name="Regole" Width="500" Height="500" />
                             </Grid>
                         </RelativePanel>
                         <!--INFO-->
@@ -93,22 +96,26 @@
                                 <!--LEGENDA-->
                                 <!--light-->
                                 <TextBlock HorizontalAlignment="Left" Margin="27,6,0,0" Text="Luce Spenta" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <TextBlock HorizontalAlignment="Left" Margin="27,27,0,0" Text="Luce Accesa" TextWrapping="Wrap" VerticalAlignment="Top"/>
                                 <Image x:Name="light_off" Source="/Assets/light_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,11,0,0" VerticalAlignment="Top" />
+                                <TextBlock HorizontalAlignment="Left" Margin="27,27,0,0" Text="Luce Accesa" TextWrapping="Wrap" VerticalAlignment="Top"/>
                                 <Image x:Name="light_on" Source="/Assets/light_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,31,0,0" VerticalAlignment="Top" />
+                                <TextBlock HorizontalAlignment="Left" Margin="27,47,0,0" Text="Luce Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                <Image x:Name="light_err" Source="/Assets/light_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,51,0,0" VerticalAlignment="Top" />
                                 <!--pir-->
-                                <TextBlock HorizontalAlignment="Left" Margin="27,50,0,0" Text="PIR Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <TextBlock HorizontalAlignment="Left" Margin="27,71,0,0" Text="PIR Acceso" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <TextBlock HorizontalAlignment="Left" Margin="27,89,0,0" Text="PIR Segnalazione" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="bell_off" Source="/Assets/bell_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,53,0,0" VerticalAlignment="Top" />
-                                <Image x:Name="bell_on" Source="/Assets/bell_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,74,0,0" VerticalAlignment="Top" />
-                                <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,92,0,0" VerticalAlignment="Top" />
+                                <TextBlock HorizontalAlignment="Left" Margin="27,70,0,0" Text="PIR Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                <Image x:Name="bell_off" Source="/Assets/bell_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
+                                <TextBlock HorizontalAlignment="Left" Margin="27,91,0,0" Text="PIR Acceso" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                <Image x:Name="bell_on" Source="/Assets/bell_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
+                                <TextBlock HorizontalAlignment="Left" Margin="27,111,0,0" Text="PIR Segnalazione" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
+                                <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="PIR Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                <Image x:Name="bell_err" Source="/Assets/bell_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
                             </Grid>
                         </RelativePanel>
                     </RelativePanel>
 
                     <!--IP CAM-->
-                    <Grid x:Name="GridCAM"  RenderTransformOrigin="0,0" Visibility="Visible" Margin="0,0,375,0">
+                    <Grid x:Name="GridCAM"  RenderTransformOrigin="0,0" Visibility="Collapsed" Margin="0,0,375,0">
                         <RelativePanel Visibility="Visible" >
                             <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed" Height="500" Width="625" Margin="3,3,-56,-18" />
                         </RelativePanel>

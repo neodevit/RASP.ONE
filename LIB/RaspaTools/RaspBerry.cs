@@ -164,12 +164,24 @@ namespace RaspaTools
 			return Package.Current.Id.Version.Major + "." + Package.Current.Id.Version.Minor + "." + Package.Current.Id.Version.Build + "." + Package.Current.Id.Version.Revision;
 		}
 
-		public EasClientDeviceInformation GetDeviceInfo()
+
+		public string SystemProductName()
 		{
-			return new EasClientDeviceInformation();
+			EasClientDeviceInformation sysInfo = new EasClientDeviceInformation();
+			return sysInfo.SystemProductName;
 		}
-
-
+		public string GetHardwareID()
+		{
+			string uniqueCode = "";
+			var token = HardwareIdentification.GetPackageSpecificToken(null);
+			using (DataReader reader = DataReader.FromBuffer(token.Id))
+			{
+				byte[] bytes = new byte[token.Id.Length];
+				reader.ReadBytes(bytes);
+				uniqueCode = Encoding.ASCII.GetString(bytes);
+			}
+			return uniqueCode;
+		}
 	}
 
 }

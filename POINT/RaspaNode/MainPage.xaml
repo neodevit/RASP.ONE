@@ -21,6 +21,13 @@
                     </RelativePanel>
                 </Grid>
             </PivotItem>
+            <PivotItem x:Name="Tools" Header="Tools" >
+                <RelativePanel >
+                    <Button x:Name="nodeUPDATE" Content="GET NODE CONFIG and UPDATE CENTRAL"  Height="84" Width="346" Margin="126,179,-126,-179" Click="nodeUPDATE_Click" />
+                    <Button x:Name="nodeSYNC" Content="ASK CENTRA TO ReINIT PIN"  Height="84" Margin="128,301,-117,567" Width="343" Click="nodeSYNC_Click" />
+                </RelativePanel>
+            </PivotItem>
+
             <PivotItem x:Name="Trasmit" Header="Messaggi" >
                 <Grid>
                     <RelativePanel >

@@ -72,16 +72,15 @@ namespace RaspaCentral
 					break;
 				case enumComponente.pir:
 					// COMPOONENTE PHOTO
-					schemaPhoto("ms-appx:///Assets/component_pir.png", 17, 257, 203, 220);
-					schemaPhoto("ms-appx:///Assets/component_pir2.png", 211, 230, 260, 260);
+					schemaPhoto("ms-appx:///Assets/component_pir.png", 17, 257, 200, 381);
 
 					// GND
-					schemaConnection(BASE, 6, enumTipoPIN.ground, "S1", 275, 196);
+					schemaConnection(BASE, 6, enumTipoPIN.ground, "S1", 358, 280);
 					// SIGNAL
 					GPIOPin pir = DB.GetGPIOPinByGPIOnum(GPIO_A);
-					schemaConnection(BASE, pir.NUM, enumTipoPIN.gpio, "S2", 300, 210);
+					schemaConnection(BASE, pir.NUM, enumTipoPIN.gpio, "S2", 335, 280);
 					// POWER
-					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 340, 220);
+					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 310, 280);
 
 
 					break;

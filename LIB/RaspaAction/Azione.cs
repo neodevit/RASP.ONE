@@ -24,15 +24,18 @@ namespace RaspaAction
 
 		GpioController GPIO = null;
 		Dictionary<int,GpioPin> PIN = null;
+		Dictionary<int,bool> action_EVENTS = null;
+		Dictionary<int,bool> platform_EVENTS = null;
 		RaspaProtocol Protocol;
-		public Azione(GpioController gpio, Dictionary<int, GpioPin> pin)
+		public Azione(GpioController gpio, Dictionary<int, GpioPin> pin, Dictionary<int, bool> action_events, Dictionary<int, bool> platform_events)
 		{
 			// ASSIGN
 			GPIO = gpio;
 			PIN = pin;
-
+			action_EVENTS = action_events;
+			platform_EVENTS = platform_events;
 		}
-		public RaspaResult Execute(RaspaProtocol Protocol)
+		public void Execute(RaspaProtocol Protocol)
 		{
 			IPlatform Platform;
 			RaspaResult res = new RaspaResult(true);
@@ -44,14 +47,14 @@ namespace RaspaAction
 				// PIN
 				int pin = Convert.ToInt32(Protocol.Destinatario.Node_Pin);
 				if (pin == 0)
-					return new RaspaResult(false, "PIN zero", "");
+					return;
 				// GPIO
 				if (PIN == null || !PIN.ContainsKey(pin))
-					return new RaspaResult(false, "PIN " + pin + " invalid", "");
+					return;
 				// Prendo il pin
 				GpioPin gpioPIN = GetPIN(pin);
 				if (gpioPIN==null)
-					return new RaspaResult(false, "GPIO PIN " + pin + " non inizializzate", "");
+					return;
 
 				//-----------------------------------------
 				// AZIONE
@@ -62,30 +65,50 @@ namespace RaspaAction
 						break;
 					case enumComando.get:
 						Platform = new PlatForm_GET();
-						Platform.ActionNotify -= PlatformNotify;
-						Platform.ActionNotify += PlatformNotify;
-						res = Platform.RUN(gpioPIN, Protocol);
+						if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
+						{
+							Platform.ActionNotify -= PlatformNotify;
+							Platform.ActionNotify += PlatformNotify;
+							// memorizzo che ho già impostato evento
+							action_EVENTS[gpioPIN.PinNumber] = true;
+						}
+						res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 						break;
 					case enumComando.set:
 						Platform = new PlatForm_SET();
-						Platform.ActionNotify -= PlatformNotify;
-						Platform.ActionNotify += PlatformNotify;
-						res = Platform.RUN(gpioPIN, Protocol);
+						if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
+						{
+							Platform.ActionNotify -= PlatformNotify;
+							Platform.ActionNotify += PlatformNotify;
+							// memorizzo che ho già impostato evento
+							action_EVENTS[gpioPIN.PinNumber] = true;
+						}
+						res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 						break;
 					case enumComando.comando:
 						switch(Protocol.Destinatario.Tipo)
 						{
 							case enumComponente.light:
 								Platform = new PlatForm_Light();
-								Platform.ActionNotify -= PlatformNotify;
-								Platform.ActionNotify += PlatformNotify;
-								res = Platform.RUN(gpioPIN, Protocol);
+								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
+								{
+									Platform.ActionNotify -= PlatformNotify;
+									Platform.ActionNotify += PlatformNotify;
+									// memorizzo che ho già impostato evento
+									action_EVENTS[gpioPIN.PinNumber] = true;
+								}
+								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
 							case enumComponente.pir:
 								Platform = new PlatForm_PIR();
-								Platform.ActionNotify -= PlatformNotify;
-								Platform.ActionNotify += PlatformNotify;
-								res = Platform.RUN(gpioPIN, Protocol);
+								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
+								{
+									Platform.ActionNotify -= PlatformNotify;
+									Platform.ActionNotify += PlatformNotify;
+									// memorizzo che ho già impostato evento
+									action_EVENTS[gpioPIN.PinNumber] = true;
+								}
+								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
 							default:
 								res = new RaspaResult(false, "COMPONENTE : " + Protocol.Destinatario.Tipo.ToString() + " non esistente", "");
@@ -104,7 +127,6 @@ namespace RaspaAction
 				if (Debugger.IsAttached) Debugger.Break();
 				System.Diagnostics.Debug.WriteLine("SASSO API TEST - EXECUTE : " + ex.Message);
 			}
-			return res;
 		}
 
 		private void PlatformNotify(bool Esito, string Messaggio, enumComponente componente, int pin, string value)

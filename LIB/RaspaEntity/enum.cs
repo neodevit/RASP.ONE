@@ -6,10 +6,39 @@
 
 namespace RaspaEntity
 {
+	public enum enumPirValue
+	{
+		nessuno = 0,
+		off = 1,
+		on = 2,
+		signal = 3,
+		err = 4,
+	}
+	public enum enumPIROption
+	{
+		nessuno = 0,
+		FallingEdge = 1,
+		RisingEdge = 2,
+	}
+
+	public enum enumPINValue
+	{
+		nessuno = 0,
+		off = 1,
+		on = 2,
+		err = 3,
+	}
+	public enum enumPINOptionIsON
+	{
+		nessuno = 0,
+		low = 1,
+		hight = 2,
+	}
 	public enum enumStato
 	{
-		off = 0,
-		on = 1,
+		nessuno=0,
+		off = 1,
+		on = 2,
 	}
 	public enum enumComando
 	{
@@ -18,6 +47,8 @@ namespace RaspaEntity
 		get  = 2,
 		set = 3,
 		comando = 4,
+		nodeInit=5,
+		nodeReload = 6,
 	}
 
 	// Allineare ENUM con tabella 41_COMPONENTE_TIPO

@@ -139,10 +139,6 @@
       <Project>{57b4e26b-3cfd-4cea-a7af-29fd1e388f01}</Project>
       <Name>RaspaAction</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\LIB\RaspaDB\RaspaDB.csproj">
-      <Project>{202eadeb-b7b8-41ca-b76a-154bebafcd98}</Project>
-      <Name>RaspaDB</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\LIB\RaspaEntity\RaspaEntity.csproj">
       <Project>{f35cda4b-2117-4a4f-b56e-297e5cd0b3fb}</Project>
       <Name>RaspaEntity</Name>

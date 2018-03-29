@@ -1,6 +1,5 @@
 ﻿using MQTTnet.Protocol;
 using RaspaAction;
-using RaspaDB;
 using RaspaEntity;
 using RaspaTools;
 using System;
@@ -40,7 +39,6 @@ namespace RaspaNode
     /// </summary>
     public sealed partial class MainPage : Page
     {
-		private string mqTT_Server = "192.168.1.10";
 
 
 		public MainPage()
@@ -55,12 +53,38 @@ namespace RaspaNode
 		RaspaProtocol OriginalMessage;
 
 		bool flgGPIO = true;
-		bool flgNodo = true;
+		bool flgNodoUpdate = true;
 		bool flgMQTT = true;
+		bool flgNodoSync = true;
 		public async void Start()
 		{
-			// Sync NODE with Correct Date Time
+			// --------------------------------------
+			// SYNC NODE TIME
+			// --------------------------------------
 			SyncDateTime();
+
+			// --------------------------------------
+			// NODE INIT
+			// --------------------------------------
+			NODE_INIT();
+
+			// --------------------------------------
+			// INIT MQTT
+			// --------------------------------------
+			if (flgMQTT)
+				INIT_MQTT();
+
+			// --------------------------------------
+			// NODO UPDATE with sysstem info
+			// --------------------------------------
+			if (flgNodoUpdate)
+				NODE_UPDATE();
+
+			// --------------------------------------
+			// SYNC COMPONENT from CENTRALE
+			//---------------------------------------
+			if (flgNodoSync)
+				NODE_SYNC_COMPONENT();
 
 			// --------------------------------------
 			// GPIO
@@ -73,33 +97,20 @@ namespace RaspaNode
 			}
 
 			// --------------------------------------
-			// NODO
-			// --------------------------------------
-			if (flgNodo)
-			{
-				// Inizializza nodo
-				RaspaResult resNode = INIT_NODE();
-				if (!resNode.Esito)
-					System.Diagnostics.Debug.WriteLine("NODE not TRUSTED : " + resNode.Message);
-
-			}
-
-			// --------------------------------------
-			// INIT MQTT
+			// START MQTT
 			// --------------------------------------
 			if (flgMQTT)
-				INIT_MQTT();
+				START_MQTT();
 
 			// --------------------------------------
 			// ACTION
 			// --------------------------------------
 			if (stato_gpio)
 			{
-				action = new Azione(GPIO, PIN);
+				action = new Azione(GPIO, PIN, Action_events,PlatForm_events);
 				action.ActionNotify -= ActionNotify;
 				action.ActionNotify += ActionNotify;
 			}
-
 
 		}
 		#region SYNC DATE TIME
@@ -115,8 +126,12 @@ namespace RaspaNode
 
 		private void INIT_MQTT()
 		{
-			mqTT = new MQTT(nodo.ID.Value,nodo.Nome,nodo.IPv4);
+			mqTT = new MQTT(nodo.SystemID,nodo.HostName,nodo.IPv4);
 			mqTT.createClient();
+
+		}
+		private void START_MQTT()
+		{
 			mqTT.startClient();
 			mqTT.Receive -= MQTTReceive;
 			mqTT.Receive += MQTTReceive;
@@ -124,11 +139,12 @@ namespace RaspaNode
 			mqTT.Logging += MQTTLogging;
 
 		}
+
 		private void MQTTReceive(string Topic, string Payload, MqttQualityOfServiceLevel QoS, bool Retain)
 		{
 			var ignore = stato.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 			{
-				writeLogVideo("Receive " + Topic + "-" + Payload + "-" + QoS.ToString() + "-" + Retain.ToString());
+				writeLogVideo("<-- " + Topic + "-" + Payload + "-" + QoS.ToString() + "-" + Retain.ToString());
 			});
 
 			MessageUDPInput(Payload);
@@ -156,21 +172,15 @@ namespace RaspaNode
 
 		#endregion
 
-
-
 		#region COMANDI
 		Azione action = null;
-		RaspaResult EsitoComando = new RaspaResult(false, "NA");
 		private void MessageUDPInput(string message)
 		{
 			OriginalMessage  = new RaspaProtocol(message);
-			EsitoComando = new RaspaResult(false, "Elaborazione Comando non inizializzata");
 
 			if (action != null)
-				EsitoComando = action.Execute(OriginalMessage);
+				action.Execute(OriginalMessage);
 
-			if (!EsitoComando.Esito)
-				ActionNotify(EsitoComando.Esito, EsitoComando.Message, OriginalMessage.Destinatario.Tipo, OriginalMessage.Destinatario.Node_Pin, OriginalMessage.Value);
 
 		}
 
@@ -178,6 +188,12 @@ namespace RaspaNode
 		{
 			try
 			{
+				// se sono messaggi che si automanda il nodo in fase actual allora esco
+				if (OriginalMessage.Mittente == null ||
+					OriginalMessage.Destinatario == null)
+					return;
+
+				// prepara il messaggio da inviare
 				OriginalMessage.swapMittDest();
 				OriginalMessage.Comando = enumComando.notify;
 				OriginalMessage.Esito = Esito;
@@ -190,15 +206,14 @@ namespace RaspaNode
 
 		#endregion
 
-
-
-
 		#region GPIO
 		bool stato_gpio = false;
 
 
 		internal GpioController GPIO;
 		internal Dictionary<int, GpioPin> PIN;
+		internal Dictionary<int, bool> PlatForm_events;
+		internal Dictionary<int, bool> Action_events;
 
 		private RaspaResult INIT_GPIO()
 		{
@@ -214,6 +229,10 @@ namespace RaspaNode
 				GPIO = GpioController.GetDefault();
 				if (GPIO == null)
 					return new RaspaResult(false, "There is no GPIO controller on this device.", "");
+
+				// INIT PIN_events
+				PlatForm_events = new Dictionary<int, bool>();
+				Action_events = new Dictionary<int, bool>();
 
 				// INIT PIN
 				PIN = new Dictionary<int, GpioPin>();
@@ -307,25 +326,24 @@ namespace RaspaNode
 		#endregion
 
 
-
 		#region NODE
 		private Componente nodo = null;
 
-		private RaspaResult INIT_NODE()
+		private void nodeUPDATE_Click(object sender, RoutedEventArgs e)
+		{
+			NODE_INIT();
+			NODE_UPDATE();
+		}
+		private RaspaResult NODE_INIT()
 		{
 			RaspaResult res = new RaspaResult(true);
-
 			try
 			{
+				// Leggi node setting from node
 				RaspBerry client = new RaspBerry();
 				string IPv4 = client.GetLocalIPv4();
 
-				DBCentral db = new DBCentral();
-				nodo = db.GetComponenteByIPv4(IPv4);
-
-				if (nodo == null)
-					res = new RaspaResult(false, "Nodo non riconosciuto nel sistema");
-
+				nodo = new Componente();
 				nodo.HostName = client.GetHostName();
 				nodo.IPv4 = IPv4;
 				nodo.IPv6 = "";
@@ -334,21 +352,73 @@ namespace RaspaNode
 				nodo.OSVersion = client.GetOSVersion();
 				nodo.NodeSWVersion = client.GetRASPANodeVersion();
 
-				EasClientDeviceInformation sysInfo= client.GetDeviceInfo();
-				nodo.SystemProductName = sysInfo.SystemProductName;
-				nodo.SystemID = sysInfo.Id.ToString();
-
-				res = db.SetComponenti(nodo, nodo.HostName);
-
+				nodo.SystemProductName = client.SystemProductName();
+				nodo.SystemID = client.GetHardwareID();
 			}
 			catch (Exception ex)
 			{
 				res = new RaspaResult(false, "FAILED : " + ex.Message);
-				System.Diagnostics.Debug.WriteLine("INIT_NODE : " + ex.Message);
+				System.Diagnostics.Debug.WriteLine("INIT_ACTUAL : " + ex.Message);
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+			return res;
+		}
+
+		private RaspaResult NODE_UPDATE()
+		{
+			RaspaResult res = new RaspaResult(true);
+			try
+			{
+				// richiedi al centrale di salvarsi la configurazione del nodo
+				RaspaProtocol protocol = new RaspaProtocol();
+				protocol.Comando = enumComando.nodeInit;
+				protocol.Mittente = nodo;
+				protocol.Destinatario = new Componente();
+				protocol.Destinatario.IPv4 = IPCentrale;
+				protocol.Destinatario.Tipo = enumComponente.nessuno;
+				mqTT.Publish(protocol);
+			}
+			catch (Exception ex)
+			{
+				res = new RaspaResult(false, "FAILED : " + ex.Message);
+				System.Diagnostics.Debug.WriteLine("INIT_ACTUAL : " + ex.Message);
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+			return res;
+		}
+
+		/// <summary>
+		/// RELOAD COMPONENT
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void nodeSYNC_Click(object sender, RoutedEventArgs e)
+		{
+			NODE_SYNC_COMPONENT();
+		}
+		private RaspaResult NODE_SYNC_COMPONENT()
+		{
+			RaspaResult res = new RaspaResult(true);
+			try
+			{
+				// richiedi al centrale di reinizilizzarmi
+				RaspaProtocol protocol = new RaspaProtocol();
+				protocol.Comando = enumComando.nodeReload;
+				protocol.Mittente = nodo;
+				protocol.Destinatario = new Componente();
+				protocol.Destinatario.IPv4 = IPCentrale;
+				protocol.Destinatario.Tipo = enumComponente.nessuno;
+				mqTT.Publish(protocol);
+			}
+			catch (Exception ex)
+			{
+				res = new RaspaResult(false, "FAILED : " + ex.Message);
+				System.Diagnostics.Debug.WriteLine("INIT_ACTUAL : " + ex.Message);
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 			return res;
 		}
 		#endregion
+
 	}
 }

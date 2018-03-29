@@ -29,9 +29,9 @@ namespace RaspaTools
 		private const string ServerUser = "sassoribelle";
 		private const string ServerPass = "123456Ab";
 
-		public MQTT(int NodeID,string NodeName,string NodeIP)
+		public MQTT(string NodeID,string NodeName,string NodeIP)
 		{
-			ClientID = NodeID.ToString();
+			ClientID = NodeID;
 			ClientIP = NodeIP;
 			ClientName = NodeName;
 		}
@@ -168,15 +168,20 @@ namespace RaspaTools
 		#endregion
 
 		#region CLIENT
-		IManagedMqttClient CLIENT;
+		bool flgManaged = true;
+		IManagedMqttClient CLIENT_managed;
+		IMqttClient CLIENT;
 		public async void createClient()
 		{
 			try
 			{
 				writeLog("CLIENT Creating ...");
 
-				// CLIENT
-				CLIENT = new MqttFactory().CreateManagedMqttClient();
+				// CLIENT MANAGED
+				if (flgManaged)
+					CLIENT_managed = new MqttFactory().CreateManagedMqttClient();
+				else
+					CLIENT = new MqttFactory().CreateMqttClient();
 
 				writeLog("CLIENT CREATED");
 			}
@@ -193,9 +198,13 @@ namespace RaspaTools
 			{
 				writeLog("CLIENT Starting ...");
 
-				//OPTIONS
-				// Create TCP based options using the builder.
-				var options = new ManagedMqttClientOptionsBuilder()
+
+
+				if (flgManaged)
+				{
+					//OPTIONS
+					// Create TCP based options using the builder.
+					var options_managed = new ManagedMqttClientOptionsBuilder()
 					.WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
 					.WithClientOptions(new MqttClientOptionsBuilder()
 						.WithClientId(ClientID)
@@ -208,15 +217,37 @@ namespace RaspaTools
 						.Build());
 
 
-				// START
-				await CLIENT.StartAsync(options.Build());
+					// START
+					await CLIENT_managed.StartAsync(options_managed.Build());
 
-				/// CONNECTED
-				CLIENT.Connected += Client_Connected;
-				//await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(createTopic(ClientIP)).Build());
+					/// CONNECTED
+					CLIENT_managed.Connected += Client_Connected;
+					//await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(createTopic(ClientIP)).Build());
 
-				// RICEZIONE MESSAGI
-				CLIENT.ApplicationMessageReceived += Client_ApplicationMessageReceived;
+					// RICEZIONE MESSAGI
+					CLIENT_managed.ApplicationMessageReceived += Client_ApplicationMessageReceived;
+				}
+				else
+				{
+					var options = new MqttClientOptionsBuilder()
+						.WithClientId(ClientID)
+						.WithTcpServer(MQTTServer)
+						.WithCredentials(ServerUser, ServerPass)
+						.WithTls()
+						.WithCleanSession()
+						.Build();
+
+
+					await CLIENT.ConnectAsync(options);
+
+					/// CONNECTED
+					CLIENT.Connected += Client_Connected;
+					//await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(createTopic(ClientIP)).Build());
+
+					// RICEZIONE MESSAGI
+					CLIENT.ApplicationMessageReceived += Client_ApplicationMessageReceived;
+
+				}
 
 				writeLog("CLIENT STARTED");
 
@@ -234,7 +265,9 @@ namespace RaspaTools
 			{
 				writeLog("CLIENT Stopping ...");
 
-				await CLIENT.StopAsync();
+				if (flgManaged)
+					await CLIENT_managed.StopAsync();
+
 
 				writeLog("CLIENT STOPPED");
 
@@ -251,19 +284,17 @@ namespace RaspaTools
 		{
 			try
 			{
-				writeLog("CLIENT Receinving ...");
-
 				Receive?.Invoke(e.ApplicationMessage.Topic,
 								Encoding.UTF8.GetString(e.ApplicationMessage.Payload),
 								e.ApplicationMessage.QualityOfServiceLevel,
 								e.ApplicationMessage.Retain);
 
-				writeLog("CLIENT REVEICE " + e.ApplicationMessage.Topic);
+				writeLog("<-- " + e.ApplicationMessage.Topic);
 			}
 			catch (Exception ex)
 			{
 				if (Debugger.IsAttached) Debugger.Break();
-				writeLog("CLIENT RECEIVE - Error : " + ex.Message);
+				writeLog("<--- Error : " + ex.Message);
 			}
 		}
 
@@ -275,7 +306,12 @@ namespace RaspaTools
 
 				// ADD SUBSCRIPTION
 				string TopicSubscript = createTopic(ClientIP);
-				await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
+
+				if (flgManaged)
+					await CLIENT_managed.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
+				else
+					await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
+
 				writeLog("CLIENT SUBSCRIPTION " + TopicSubscript);
 			}
 			catch (Exception ex)
@@ -290,14 +326,14 @@ namespace RaspaTools
 		{
 			try
 			{
-				writeLog("CLIENT Sending ... " + protocollo.Destinatario.IPv4);
 				publishcommand(createTopic(protocollo.Destinatario.IPv4), protocollo.BuildJson());
-				writeLog("CLIENT SENDED " + protocollo.Destinatario.IPv4);
+
+				writeLog("--> " + protocollo.Destinatario.IPv4 + " - " + protocollo.Message + " - value:" + protocollo.Mittente.Value );
 			}
 			catch (Exception ex)
 			{
 				if (Debugger.IsAttached) Debugger.Break();
-				writeLog("CLIENT SEND - Error : " + ex.Message);
+				writeLog("--> Error : " + ex.Message);
 			}
 		}
 		private async void publishcommand(string TOPIC,string Message)
@@ -311,12 +347,15 @@ namespace RaspaTools
 					.WithRetainFlag()
 					.Build();
 
-				await CLIENT.PublishAsync(message);
+				if (flgManaged)
+					await CLIENT_managed.PublishAsync(message);
+				else
+					await CLIENT.PublishAsync(message);
 			}
 			catch (Exception ex)
 			{
 				if (Debugger.IsAttached) Debugger.Break();
-				writeLog("CLIENT SEND - Error : " + ex.Message);
+				writeLog("--> Error : " + ex.Message);
 			}
 		}
 		#endregion
@@ -328,7 +367,12 @@ namespace RaspaTools
 			try
 			{
 				writeLog("CLIENT Subscribing ... " + Topic);
-				await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(Topic).Build());
+
+				if (flgManaged)
+					await CLIENT_managed.SubscribeAsync(new TopicFilterBuilder().WithTopic(Topic).Build());
+				else
+					await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(Topic).Build());
+
 				writeLog("CLIENT SUBSCRIBED " + Topic);
 			}
 			catch (Exception ex)

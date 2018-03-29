@@ -12,17 +12,33 @@ namespace RaspaAction
 	public class PlatForm_GET: IPlatform
 	{
 		public event ActionNotify ActionNotify;
-		public RaspaResult RUN(GpioPin gpioPIN,RaspaProtocol Protocol)
+		GpioPinValue valoreON = GpioPinValue.Low;
+		GpioPinValue valoreOFF = GpioPinValue.High;
+
+		public RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS,RaspaProtocol Protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			GpioPinValue PinValue = GpioPinValue.Low;
 			try
 			{
-				GpioPinValue valoreON = (Protocol.Destinatario.Options == "0") ? GpioPinValue.Low : GpioPinValue.High;
-				GpioPinValue valoreOFF = (Protocol.Destinatario.Options == "0") ? GpioPinValue.High : GpioPinValue.Low;
+				int PinNum = gpioPIN.PinNumber;
+
+				if (Protocol.Destinatario.Options == ((int)enumPINOptionIsON.low).ToString())
+				{
+					valoreON = GpioPinValue.Low;
+					valoreOFF = GpioPinValue.High;
+				}
+				else if (Protocol.Destinatario.Options == ((int)enumPINOptionIsON.hight).ToString())
+				{
+					valoreON = GpioPinValue.High;
+					valoreOFF = GpioPinValue.Low;
+				}
 
 				PinValue = gpioPIN.Read();
-				res.Value = (PinValue == valoreON) ? "1" : "0";
+				res.Value = (PinValue == valoreON) ? ((int)enumPINValue.on).ToString() : ((int)enumPINValue.off).ToString();
+
+				// restituisci messaggio
+				ActionNotify(true, "GET PIN: " + PinNum, enumComponente.nessuno, PinNum, res.Value);
 
 			}
 			catch (Exception ex)

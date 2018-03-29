@@ -11,8 +11,11 @@
 
     <Grid Width="500" Height="500">
         <Canvas x:Name="BASE" Width="500" Height="500">
-            <Image Source="ms-appx:///Assets/component_light.png" Canvas.Left="250" Canvas.Top="17" Height="190" Width="190" />
-            <Image Source="ms-appx:///Assets/component_light2.png" Canvas.Left="250" Canvas.Top="211" Height="190" Width="190" />
+
+            <Image Source="ms-appx:///Assets/component_pir.png" Canvas.Left="250" Canvas.Top="17" Height="381" Width="200" />
+
+            <!--<Image Source="ms-appx:///Assets/component_light.png" Canvas.Left="250" Canvas.Top="17" Height="190" Width="190" />
+            <Image Source="ms-appx:///Assets/component_light2.png" Canvas.Left="250" Canvas.Top="211" Height="190" Width="190" />-->
 
         </Canvas>
 

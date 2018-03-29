@@ -98,7 +98,7 @@ namespace RaspaDB
 			bool res = false;
 			try
 			{
-				Componenti nodeNums = GetComponenteByIPv4(IPv4, tipo);
+				Componenti nodeNums = GetComponentiByIPv4(IPv4, tipo);
 				if (nodeNums.Count == 0 ||
 				   (IDCorrente.HasValue && nodeNums.Count == 1 && nodeNums[0].ID == IDCorrente.Value) ||
 				   (IDCorrente.HasValue == false && nodeNums.Count == 1))
@@ -193,6 +193,101 @@ namespace RaspaDB
 			}
 			return res;
 		}
+
+		public Componenti GetComponenteNODOorCENTRALE()
+		{
+			Componenti res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE IDComponenteTipo = @nodo";
+				sql += " OR IDComponenteTipo = @centrale";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@nodo", (int)enumComponente.nodo);
+						mySqlCommand.Parameters.AddWithValue("@centrale", (int)enumComponente.centrale);
+						mySqlCommand.Connection.Open();
+
+						res = GetRecComponenti(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+		public Componenti GetComponente_ECCETTO_NODOorCENTRALE()
+		{
+			Componenti res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE IDComponenteTipo <> @nodo";
+				sql += " AND IDComponenteTipo <> @centrale";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@nodo", (int)enumComponente.nodo);
+						mySqlCommand.Parameters.AddWithValue("@centrale", (int)enumComponente.centrale);
+						mySqlCommand.Connection.Open();
+
+						res = GetRecComponenti(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+		public Componenti GetComponente_ECCETTO_NODO()
+		{
+			Componenti res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE IDComponenteTipo <> @nodo";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@nodo", (int)enumComponente.nodo);
+						mySqlCommand.Connection.Open();
+
+						res = GetRecComponenti(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+
+
+
 		public Componenti GetComponentiByIPv4(string IPv4)
 		{
 			Componenti res = null;
@@ -286,7 +381,7 @@ namespace RaspaDB
 			return res;
 		}
 
-		public Componenti GetComponenteByIPv4(string IPv4, enumComponente Tipo)
+		public Componenti GetComponentiByIPv4(string IPv4, enumComponente Tipo)
 		{
 			Componenti res = null;
 			try
@@ -307,6 +402,39 @@ namespace RaspaDB
 						mySqlCommand.Connection.Open();
 
 						res = GetRecComponenti(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+		public Componente GetComponenteByIPv4(string IPv4, enumComponente Tipo)
+		{
+			Componente res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE IPv4 = @IPv4";
+				sql += " AND   IDComponenteTipo = @IDComponenteTipo";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@IPv4", IPv4);
+						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)Tipo);
+						mySqlCommand.Connection.Open();
+
+						Componenti result = GetRecComponenti(mySqlCommand);
+						if (result.Count > 0)
+							res = result[0];
 					}
 				}
 			}
@@ -907,6 +1035,46 @@ namespace RaspaDB
 
 				res = new RaspaResult(true, "Update COMPONENTI ID " + value.ID.Value + "Eseguito");
 				res.ID = value.ID;
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				res = new RaspaResult(false, enumLevel.error, ex.Message);
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+		public RaspaResult ModComponentiValue(int ID,string Value, string Utente)
+		{
+			RaspaResult res = new RaspaResult(false);
+			try
+			{
+				if (ID==0)
+					return new RaspaResult(false, "UPDATE NODE VALUE con ID non valorizzato");
+
+				string sql = "";
+				sql += "UPDATE `70_COMPONENTE`";
+				sql += " SET `Value` = @Value";
+
+				sql += "    ,`UserMod` = @Utente";
+				sql += "    ,`DataMod` = NOW()";
+				sql += " WHERE `ID` = @ID;";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@ID", ID);
+						mySqlCommand.Parameters.AddWithValue("@Value", Value);
+						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+						mySqlCommand.Connection.Open();
+						mySqlCommand.ExecuteNonQuery();
+					}
+				}
+
+				res = new RaspaResult(true, "Update VALUE COMPONENTI ID " + ID + "Eseguito");
+				res.ID = ID;
 			}
 			catch (Exception ex)
 			{

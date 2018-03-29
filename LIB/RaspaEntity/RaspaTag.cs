@@ -14,11 +14,10 @@ namespace RaspaEntity
 		public RaspaTag()
 		{
 		}
-		public RaspaTag(int id,enumComponente tipo, string value)
+		public RaspaTag(int id,enumComponente tipo)
 		{
 			ID = id;
 			Tipo = tipo;
-			Value = value;
 		}
 		public RaspaTag(string tag)
 		{
@@ -27,7 +26,6 @@ namespace RaspaEntity
 				return;
 			ID = Convert.ToInt32(ANodo[1]);
 			Tipo = (enumComponente)Convert.ToInt32(ANodo[2]);
-			Value = ANodo[3];
 		}
 
 		public bool CompareDestinatario(RaspaProtocol message)
@@ -51,15 +49,14 @@ namespace RaspaEntity
 
 		public string BuildTag()
 		{
-			return "RASP.ONE_" + ID + "_" + (int)Tipo + "_" + Value;
+			return "RASP.ONE_" + ID + "_" + (int)Tipo;
 		}
 		public string BuildTag(RaspaProtocol message)
 		{
-			return "RASP.ONE_" + message.Destinatario.ID + "_" + (int)message.Destinatario.Tipo + "_" + message.Value;
+			return "RASP.ONE_" + message.Destinatario.ID + "_" + (int)message.Destinatario.Tipo;
 		}
 
 		public int ID { get; set; }
 		public enumComponente Tipo { get; set; }
-		public string Value { get; set; }
 	}
 }

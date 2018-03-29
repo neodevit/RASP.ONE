@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace RaspaEntity
 			Action = new ComponenteAction();
 			follow = new Follow();
 		}
-		public Componente(int id,bool enabled, bool trusted,int num,string ipv4)
+		public Componente(int id, bool enabled, bool trusted, int num, string ipv4)
 		{
 			ID = id;
 			Enabled = enabled;
@@ -37,7 +38,7 @@ namespace RaspaEntity
 		public string NodeSWVersion { get; set; }
 		public string SystemProductName { get; set; }
 		public string SystemID { get; set; }
-		
+
 
 		public string Descrizione { get; set; }
 
@@ -49,17 +50,50 @@ namespace RaspaEntity
 			get
 			{
 				enumStato res = enumStato.off;
-				switch(Tipo)
+				switch (Tipo)
 				{
 					case enumComponente.centrale:
 					case enumComponente.nodo:
 						res = (Enabled && Trusted) ? enumStato.on : enumStato.off;
 						break;
 					case enumComponente.light:
-						res = (Enabled && Trusted && Value=="1") ? enumStato.on : enumStato.off;
+						int vLight = 0;
+						enumPINValue valueLight = enumPINValue.nessuno;
+						if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture, out vLight))
+							valueLight = (enumPINValue)vLight;
+
+						switch(valueLight)
+						{
+							case enumPINValue.nessuno:
+							case enumPINValue.err:
+							case enumPINValue.off:
+								res = enumStato.off;
+								break;
+							case enumPINValue.on:
+								res = enumStato.on;
+								break;
+						}
 						break;
 					case enumComponente.pir:
-						res = (Enabled && Trusted && Value=="2") ? enumStato.on : enumStato.off;
+						int vPir = 0;
+						enumPirValue valuePir = enumPirValue.nessuno;
+
+						if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture, out vPir))
+							valuePir = (enumPirValue)vPir;
+
+
+						switch(valuePir)
+						{
+							case enumPirValue.nessuno:
+							case enumPirValue.err:
+							case enumPirValue.off:
+								res = enumStato.off;
+								break;
+							case enumPirValue.on:
+							case enumPirValue.signal:
+								res = enumStato.on;
+								break;
+						}
 						break;
 				}
 				return res;
@@ -90,6 +124,7 @@ namespace RaspaEntity
 			Action.Disabled = Enabled;
 			Action.Reset = (Tipo == enumComponente.pir && Attivo == enumStato.on);
 			Action.Schema = (Tipo != enumComponente.nodo && Tipo != enumComponente.centrale);
+			Action.Regole = (Tipo != enumComponente.nodo && Tipo != enumComponente.centrale);
 			Action.Property = true;
 			Action.Remove = true;
 		}
@@ -97,6 +132,7 @@ namespace RaspaEntity
 		public int Node_Num { get; set; }
 		public int Node_Pin { get; set; }
 		public string Value { get; set; }
+
 		public string IPv4 { get; set; }
 		public string IPv6 { get; set; }
 		public string BlueTooth { get; set; }
@@ -116,6 +152,7 @@ namespace RaspaEntity
 	{
 		public bool Enabled { get; set; }
 		public bool Disabled { get; set; }
+		public bool Regole { get; set; }
 		public bool Schema { get; set; }
 		public bool Reset { get; set; }
 		public bool Property { get; set; }

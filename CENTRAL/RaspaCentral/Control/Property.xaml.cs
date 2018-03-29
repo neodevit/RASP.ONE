@@ -49,7 +49,7 @@ namespace RaspaCentral
 					componente.Enabled = true;
 					componente.Trusted = true;
 					componente.IPv4 = "192.168.1.";
-					componente.Options = "0";
+					componente.Options = "1"; // valore default
 				}
 
 
@@ -107,8 +107,8 @@ namespace RaspaCentral
 						LIGHT_PIN.SelectedValue = componente.Node_Pin;
 
 						// OPTIONS
-						LIGHT_Low.IsChecked = (componente.Options == "0" || componente.Options == "") ? true : false;
-						LIGHT_High.IsChecked = (componente.Options == "1") ? true : false;
+						LIGHT_Low.IsChecked = (componente.Options == ((int)enumPINOptionIsON.low).ToString()) ? true : false;
+						LIGHT_High.IsChecked = (componente.Options == ((int)enumPINOptionIsON.hight).ToString()) ? true : false;
 
 						break;
 					case enumComponente.pir:
@@ -130,8 +130,8 @@ namespace RaspaCentral
 						PIR_PIN.SelectedValue = componente.Node_Pin;
 
 						// OPTIONS
-						PIR_falling.IsChecked = (componente.Options == "0" || componente.Options == "") ? true : false;
-						PIR_rising.IsChecked = (componente.Options == "1") ? true : false;
+						PIR_falling.IsChecked = (componente.Options == ((int)enumPIROption.FallingEdge).ToString()) ? true : false;
+						PIR_rising.IsChecked = (componente.Options == ((int)enumPIROption.RisingEdge).ToString()) ? true : false;
 
 						break;
 
@@ -298,8 +298,18 @@ namespace RaspaCentral
 						componente.Descrizione = LIGHT_DESCRIZIONE.Text;
 						componente.Node_Num = Convert.ToInt32(LIGHT_NODO.SelectedValue);
 						componente.Node_Pin = Convert.ToInt32(LIGHT_PIN.SelectedValue);
-						componente.Value = (LIGHT_ATTIVO.IsOn) ? "1" : "0";
-						componente.Options = (LIGHT_Low.IsChecked.HasValue && LIGHT_Low.IsChecked.Value) ? "0" : "1";
+
+						// VALUE
+						componente.Value = (LIGHT_ATTIVO.IsOn) ? ((int)enumPINValue.on).ToString() : ((int)enumPINValue.off).ToString();
+
+						// OPTIONS
+						enumPINOptionIsON valueLight = enumPINOptionIsON.nessuno;
+						if (LIGHT_Low.IsChecked.HasValue && LIGHT_Low.IsChecked.Value)
+							valueLight = enumPINOptionIsON.low;
+						if (LIGHT_High.IsChecked.HasValue && LIGHT_High.IsChecked.Value)
+							valueLight = enumPINOptionIsON.hight;
+
+						componente.Options = ((int)valueLight).ToString();
 						break;
 					case enumComponente.pir:
 						componente.Enabled = (PIR_ENABLED.IsChecked.HasValue) ? PIR_ENABLED.IsChecked.Value : false;
@@ -308,8 +318,18 @@ namespace RaspaCentral
 						componente.Descrizione = PIR_DESCRIZIONE.Text;
 						componente.Node_Num = Convert.ToInt32(PIR_NODO.SelectedValue);
 						componente.Node_Pin = Convert.ToInt32(PIR_PIN.SelectedValue);
-						componente.Value = (PIR_ATTIVO.IsOn) ? "1" : "0";
-						componente.Options = (PIR_falling.IsChecked.HasValue && PIR_falling.IsChecked.Value) ? "0" : "1";
+
+						// VALUE
+						componente.Value = (PIR_ATTIVO.IsOn) ? ((int)enumPirValue.signal).ToString() : ((int)enumPirValue.on).ToString();
+
+						// OPTION
+						enumPIROption valuePIR = enumPIROption.nessuno;
+						if (PIR_falling.IsChecked.HasValue && PIR_falling.IsChecked.Value)
+							valuePIR = enumPIROption.FallingEdge;
+						if (PIR_rising.IsChecked.HasValue && PIR_rising.IsChecked.Value)
+							valuePIR = enumPIROption.RisingEdge;
+
+						componente.Options = ((int)valuePIR).ToString();
 						break;
 					case enumComponente.webcam_ip:
 						componente.Enabled = (WEBCAM_ENABLED.IsChecked.HasValue) ? WEBCAM_ENABLED.IsChecked.Value : false;

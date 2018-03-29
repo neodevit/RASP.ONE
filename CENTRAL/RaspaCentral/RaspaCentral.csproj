@@ -104,6 +104,9 @@
     <Compile Include="Control\Property.xaml.cs">
       <DependentUpon>Property.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Control\Rules.xaml.cs">
+      <DependentUpon>Rules.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -152,7 +155,6 @@
     <Content Include="Assets\component_light.png" />
     <Content Include="Assets\component_light2.png" />
     <Content Include="Assets\component_pir.png" />
-    <Content Include="Assets\component_pir2.png" />
     <Content Include="Assets\computer.png" />
     <Content Include="Assets\computer_add.png" />
     <Content Include="Assets\computer_delete.png" />
@@ -367,6 +369,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Control\Property.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Control\Rules.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
