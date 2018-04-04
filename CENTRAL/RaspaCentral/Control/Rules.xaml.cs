@@ -2,10 +2,12 @@
 using RaspaEntity;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Telerik.UI.Xaml.Controls.Grid;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -18,54 +20,352 @@ using Windows.UI.Xaml.Navigation;
 
 namespace RaspaCentral
 {
-    public sealed partial class Rules : UserControl
-    {
-        public Rules()
-        {
-            this.InitializeComponent();
-        }
-		public void INIT(int id)
+
+	public sealed partial class Rules : UserControl
+	{
+		public Rules()
 		{
-			AzzeraMaschera();
+			this.InitializeComponent();
+		}
 
-			DBCentral DB = new DBCentral();
-			Componente componente = DB.GetComponenteByID(id);
-			if (componente == null)
-				return;
+		RecRule REC;
+		ObservableCollection<RecRule> RECS;
+		MainPage Pagina;
+		public void INIT(int ID_Componente, MainPage pagina)
+		{
 
+			Pagina = pagina;
+
+
+			// leggi dal DB rules precedenti
+			// todo
+			REC = new RecRule();
+
+
+			popolateRules(ID_Componente);
+			show(enumShow.rules);
+
+
+			// INIT CONTROL
+			INIT_CONTROLS();
+
+		}
+
+		private void INIT_CONTROLS()
+		{
 			// componenti presenti a sistema
 			initComboComponente(se_componente);
 			initComboComponente(allora_componente);
 
-
-			se_componente.SelectedValue = componente.Nome;
-
 			// inizializzo combo valori possibili
 			initComboValore(se_condizione);
 			initComboValore(allora_condizione);
-			initComboValore(allora_condizione_2);
-
-			show(enumShow.scheda);
-
-
 		}
-		private void condizione_componente_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+
+		#region RULES
+		private void popolateRules(int ID_Componente)
 		{
+			DBCentral DB = new DBCentral();
+			RECS = DB.GetRulesByID_Componente(ID_Componente);
 
+
+			grid_roles.ItemsSource = RECS;
 
 		}
+
+
+		private void grid_roles_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			var physicalPoint = e.GetPosition(sender as RadDataGrid);
+			var cell = (sender as RadDataGrid).HitTestService.CellInfoFromPoint(physicalPoint);
+
+			if (cell != null)
+			{
+				RecRule riga = (RecRule)cell.Item;
+				if (riga.ID.HasValue)
+					popolateRule(riga.ID.Value);
+			}
+		}
+
+		#endregion
+
+		#region RULE
+		private void popolateRule(int ID)
+		{
+			DBCentral DB = new DBCentral();
+			REC = DB.GetRulesByID(ID);
+			if (REC == null)
+				return;
+
+			// allinea a tutti IDRULE corrente
+			REC.setIDRule();
+
+			BindRule();
+
+			show(enumShow.rule);
+
+		}
+		private void BindRule()
+		{
+			grid_role.ItemsSource = REC.ITEM;
+		}
+
+		private void grid_role_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			var physicalPoint = e.GetPosition(sender as RadDataGrid);
+			var cell = (sender as RadDataGrid).HitTestService.CellInfoFromPoint(physicalPoint);
+
+			if (cell != null)
+			{
+				RecRules_item riga = (RecRules_item)cell.Item;
+				if (riga.ID.HasValue)
+					switch (riga.Tipo)
+					{
+						case enumRulesType.se:
+							AzzeraMaschera_SE();
+							se_componente.SelectedValue = riga.NOME;
+							se_condizione.SelectedValue = riga.Condizione;
+							se_valore.Text = riga.Valore;
+							show(enumShow.scheda_SE);
+							break;
+						case enumRulesType.azione:
+							allora_componente.SelectedValue = riga.NOME;
+							allora_condizione.SelectedValue = riga.Condizione;
+							allora_valore.Text = riga.Valore;
+							show(enumShow.scheda_ALLORA);
+							break;
+						case enumRulesType.wait:
+							wait_Seconds.Value = Convert.ToInt32(riga.Valore);
+							show(enumShow.scheda_WAIT);
+							break;
+					}
+			}
+
+		}
+
+		private void btnAddIF_Click(object sender, RoutedEventArgs e)
+		{
+			show(enumShow.scheda_SE);
+		}
+
+		private void btnAddWait_Click(object sender, RoutedEventArgs e)
+		{
+			show(enumShow.scheda_WAIT);
+		}
+
+		private void btnAddAction_Click(object sender, RoutedEventArgs e)
+		{
+			show(enumShow.scheda_ALLORA);
+		}
+		private void btnSaveRule_Click(object sender, RoutedEventArgs e)
+		{
+			DBCentral DB = new DBCentral();
+			RaspaResult res = DB.SetRule(REC, "Utente");
+			if (!res.Esito)
+				Pagina.messaggio.Text = res.Message;
+
+		}
+
+
+		#endregion
+
+		#region POPUP
+		private void btnSave_cancel_Click(object sender, RoutedEventArgs e)
+		{
+			show(enumShow.rule);
+		}
+
+		#region SE
 		private void se_condizione_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			RecRules.enumValore val = (RecRules.enumValore)se_condizione.SelectedIndex;
-			if (val == RecRules.enumValore.uguale ||
-				val == RecRules.enumValore.minore ||
-				val == RecRules.enumValore.maggiore)
+			enumRulesValore val = (enumRulesValore)se_condizione.SelectedIndex;
+			if (val == enumRulesValore.uguale ||
+				val == enumRulesValore.minore ||
+				val == enumRulesValore.maggiore)
 				se_valore.IsEnabled = true;
 			else
 				se_valore.IsEnabled = false;
 
 		}
+		private void btnAddCondition_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			// COMPONGO SE
+			int se_id = 0;
+			if (se_componente.SelectedValue != null)
+				se_id = (from p in elencoCOMPONENTI
+					  where p.Value.Contains(se_componente.SelectedValue.ToString())
+					  select p.Key)
+					.FirstOrDefault();
 
+			string se_nome = "";
+				if (se_componente.SelectedValue!= null)
+					se_nome = se_componente.SelectedValue.ToString();
+
+			enumRulesValore se_cond = (enumRulesValore)se_condizione.SelectedIndex;
+			string val = se_valore.Text;
+
+			// CREA ITEM
+			RecRules_item se = new RecRules_item( enumRulesType.se,se_id, REC.ID.Value, REC.TotLinea++, se_nome, se_cond, val);
+
+			// CONTROLLI FORMALI
+			RaspaResult res = Verifica_SE(se);
+			if (!res.Esito)
+			{
+				Pagina.messaggio.Text = res.Message;
+				return;
+			}
+
+			// AGGIUNGI 
+			REC.ITEM.Add(se);
+
+			// REFRESH LISTA
+			BindRule();
+
+			// VISUALIZZA LISTA
+			show(enumShow.rule);
+
+		}
+		private RaspaResult Verifica_SE(RecRules_item se)
+		{
+			RaspaResult res = new RaspaResult(true);
+			if (!se.ID.HasValue)
+				return new RaspaResult(false, "SE ID non trovato");
+			if (se.Condizione == enumRulesValore.nessuna)
+				return new RaspaResult(false, "Condizione è obbligatoria");
+			else if (REC.exist(enumRulesType.se,se.ID.Value, se.Condizione, se.Valore))
+				return new RaspaResult(false, "Rule già presente");
+			else if (se.CondizioneConValue && string.IsNullOrEmpty(se.Valore))
+				return new RaspaResult(false, "Valore Obbligatorio");
+
+			return res;
+		}
+
+		private void AzzeraMaschera_SE()
+		{
+			// AZZERO CAMPI
+			se_componente.SelectedIndex = -1;
+			se_condizione.SelectedIndex = -1;
+			se_valore.Text = "";
+			se_valore.IsEnabled = false;
+		}
+
+
+
+		#endregion
+
+		#region ALLORA
+		private void allora_condizione_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			enumRulesValore val = (enumRulesValore)allora_condizione.SelectedIndex;
+			if (val == enumRulesValore.uguale ||
+				val == enumRulesValore.minore ||
+				val == enumRulesValore.maggiore)
+				allora_valore.IsEnabled = true;
+			else
+				allora_valore.IsEnabled = false;
+		}
+		private void btnAddallora_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			// COMPONGO ALLORA
+			int allora_id = 0;
+			if (allora_componente.SelectedValue != null)
+				allora_id = (from p in elencoCOMPONENTI
+							 where p.Value.Contains(allora_componente.SelectedValue.ToString())
+							 select p.Key)
+						.FirstOrDefault();
+
+			string allora_nome = "";
+			if (allora_componente.SelectedValue != null)
+				allora_nome = allora_componente.SelectedValue.ToString();
+
+			enumRulesValore allora_cond = (enumRulesValore)allora_condizione.SelectedIndex;
+			string val = allora_valore.Text;
+
+			// CREA ITEM
+			RecRules_item allora = new RecRules_item(enumRulesType.azione, allora_id, REC.ID.Value, REC.TotLinea++, allora_nome, allora_cond, val);
+
+			// CONTROLLI FORMALI
+			RaspaResult res = Verifica_ALLORA(allora);
+			if (!res.Esito)
+			{
+				Pagina.messaggio.Text = res.Message;
+				return;
+			}
+
+			// AGGIUNGI 
+			REC.ITEM.Add(allora);
+
+			// REFRESH LISTA
+			BindRule();
+
+			// VISUALIZZA LISTA
+			show(enumShow.rule);
+
+		}
+		private RaspaResult Verifica_ALLORA(RecRules_item allora)
+		{
+			RaspaResult res = new RaspaResult(true);
+			if (!allora.ID.HasValue)
+				return new RaspaResult(false, "SE ID non trovato");
+			if (allora.Condizione == enumRulesValore.nessuna)
+				return new RaspaResult(false, "Condizione è obbligatoria");
+			else if (REC.exist(enumRulesType.azione,allora.ID.Value, allora.Condizione, allora.Valore))
+				return new RaspaResult(false, "Rule già presente");
+			else if (allora.CondizioneConValue && string.IsNullOrEmpty(allora.Valore))
+				return new RaspaResult(false, "Valore Obbligatorio");
+
+			return res;
+		}
+
+		private void AzzeraMaschera_ALLORA()
+		{
+			// AZZERO CAMPI
+			allora_componente.SelectedIndex = -1;
+			allora_condizione.SelectedIndex = -1;
+			allora_valore.Text = "";
+			allora_valore.IsEnabled = false;
+		}
+
+		#endregion
+
+		#region WAIT	
+
+		private void btnSave_wait_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			int val = Convert.ToInt32(wait_Seconds.Value??0)*1000;
+
+			// CONTROLLI FORMALI
+			if (val==0)
+			{
+				Pagina.messaggio.Text = "Errore devi impostare un valore";
+				return;
+			}
+
+			// CREA ITEM
+			RecRules_item allora = new RecRules_item(enumRulesType.wait, 0, REC.ID.Value, REC.TotLinea++, "WAIT",  enumRulesValore.nessuna, val.ToString());
+
+			// AGGIUNGI 
+			REC.ITEM.Add(allora);
+
+			// REFRESH LISTA
+			BindRule();
+
+			// VISUALIZZA LISTA
+			show(enumShow.rule);
+		}
+
+		private void AzzeraMaschera_WAIT()
+		{
+			// AZZERO CAMPI
+			wait_Seconds.Value = 0;
+		}
+
+		#endregion
+
+		#endregion
+
+		#region POPOLA COMBO
 		Dictionary<int, string> elencoCOMPONENTI;
 		private void initComboComponente(ComboBox combo)
 		{
@@ -106,166 +406,78 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-
-
-		private void allora_componente_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-
-		}
-		private void allora_condizione_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			RecRules.enumValore val = (RecRules.enumValore)allora_condizione.SelectedIndex;
-			if (val == RecRules.enumValore.uguale ||
-				val == RecRules.enumValore.minore ||
-				val == RecRules.enumValore.maggiore)
-				allora_valore.IsEnabled = true;
-			else
-				allora_valore.IsEnabled = false;
-
-		}
-		private void allora_condizione_2_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			RecRules.enumValore val = (RecRules.enumValore)allora_condizione_2.SelectedIndex;
-			if (val == RecRules.enumValore.uguale ||
-				val == RecRules.enumValore.minore ||
-				val == RecRules.enumValore.maggiore)
-				allora_valore_2.IsEnabled = true;
-			else
-				allora_valore_2.IsEnabled = false;
-
-		}
-
-		private void AzzeraMaschera()
-		{
-			// AZZERO CAMPI
-			se_componente.SelectedIndex = -1;
-			se_condizione.SelectedIndex = -1;
-			se_valore.Text = "";
-			se_valore.IsEnabled = false;
-			allora_componente.SelectedIndex = -1;
-			allora_condizione.SelectedIndex = -1;
-			allora_valore.Text = "";
-			allora_condizione_2.SelectedIndex = -1;
-			allora_valore_2.Text = "";
-			allora_attendi.Text = "0";
-			allora_attendi_2.Text = "0";
-			allora_valore.IsEnabled = false;
-		}
-
-
-		private void btnSave_Tapped(object sender, TappedRoutedEventArgs e)
-		{
-			RecRules rec = new RecRules();
-
-			// SE
-			rec.SE = (from p in elencoCOMPONENTI
-								where p.Value.Contains(se_componente.SelectedValue.ToString())
-								select p.Key)
-								.FirstOrDefault();
-			rec.SE_NOME = se_componente.SelectedValue.ToString();
-			rec.SE_condizione = (RecRules.enumValore)se_condizione.SelectedIndex;
-			rec.SE_valore = se_valore.Text;
-
-			// ALLORA
-			rec.ALLORA = (from p in elencoCOMPONENTI
-					  where p.Value.Contains(allora_componente.SelectedValue.ToString())
-					  select p.Key)
-					.FirstOrDefault();
-			rec.ALLORA_NOME = allora_componente.SelectedValue.ToString();
-
-			rec.ALLORA_condizione = (RecRules.enumValore)allora_condizione.SelectedIndex;
-			rec.ALLORA_valore = allora_valore.Text;
-
-			rec.ALLORA_condizione_2 = (RecRules.enumValore)allora_condizione_2.SelectedIndex;
-			rec.ALLORA_valore_2 = allora_valore_2.Text;
-
-			rec.ALLORA_attendi = Convert.ToInt32(allora_attendi.Text);
-			rec.ALLORA_attendi_2 = Convert.ToInt32(allora_attendi_2.Text);
-
-			// INSERISCE IN LISTA
-			ListViewItem regola_item = new ListViewItem();
-			regola_item.Tag = 0;
-			regola_item.Content = rec.TESTO;
-			regole.Items.Insert(0,regola_item);
-			//regole.Items.Insert(0, rec.TESTO);
-
-			// AZZERA MASCHERA
-			AzzeraMaschera();
-
-			show(enumShow.lista);
-
-		}
-
-
-		#region ELENCO
-		private void regole_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-		{
-
-		}
 		#endregion
 
 
-
-
-
-
-
-
-
-
-
-		public void show(enumShow show)
-		{
-			lista.Visibility = Visibility.Collapsed;
-			scheda.Visibility = Visibility.Collapsed;
-			switch(show)
-			{
-				case enumShow.scheda:
-					scheda.Visibility = Visibility.Visible;
-					break;
-				case enumShow.lista:
-					lista.Visibility = Visibility.Visible;
-					break;
-			}
-		}
 		public enum enumShow
 		{
-			lista,
-			scheda,
+			rules,
+			rule,
+			scheda_SE,
+			scheda_ALLORA,
+			scheda_WAIT,
 		}
-		public class RecRules
+		public void show(enumShow show)
 		{
-			public RecRules()
+			switch (show)
 			{
+				case enumShow.rules:
+					Panel_rules.Visibility = Visibility.Visible;
+					Panel_rule.Visibility = Visibility.Collapsed;
+					scheda_SE.Visibility = Visibility.Collapsed;
+					scheda_ALLORA.Visibility = Visibility.Collapsed;
+					scheda_WAIT.Visibility = Visibility.Collapsed;
+					break;
+				case enumShow.rule:
+					Panel_rules.Visibility = Visibility.Collapsed;
+					Panel_rule.Visibility = Visibility.Visible;
+					scheda_SE.Visibility = Visibility.Collapsed;
+					scheda_ALLORA.Visibility = Visibility.Collapsed;
+					scheda_WAIT.Visibility = Visibility.Collapsed;
 
-			}
-			public int SE { get; set; }
-			public string SE_NOME { get; set; }
-			public enumValore SE_condizione{ get; set; }
-			public string SE_valore { get; set; }
+					btnAddWait.Visibility = Visibility.Visible;
+					btnAddAction.Visibility = Visibility.Visible;
+					btnAddIF.Visibility = Visibility.Visible;
+					break;
+				case enumShow.scheda_SE:
+					AzzeraMaschera_SE();
 
-			public int ALLORA { get; set; }
-			public string ALLORA_NOME { get; set; }
-			public enumValore ALLORA_condizione { get; set; }
-			public string ALLORA_valore { get; set; }
+					Panel_rules.Visibility = Visibility.Collapsed;
+					Panel_rule.Visibility = Visibility.Visible;
+					scheda_SE.Visibility = Visibility.Visible;
+					scheda_ALLORA.Visibility = Visibility.Collapsed;
+					scheda_WAIT.Visibility = Visibility.Collapsed;
 
-			public enumValore ALLORA_condizione_2 { get; set; }
-			public string ALLORA_valore_2 { get; set; }
+					btnAddWait.Visibility = Visibility.Collapsed;
+					btnAddAction.Visibility = Visibility.Collapsed;
+					btnAddIF.Visibility = Visibility.Collapsed;
+					break;
+				case enumShow.scheda_ALLORA:
+					AzzeraMaschera_ALLORA();
 
-			public int ALLORA_attendi { get; set; }
-			public int ALLORA_attendi_2 { get; set; }
+					Panel_rules.Visibility = Visibility.Collapsed;
+					Panel_rule.Visibility = Visibility.Visible;
+					scheda_SE.Visibility = Visibility.Collapsed;
+					scheda_ALLORA.Visibility = Visibility.Visible;
+					scheda_WAIT.Visibility = Visibility.Collapsed;
 
+					btnAddWait.Visibility = Visibility.Collapsed;
+					btnAddAction.Visibility = Visibility.Collapsed;
+					btnAddIF.Visibility = Visibility.Collapsed;
+					break;
+				case enumShow.scheda_WAIT:
+					AzzeraMaschera_WAIT();
 
+					Panel_rules.Visibility = Visibility.Collapsed;
+					Panel_rule.Visibility = Visibility.Visible;
+					scheda_SE.Visibility = Visibility.Collapsed;
+					scheda_ALLORA.Visibility = Visibility.Collapsed;
+					scheda_WAIT.Visibility = Visibility.Visible;
 
-			public string TESTO { get { return SE_NOME + " " + SE_condizione.ToString() + " " + SE_valore + Environment.NewLine + ((ALLORA_attendi > 0) ? "-- > ATTENDI " + ALLORA_attendi + " sec" + Environment.NewLine : "") + "-- > " + ALLORA_NOME + " " + ALLORA_condizione.ToString() + " " + ALLORA_valore + Environment.NewLine + ((ALLORA_attendi_2 > 0) ? "-- > ATTENDI " + ALLORA_attendi_2 + " sec" + Environment.NewLine : "") + "-- > " + ALLORA_NOME + " " + ALLORA_condizione_2.ToString() + " " + ALLORA_valore_2; } }
-
-			public enum enumValore
-			{
-				off=0,
-				on=1,
-				uguale=2,
-				minore=3,
-				maggiore=4
+					btnAddWait.Visibility = Visibility.Collapsed;
+					btnAddAction.Visibility = Visibility.Collapsed;
+					btnAddIF.Visibility = Visibility.Collapsed;
+					break;
 			}
 		}
 

@@ -677,6 +677,8 @@ namespace RaspaCentral
 				changeMode();
 				// popolate componenti
 				popolateComponenti();
+				// Prepara frame CAM
+				GridCAM.Visibility = Visibility.Visible;
 			}
 			catch (Exception ex)
 			{
@@ -809,7 +811,6 @@ namespace RaspaCentral
 				Actualcomponente.Descrizione = (item == null) ? "" : item.Descrizione;
 				Actualcomponente.Node_Num = (item == null) ? 0 : item.Node_Num;
 				Actualcomponente.Node_Pin = (item == null) ? 0 : item.Node_Pin;
-				Actualcomponente.Value = (item == null) ? "" : item.Value;
 
 				if (item != null)
 				{
@@ -832,6 +833,9 @@ namespace RaspaCentral
 										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+
+						Actualcomponente.Value = (item == null) ? "" : item.Value;
+
 						break;
 					case enumComponente.centrale:
 						Actualcomponente.Nome = (item == null) ? "CENTRALE " : item.Nome;
@@ -844,6 +848,9 @@ namespace RaspaCentral
 										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+
+						Actualcomponente.Value = (item == null) ? "" : item.Value;
+
 						break;
 					case enumComponente.light:
 						Actualcomponente.Nome = (item == null) ? "LUCE " : item.Nome;
@@ -859,6 +866,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
+						Actualcomponente.Value = (item == null) ? "1" : item.Value;
 
 						break;
 					case enumComponente.pir:
@@ -875,6 +883,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
+						Actualcomponente.Value = (item == null) ? "2" : item.Value;
 
 						break;
 					case enumComponente.webcam_ip:
@@ -889,6 +898,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
+						Actualcomponente.Value = (item == null) ? "" : item.Value;
 
 						break;
 
@@ -1019,8 +1029,8 @@ namespace RaspaCentral
 					}
 					break;
 				case enumComponente.pir:
-
-					enumPirValue valuePIR = (enumPirValue)Convert.ToInt32(oggetto.Value);
+					int val = (!string.IsNullOrEmpty(oggetto.Value)) ? Convert.ToInt32(oggetto.Value) : 0;
+					enumPirValue valuePIR = (enumPirValue)val;
 					switch(valuePIR)
 					{
 						case enumPirValue.nessuno:
@@ -1254,7 +1264,7 @@ namespace RaspaCentral
 						ShowSchema(IDComponente);
 						break;
 					case "Regole":
-						Regole.INIT(IDComponente);
+						Regole.INIT(IDComponente,this);
 						ToolbarShow(enumShowToolbar.regole);
 						break;
 					case "Property":
@@ -1789,27 +1799,22 @@ namespace RaspaCentral
 			switch (show)
 			{
 				case enumShowToolbar.help:
-					TITOLO_TOOLBAR.Text = "HELP";
 					ToolBarHelp.Visibility = Visibility.Visible;
 					break;
 
 				case enumShowToolbar.componenti:
-					TITOLO_TOOLBAR.Text = "TOOLS";
 					ToolbarComponenti.Visibility = Visibility.Visible;
 					break;
 				case enumShowToolbar.info:
-					TITOLO_TOOLBAR.Text = "INFO";
 					ToolbarInfo.Visibility = Visibility.Visible;
 					break;
 				case enumShowToolbar.property:
 					ToolBarProperty.Visibility = Visibility.Visible;
 					break;
 				case enumShowToolbar.regole:
-					TITOLO_TOOLBAR.Text = "RULES";
 					ToolbarRegole.Visibility = Visibility.Visible;
 					break;
 				case enumShowToolbar.schema:
-					TITOLO_TOOLBAR.Text = "GPIO SCHEMA";
 					ToolBarSchema.Visibility = Visibility.Visible;
 					break;
 			}

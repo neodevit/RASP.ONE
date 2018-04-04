@@ -67,8 +67,8 @@ namespace RaspaCentral
 
 						NODO_NOME.Text = componente.Nome ?? "";
 						NODO_DESCR.Text = componente.Descrizione ?? "";
-						NODO_NUM.Text = componente.Node_Num.ToString();
-						if (NODO_NUM.Text == "")
+						NODO_NUM.Value = componente.Node_Num;
+						if (NODO_NUM.Value == 0)
 							NODO_NUM.Focus(FocusState.Pointer);
 						NODO_IP.Text = componente.IPv4 ?? "";
 						NODO_RETE.Text = componente.HWAddress ?? "";
@@ -81,8 +81,8 @@ namespace RaspaCentral
 						CENTRAL_TRUST.IsChecked = componente.Trusted;
 						CENTRAL_NOME.Text = componente.Nome ?? "";
 						CENTRAL_DESCR.Text = componente.Descrizione ?? "";
-						CENTRAL_NUM.Text = componente.Node_Num.ToString();
-						if (CENTRAL_NUM.Text == "")
+						CENTRAL_NUM.Value = componente.Node_Num;
+						if (CENTRAL_NUM.Value == 0)
 							CENTRAL_NUM.Focus(FocusState.Pointer);
 						CENTRAL_IP.Text = componente.IPv4 ?? "";
 						CENTRAL_RETE.Text = componente.HWAddress ?? "";
@@ -278,7 +278,7 @@ namespace RaspaCentral
 						componente.Trusted = (NODO_TRUST.IsChecked.HasValue) ? NODO_TRUST.IsChecked.Value : false;
 						componente.Nome = NODO_NOME.Text;
 						componente.Descrizione = NODO_DESCR.Text;
-						componente.Node_Num = Convert.ToInt32(NODO_NUM.Text);
+						componente.Node_Num = Convert.ToInt32(NODO_NUM.Value);
 						componente.IPv4 = NODO_IP.Text;
 						componente.HWAddress = NODO_RETE.Text;
 						break;
@@ -287,7 +287,7 @@ namespace RaspaCentral
 						componente.Trusted = (CENTRAL_TRUST.IsChecked.HasValue) ? CENTRAL_TRUST.IsChecked.Value : false;
 						componente.Nome = CENTRAL_NOME.Text;
 						componente.Descrizione = CENTRAL_DESCR.Text;
-						componente.Node_Num = Convert.ToInt32(CENTRAL_NUM.Text);
+						componente.Node_Num = Convert.ToInt32(CENTRAL_NUM.Value);
 						componente.IPv4 = CENTRAL_IP.Text;
 						componente.HWAddress = CENTRAL_RETE.Text;
 						break;

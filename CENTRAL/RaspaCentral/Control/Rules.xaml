@@ -1,46 +1,183 @@
 ﻿<UserControl
     x:Class="RaspaCentral.Rules"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:RaspaCentral"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="500"
-    d:DesignWidth="500">
 
-    <Grid Width="500" Height="500">
-        <RelativePanel x:Name="lista" Visibility="Collapsed"  RenderTransformOrigin="0,0" >
-            <ListView x:Name="regole" Width="500" Height="500" DoubleTapped="regole_DoubleTapped" />
+      xmlns:grid="using:Telerik.UI.Xaml.Controls.Grid"
+      xmlns:core="using:Telerik.Data.Core"
+      xmlns:gridPrimitives="using:Telerik.UI.Xaml.Controls.Grid.Primitives"
+    
+      xmlns:list="using:Telerik.UI.Xaml.Controls.Data"
+      xmlns:telerikInput="using:Telerik.UI.Xaml.Controls.Input"
+
+    mc:Ignorable="d"
+    d:DesignHeight="700"
+    d:DesignWidth="620">
+
+
+    <Grid Width="620" Height="700">
+
+        <RelativePanel x:Name="Panel_rules" Visibility="Visible" RenderTransformOrigin="0,0" >
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="RULES" TextWrapping="Wrap" VerticalAlignment="Top" Width="604" Margin="8,10,-556,-10" TextAlignment="Center" FontWeight="Bold"/>
+
+
+            <grid:RadDataGrid x:Name="grid_roles" ItemsSource="{Binding RECS}"
+                                ColumnDataOperationsMode="Flyout"
+                                SelectionMode="Single"
+                                AutoGenerateColumns="False"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                GridLinesVisibility="None"
+                                CanUserChooseColumns="False"
+                                ColumnResizeHandleDisplayMode="None"
+                                UserEditMode="None"
+                                UserGroupMode="Disabled"
+                                UserFilterMode="Disabled"
+                                Tapped="grid_roles_Tapped"
+                                Width="600" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="28,47,-35,-447">
+
+
+                <grid:RadDataGrid.Columns>
+
+
+                    <grid:DataGridTextColumn x:Name="grid_roles_id" PropertyName="ID" SizeMode="Fixed" Width="0" 
+                                             IsVisible="False" CanUserFilter="False" CanUserSort="False" CanUserEdit="False" >
+
+
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+
+                    <grid:DataGridTextColumn x:Name="grid_roles_NOME" PropertyName="NOME"  SizeMode="Fixed" Width="430" 
+                                             IsVisible="True"  CanUserFilter="False" CanUserSort="False" CanUserEdit="true">
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+
+                </grid:RadDataGrid.Columns>
+            </grid:RadDataGrid>
+
+
+            <Button x:Name="btnRulesCancel" Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="19,459,-19,-659" />
+            <Button x:Name="btnRulesAdd" Content="ADD" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="522,459,-522,-491" />
+
         </RelativePanel>
 
-        <RelativePanel x:Name="scheda" Visibility="Visible" RenderTransformOrigin="0,0" >
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="SE " TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,67,-56,-67"/>
-            <ComboBox x:Name="se_componente" HorizontalAlignment="Left" Margin="121,61,-295,0" VerticalAlignment="Top" Width="363" SelectionChanged="condizione_componente_SelectionChanged"/>
+
+
+        <RelativePanel x:Name="Panel_rule" Visibility="Collapsed" RenderTransformOrigin="0,0" >
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="RULES" TextWrapping="Wrap" VerticalAlignment="Top" Width="604" Margin="8,10,-556,-10" TextAlignment="Center" FontWeight="Bold"/>
+            <Button x:Name="btnSaveRule" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="522,9,-522,-9"  Click="btnSaveRule_Click"/>
+
+
+
+            <grid:RadDataGrid x:Name="grid_role" 
+                                ColumnDataOperationsMode="Flyout"
+                                SelectionMode="Single"
+                                AutoGenerateColumns="False"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                GridLinesVisibility="None"
+                                CanUserChooseColumns="False"
+                                ColumnResizeHandleDisplayMode="None"
+                                UserEditMode="None"
+                                UserGroupMode="Disabled"
+                                UserFilterMode="Disabled"
+                                Tapped="grid_role_Tapped"
+                                Width="600" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="51,47,-58,-447">
+                <grid:RadDataGrid.Columns>
+
+                    <grid:DataGridTextColumn PropertyName="POS" SizeMode="Fixed" Width="50"  >
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+
+                    <grid:DataGridTextColumn PropertyName="TipoDescr" SizeMode="Fixed" Width="60"  >
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+
+                    <grid:DataGridTextColumn PropertyName="NOME" SizeMode="Fixed" Width="190"  >
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+
+                    <grid:DataGridTextColumn PropertyName="Condizione" SizeMode="Fixed" Width="90">
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+
+                    <grid:DataGridTextColumn PropertyName="Valore" SizeMode="Fixed" Width="70">
+                        <grid:DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="gridPrimitives:DataGridColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </grid:DataGridTextColumn.HeaderStyle>
+                    </grid:DataGridTextColumn>
+                </grid:RadDataGrid.Columns>
+            </grid:RadDataGrid>
+
+
+            <Button x:Name="btnAddWait" Content="WAIT" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="271,459,-271,-491" Click="btnAddWait_Click"/>
+            <Button x:Name="btnAddAction" Content="ACTION" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="527,459,-527,-491" Click="btnAddAction_Click"/>
+            <Button x:Name="btnAddIF" Content="IF" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="11,459,-11,-659" Click="btnAddIF_Click"/>
+
+        </RelativePanel>
+
+        <RelativePanel x:Name="scheda_SE" Visibility="Visible" RenderTransformOrigin="0,0" Margin="47,193,62,291" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA IF" TextWrapping="Wrap" VerticalAlignment="Top" Width="483" Margin="8,10,-435,-10" TextAlignment="Center" FontWeight="Bold"/>
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="IF " TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,67,-56,-67"/>
+            <ComboBox x:Name="se_componente" HorizontalAlignment="Left" Margin="90,61,-264,0" VerticalAlignment="Top" Width="363" />
 
             <TextBlock HorizontalAlignment="Left" Height="20" Text="VALORE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
-            <ComboBox x:Name="se_condizione" HorizontalAlignment="Left" Margin="121,100,-92,-39" VerticalAlignment="Top" Width="160" SelectionChanged="se_condizione_SelectionChanged"/>
-            <TextBox x:Name="se_valore" Margin="293,100,-483,-100" />
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="ALLORA" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,145,-56,-145"/>
-            <ComboBox x:Name="allora_componente" HorizontalAlignment="Left" Margin="121,139,-293,-36" VerticalAlignment="Top" Width="361" SelectionChanged="allora_componente_SelectionChanged"/>
+            <ComboBox x:Name="se_condizione" HorizontalAlignment="Left" Margin="90,100,-61,-39" VerticalAlignment="Top" Width="160" SelectionChanged="se_condizione_SelectionChanged"/>
+            <TextBox x:Name="se_valore" Margin="262,100,-452,-100" />
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="ATTENDI" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,183,-56,-183"/>
-            <TextBox x:Name="allora_attendi" Margin="121,178,-282,-178" />
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="Secondi" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="294,183,-331,-183"/>
+            <Button x:Name="btnAddse" Content="Add" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="82" Margin="409,171,-426,-171" Tapped="btnAddCondition_Tapped"/>
+            <Button Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="90" Margin="15,170,-40,-170" Click="btnSave_cancel_Click"   />
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="AZIONE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,228,-56,-228"/>
-            <ComboBox x:Name="allora_condizione" HorizontalAlignment="Left" Margin="121,222,-93,-119" VerticalAlignment="Top" Width="161" SelectionChanged="allora_condizione_2_SelectionChanged"/>
-            <TextBox x:Name="allora_valore" Margin="293,223,-483,-223" />
+        </RelativePanel>
+        <RelativePanel x:Name="scheda_ALLORA" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="47,193,62,291" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA ACTION" TextWrapping="Wrap" VerticalAlignment="Top" Width="483" Margin="8,10,-435,-10" TextAlignment="Center" FontWeight="Bold"/>
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="ACTION " TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,67,-56,-67"/>
+            <ComboBox x:Name="allora_componente" HorizontalAlignment="Left" Margin="89,61,-263,0" VerticalAlignment="Top" Width="363" />
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="ATTENDI" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,268,-56,-268"/>
-            <TextBox x:Name="allora_attendi_2" Margin="121,263,-282,-263" />
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="Secondi" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="294,268,-331,-268"/>
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="VALORE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
+            <ComboBox x:Name="allora_condizione" HorizontalAlignment="Left" Margin="89,100,-60,-39" VerticalAlignment="Top" Width="160" SelectionChanged="allora_condizione_SelectionChanged" />
+            <TextBox x:Name="allora_valore" Margin="261,100,-451,-100" />
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="AZIONE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,311,-56,-311"/>
-            <ComboBox x:Name="allora_condizione_2" HorizontalAlignment="Left" Margin="121,305,-93,-202" VerticalAlignment="Top" Width="161" SelectionChanged="allora_condizione_SelectionChanged"/>
-            <TextBox x:Name="allora_valore_2" Margin="293,306,-483,-306" />
+            <Button x:Name="btnAddallora" Content="Add" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="94" Margin="395,170,-424,-170" Tapped="btnAddallora_Tapped" />
+            <Button Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="86" Margin="16,170,-37,-170" Click="btnSave_cancel_Click"   />
 
-            <Button x:Name="btnSave" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="65" Margin="416,457,-416,-457" Tapped="btnSave_Tapped"/>
+        </RelativePanel>
+
+        <RelativePanel x:Name="scheda_WAIT" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="47,193,62,291" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
+
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA WAIT" TextWrapping="Wrap" VerticalAlignment="Top" Width="483" Margin="8,10,-435,-10" TextAlignment="Center" FontWeight="Bold"/>
+            <telerikInput:RadNumericBox x:Name="wait_Seconds" AllowNullValue="False" Header="Time wait" Maximum="9000" Minimum="0" Margin="114,62,115,-46" ValueFormat="{}{0,0:N0} sec"/>
+
+            <Button x:Name="btnSave_wait" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="84" Margin="403,170,-422,-170" Tapped="btnSave_wait_Tapped"  />
+            <Button Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="90" Margin="15,170,-40,-170" Click="btnSave_cancel_Click"   />
         </RelativePanel>
 
 

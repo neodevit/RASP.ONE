@@ -5,12 +5,14 @@
     xmlns:local="using:RaspaCentral"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:telerikInput="using:Telerik.UI.Xaml.Controls.Input"
+    
     mc:Ignorable="d"
     d:DesignHeight="500"
     d:DesignWidth="400">
 
     <Grid Width="400" Height="500">
-        <RelativePanel x:Name="NODO_Property" Visibility="Collapsed" Margin="0,0,0,50">
+        <RelativePanel x:Name="NODO_Property" Visibility="Visible" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_node.png" Opacity="0.5" Margin="155,5,-60,205" />
             <TextBlock HorizontalAlignment="Left" Margin="0,1,0,0" Text="NODE" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,59,0,0" Text="ID" VerticalAlignment="Top"/>
@@ -24,7 +26,7 @@
             <TextBlock HorizontalAlignment="Left" Margin="16,193,0,0" Text="DESCRIPTION" VerticalAlignment="Top"/>
             <TextBox x:Name="NODO_DESCR" HorizontalAlignment="Left" Margin="125,195,0,-69" Text="..." VerticalAlignment="Top" Width="210" Height="101" AcceptsReturn="True" TextWrapping="Wrap"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,306,0,0" Text="NUMBER" VerticalAlignment="Top"/>
-            <TextBox x:Name="NODO_NUM" HorizontalAlignment="Left" Margin="125,300,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
+            <telerikInput:RadNumericBox x:Name="NODO_NUM" AllowNullValue="False" Maximum="9000" Minimum="0" Margin="125,300,95,-284" ValueFormat="{}{0,0:N0}"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,340,0,0" Text="IP" VerticalAlignment="Top"/>
             <TextBox x:Name="NODO_IP" HorizontalAlignment="Left" Margin="125,335,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,375,0,0" Text="HW ADDRESS" VerticalAlignment="Top"/>
@@ -44,13 +46,13 @@
             <TextBlock HorizontalAlignment="Left" Margin="16,195,0,0" Text="DESCRIPTION" VerticalAlignment="Top"/>
             <TextBox x:Name="CENTRAL_DESCR" HorizontalAlignment="Left" Margin="125,195,0,-69" Text="..." VerticalAlignment="Top" Width="210" Height="101" AcceptsReturn="True" TextWrapping="Wrap"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,306,0,0" Text="NUMBER" VerticalAlignment="Top"/>
-            <TextBox x:Name="CENTRAL_NUM" HorizontalAlignment="Left" Margin="125,300,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
+            <telerikInput:RadNumericBox x:Name="CENTRAL_NUM" AllowNullValue="False" Maximum="9000" Minimum="0" Margin="125,300,95,-284" ValueFormat="{}{0,0:N0}"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,341,0,0" Text="IP" VerticalAlignment="Top"/>
             <TextBox x:Name="CENTRAL_IP" HorizontalAlignment="Left" Margin="125,335,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,375,0,0" Text="HW ADDRESS" VerticalAlignment="Top"/>
             <TextBox x:Name="CENTRAL_RETE" HorizontalAlignment="Left" Margin="125,370,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
         </RelativePanel>
-        <RelativePanel x:Name="LIGHT_Property" Visibility="Visible" Margin="0,0,0,50">
+        <RelativePanel x:Name="LIGHT_Property" Visibility="Collapsed" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_light.png" Opacity="0.5" Margin="190,25,-95,185" />
             <TextBlock HorizontalAlignment="Left" Margin="0,1,0,0" Text="LIGHT" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
             <TextBlock Margin="16,44,0,11" Text="ID" />

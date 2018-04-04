@@ -12,158 +12,176 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Width="1280" Height="800">
         <Border BorderThickness="1" BorderBrush="Black" Width="1280" Height="800" />
 
+        
+
+                        
+                        
+                        
         <Pivot x:Name="Tabs" RenderTransformOrigin="0,0" >
+
             <PivotItem x:Name="TabsMappa" Header="Mappa" RenderTransformOrigin="0,0" Margin="14,-1,10,1">
                 <Grid  RenderTransformOrigin="0,0" >
+
+                            
                     <Grid x:Name="GridMappa"  RenderTransformOrigin="0,0"  Margin="0,0,375,0">
                         <RelativePanel >
 
                             <!--MAPPA-->
                             <Border BorderThickness="3" BorderBrush="Black" Width="631" Height="506">
                                 <Image x:Name="Mappa" Height="500" Width="625" Source="Assets/mappaPT.png" 
-                               DragOver="Mappa_DragOver" Drop="Mappa_Drop" AllowDrop="True" Opacity="1" 
-                               HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="0,0,-56,-18" 
+                                DragOver="Mappa_DragOver" Drop="Mappa_Drop" AllowDrop="True" Opacity="1" 
+                                HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="0,0,-56,-18" 
                                 Tapped="Mappa_Tapped"    />
                             </Border>
 
                             <Ellipse x:Name="evidenziazione" 
-                                 Height="36" Width="36" 
-                                 Fill="Transparent" Visibility="Collapsed"
-                                 Stroke="SteelBlue" StrokeThickness="3" />
+                                    Height="36" Width="36" 
+                                    Fill="Transparent" Visibility="Collapsed"
+                                    Stroke="SteelBlue" StrokeThickness="3" />
 
                         </RelativePanel>
                     </Grid>
 
-                    <Border BorderThickness="1" BorderBrush="Black" Margin="-9,683,13,33" Width="1252" Height="36" />
-                    <TextBlock x:Name="messaggio" x:FieldModifier="public" HorizontalAlignment="Left" Margin="0,692,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="1249" Height="32"/>
-                    
+
                     <!--TOOLBAR-->
-                    <RelativePanel x:Name="ToolBar" Margin="631,1,0,39">
-                        <TextBlock x:Name="TITOLO_TOOLBAR" HorizontalAlignment="Left" Margin="11,6,-24,419" Text="..." TextWrapping="Wrap" Width="348" FontWeight="Bold" FontSize="18" TextAlignment="Left" />
-                        <!--HELP-->
-                        <RelativePanel x:Name="ToolBarHelp" Visibility="Collapsed" HorizontalAlignment="Left"  >
-                        </RelativePanel>
+                <RelativePanel x:Name="ToolBar" Margin="631,1,0,39">
 
-                        <!--COMPONENTI-->
-                        <RelativePanel x:Name="ToolbarComponenti" Visibility="Collapsed" >
-                            <Grid>
-                                <TextBlock HorizontalAlignment="Left" Margin="27,38,0,345" Text="Luce" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="6,41,323,387" Source="/Assets/light_off.png" 
-                                       CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                       Width="16" Height="16"   />
-                                <TextBlock HorizontalAlignment="Left" Margin="27,68,0,317" Text="PIR" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="5,70,324,358" Source="/Assets/bell_on.png" 
-                                       CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                       Width="16" Height="16"  />
+                        <Image Width="32" Height="32" Source="Assets/light_on.png" Margin="20,0,-20,0" />
+                        <Image Width="32" Height="32" Source="Assets/textfield.png" Margin="60,0,-60,0" />
+                        
+                        <Image Width="32" Height="32" Source="Assets/chart_organisation.png" Margin="204,0,-204,0" />
+                        <Image Width="32" Height="32" Source="Assets/respberry_scheda.png" Margin="246,0,-246,0" />
 
-                                <TextBlock HorizontalAlignment="Left"  Text="WEBCAM IP" TextWrapping="Wrap" Margin="28,98,0,330" />
-                                <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam.png" 
-                                       CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                       Width="16" Height="16" Margin="6,98,323,330"  />
+                        <Image Width="32" Height="32" Source="Assets/find.png" Margin="390,0,-390,0" />
+                        <Image Width="32" Height="32" Source="Assets/report.png" Margin="426,0,-426,0" />
 
-                                <TextBlock HorizontalAlignment="Left" Margin="225,39,0,346" Text="NODO" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="205,42,124,386" Source="Assets/raspberry.png" 
-                                       CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                       Width="16" Height="16"  />
+                        <Image Width="32" Height="32" Source="Assets/information.png" Margin="552,0,-552,0" />
+                        <Image Width="32" Height="32" Source="Assets/help.png" Margin="590,0,-590,0" />
+                    <!--HELP-->
+                    <RelativePanel x:Name="ToolBarHelp" Visibility="Collapsed" HorizontalAlignment="Left"  >
+                    </RelativePanel>
 
-                                <TextBlock HorizontalAlignment="Left" Margin="225,65,0,320" Text="CENTRALE" TextWrapping="Wrap" />
-                                <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="205,68,124,360" Source="Assets/central.png" 
-                                       CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                       Width="16" Height="16"  />
+                    <!--COMPONENTI-->
+                    <RelativePanel x:Name="ToolbarComponenti" Visibility="Visible" Width="550" Margin="70,88,-70,-88" >
+                        <Grid>
+                            <TextBlock HorizontalAlignment="Left" Margin="65,38,0,345" Text="Luce" TextWrapping="Wrap" />
+                            <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="47,41,424,387" Source="/Assets/light_off.png" 
+                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                    Width="16" Height="16"   />
+                            <TextBlock HorizontalAlignment="Left" Margin="65,68,0,317" Text="PIR" TextWrapping="Wrap" />
+                            <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="43,71,420,357" Source="/Assets/bell_on.png" 
+                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                    Width="16" Height="16"  />
+
+                            <TextBlock HorizontalAlignment="Left"  Text="WEBCAM IP" TextWrapping="Wrap" Margin="203,38,0,330" />
+                            <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam.png" 
+                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                    Width="16" Height="16" Margin="182,41,287,387"  />
+
+                            <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
+                            <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="349,42,122,386" Source="Assets/raspberry.png" 
+                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                    Width="16" Height="16"  />
+
+                            <TextBlock HorizontalAlignment="Left" Margin="368,65,0,320" Text="CENTRALE" TextWrapping="Wrap" />
+                            <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="347,68,121,360" Source="Assets/central.png" 
+                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                    Width="16" Height="16"  />
 
 
-                            </Grid>
-                        </RelativePanel>
-                        <!--PROPERTY-->
-                        <RelativePanel x:Name="ToolBarProperty" Visibility="Collapsed" HorizontalAlignment="Left"  >
-                            <local:Property x:Name="ComponentProperty" Width="500" Height="500" />
-                        </RelativePanel>
-                        <RelativePanel x:Name="ToolBarSchema" Visibility="Collapsed" >
-                            <Grid x:Name="schemaGPIO">
-                                <local:GPIO x:Name="gpio" Width="600" Height="500" />
-                            </Grid>
-                        </RelativePanel>
+                        </Grid>
+                    </RelativePanel>
+                    <!--PROPERTY-->
+                    <RelativePanel x:Name="ToolBarProperty" Visibility="Collapsed" HorizontalAlignment="Left" Margin="54,44,-54,-44"  >
+                        <local:Property x:Name="ComponentProperty" Width="500" Height="500" />
+                    </RelativePanel>
+                    <RelativePanel x:Name="ToolBarSchema" Visibility="Collapsed" >
+                        <Grid x:Name="schemaGPIO">
+                            <local:GPIO x:Name="gpio" Width="600" Height="500" Margin="0,32,0,-32" />
+                        </Grid>
+                    </RelativePanel>
 
-                        <!--REGOLE-->
-                        <RelativePanel x:Name="ToolbarRegole" Visibility="Collapsed" Margin="5,40,-5,-40" >
-                            <Grid >
-                                <local:Rules x:Name="Regole" Width="500" Height="500" />
-                            </Grid>
-                        </RelativePanel>
-                        <!--INFO-->
-                        <RelativePanel x:Name="ToolbarInfo" Visibility="Collapsed" >
-                            <Grid >
-                                <!--LEGENDA-->
-                                <!--light-->
-                                <TextBlock HorizontalAlignment="Left" Margin="27,6,0,0" Text="Luce Spenta" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="light_off" Source="/Assets/light_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,11,0,0" VerticalAlignment="Top" />
-                                <TextBlock HorizontalAlignment="Left" Margin="27,27,0,0" Text="Luce Accesa" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="light_on" Source="/Assets/light_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,31,0,0" VerticalAlignment="Top" />
-                                <TextBlock HorizontalAlignment="Left" Margin="27,47,0,0" Text="Luce Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="light_err" Source="/Assets/light_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,51,0,0" VerticalAlignment="Top" />
-                                <!--pir-->
-                                <TextBlock HorizontalAlignment="Left" Margin="27,70,0,0" Text="PIR Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="bell_off" Source="/Assets/bell_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
-                                <TextBlock HorizontalAlignment="Left" Margin="27,91,0,0" Text="PIR Acceso" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="bell_on" Source="/Assets/bell_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
-                                <TextBlock HorizontalAlignment="Left" Margin="27,111,0,0" Text="PIR Segnalazione" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
-                                <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="PIR Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                                <Image x:Name="bell_err" Source="/Assets/bell_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
-                            </Grid>
-                        </RelativePanel>
+                    <!--REGOLE-->
+                    <RelativePanel x:Name="ToolbarRegole" Visibility="Collapsed" Margin="5,40,-5,-40" >
+                        <Grid >
+                            <local:Rules x:Name="Regole" Width="620" Height="700" />
+                        </Grid>
+                    </RelativePanel>
+                    <!--INFO-->
+                    <RelativePanel x:Name="ToolbarInfo" Visibility="Collapsed" Margin="30,60,-30,-60" >
+                        <Grid >
+                            <!--LEGENDA-->
+                            <!--light-->
+                            <TextBlock HorizontalAlignment="Left" Margin="27,6,0,0" Text="Luce Spenta" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="light_off" Source="/Assets/light_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,11,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,27,0,0" Text="Luce Accesa" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="light_on" Source="/Assets/light_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,31,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,47,0,0" Text="Luce Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="light_err" Source="/Assets/light_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,51,0,0" VerticalAlignment="Top" />
+                            <!--pir-->
+                            <TextBlock HorizontalAlignment="Left" Margin="27,70,0,0" Text="PIR Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_off" Source="/Assets/bell_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,91,0,0" Text="PIR Acceso" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_on" Source="/Assets/bell_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,111,0,0" Text="PIR Segnalazione" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="PIR Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_err" Source="/Assets/bell_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
+                        </Grid>
+                    </RelativePanel>
                     </RelativePanel>
 
                     <!--IP CAM-->
-                    <Grid x:Name="GridCAM"  RenderTransformOrigin="0,0" Visibility="Collapsed" Margin="0,0,375,0">
-                        <RelativePanel Visibility="Visible" >
-                            <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed" Height="500" Width="625" Margin="3,3,-56,-18" />
-                        </RelativePanel>
-                    </Grid>
-                </Grid>
-            </PivotItem>
-            <PivotItem x:Name="TabsServer" Header="Comunication" >
-                <Grid>
-                    <ListView x:Name="Trasmission" HorizontalAlignment="Left" Height="720" Margin="8,26,0,0" VerticalAlignment="Top" Width="1250"/>
-                </Grid>
-            </PivotItem>
+                    <RelativePanel x:Name="GridCAM"  RenderTransformOrigin="0,0" Visibility="Visible" Margin="0,0,375,0">
+                        <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed" Height="500" Width="625" Margin="3,3,-56,-18" />
+                    </RelativePanel>
 
-            <PivotItem x:Name="TabsSettings" Header="Central Info" >
-                <Grid>
-                    <TextBlock HorizontalAlignment="Left" Margin="8,24,0,0" Text="RASP.ONE CENTRAL Information" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold" Width="646" TextAlignment="Center"/>
+                <Border BorderThickness="1" BorderBrush="Black" Margin="-9,683,13,33" Width="1252" Height="36" />
+                <TextBlock x:Name="messaggio" x:FieldModifier="public" HorizontalAlignment="Left" Margin="0,692,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="1249" Height="32"/>
+            </Grid>
+        </PivotItem>
+        <PivotItem x:Name="TabsServer" Header="Comunication" >
+            <Grid>
+                <ListView x:Name="Trasmission" HorizontalAlignment="Left" Height="720" Margin="8,26,0,0" VerticalAlignment="Top" Width="1250"/>
+            </Grid>
+        </PivotItem>
+        <PivotItem x:Name="TabsSettings" Header="Central Info" >
+            <Grid>
+                <TextBlock HorizontalAlignment="Left" Margin="8,24,0,0" Text="RASP.ONE CENTRAL Information" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" FontWeight="Bold" Width="646" TextAlignment="Center"/>
 
-                    <TextBlock x:Name="NodeNum" HorizontalAlignment="Left" Margin="188,83,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="48"/>
-                    <TextBlock x:Name="NodeName" HorizontalAlignment="Left" Margin="253,83,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="431"/>
+                <TextBlock x:Name="NodeNum" HorizontalAlignment="Left" Margin="188,83,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="48"/>
+                <TextBlock x:Name="NodeName" HorizontalAlignment="Left" Margin="253,83,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="431"/>
 
-                    <TextBlock HorizontalAlignment="Left" Margin="61,118,0,0" Text="HOSTNAME" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="CENTRALHostName" HorizontalAlignment="Left" Margin="184,119,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
+                <TextBlock HorizontalAlignment="Left" Margin="61,118,0,0" Text="HOSTNAME" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CENTRALHostName" HorizontalAlignment="Left" Margin="184,119,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
 
-                    <TextBlock HorizontalAlignment="Left" Margin="64,338,0,0" Text="IP ver 4" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="CENTRAL_IPv4" HorizontalAlignment="Left" Margin="187,339,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
+                <TextBlock HorizontalAlignment="Left" Margin="64,338,0,0" Text="IP ver 4" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CENTRAL_IPv4" HorizontalAlignment="Left" Margin="187,339,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
 
-                    <TextBlock HorizontalAlignment="Left" Margin="64,386,0,0" Text="IP ver 6" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="CENTRAL_IPv6" HorizontalAlignment="Left" Margin="187,387,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
+                <TextBlock HorizontalAlignment="Left" Margin="64,386,0,0" Text="IP ver 6" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CENTRAL_IPv6" HorizontalAlignment="Left" Margin="187,387,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
 
-                    <TextBlock HorizontalAlignment="Left" Margin="63,185,0,0" Text="Operative Sistem" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="CENTRAL_OS"  HorizontalAlignment="Left" Margin="186,185,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
+                <TextBlock HorizontalAlignment="Left" Margin="63,185,0,0" Text="Operative Sistem" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CENTRAL_OS"  HorizontalAlignment="Left" Margin="186,185,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
 
-                    <TextBlock HorizontalAlignment="Left" Margin="63,230,0,0" Text="Platform" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="CENTRAL_Platform"  HorizontalAlignment="Left" Margin="186,231,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
+                <TextBlock HorizontalAlignment="Left" Margin="63,230,0,0" Text="Platform" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CENTRAL_Platform"  HorizontalAlignment="Left" Margin="186,231,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
 
-                    <TextBlock HorizontalAlignment="Left" Margin="63,269,0,0" Text="Platform Serial" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="CENTRAL_Serial"  HorizontalAlignment="Left" Margin="186,270,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
+                <TextBlock HorizontalAlignment="Left" Margin="63,269,0,0" Text="Platform Serial" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CENTRAL_Serial"  HorizontalAlignment="Left" Margin="186,270,0,0" Text="..." VerticalAlignment="Top" Width="505"/>
 
-                    <TextBlock x:Name="lblNode" HorizontalAlignment="Left" Margin="61,82,0,0" Text="Node" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                </Grid>
-            </PivotItem>
-        </Pivot>
-        <TextBlock x:Name="CENTRAL_SWVer" 
-        HorizontalAlignment="Left" Margin="1042,774,0,0" VerticalAlignment="Top" Text="0.0.0" TextAlignment="Right" />
-        <ToggleButton  x:Name="working" IsChecked="true"
-            HorizontalAlignment="Left" Margin="449,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="working" ></ToggleButton>
-        <ToggleButton  x:Name="editing" IsChecked="false"
-            HorizontalAlignment="Left" Margin="527,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="Editing" ></ToggleButton>
-        <Image x:Name="btnRefresh" Source="Assets/refresh.png" Width="32" Height="32" Margin="608,15,640,753" Tapped="btnRefresh_Tapped" />
+                <TextBlock x:Name="lblNode" HorizontalAlignment="Left" Margin="61,82,0,0" Text="Node" TextWrapping="Wrap" VerticalAlignment="Top"/>
+            </Grid>
+        </PivotItem>
+    </Pivot>
+    <TextBlock x:Name="CENTRAL_SWVer" 
+    HorizontalAlignment="Left" Margin="1042,774,0,0" VerticalAlignment="Top" Text="0.0.0" TextAlignment="Right" />
+    <ToggleButton  x:Name="working" IsChecked="true"
+        HorizontalAlignment="Left" Margin="449,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="working" ></ToggleButton>
+    <ToggleButton  x:Name="editing" IsChecked="false"
+        HorizontalAlignment="Left" Margin="527,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="Editing" ></ToggleButton>
+    <Image x:Name="btnRefresh" Source="Assets/refresh.png" Width="32" Height="32" Margin="608,15,640,753" Tapped="btnRefresh_Tapped" />
+
     </Grid>
 </Page>
 
