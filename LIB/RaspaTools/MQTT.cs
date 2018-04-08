@@ -365,7 +365,7 @@ namespace RaspaTools
 				// ---------------------------------------
 				publishcommand(Topic, protocollo.BuildJson());
 
-				writeLog("--> " + Topic + " - " + protocollo.Comando.ToString() + "Componente " + protocollo.Mittente.Tipo.ToString() +  " Azione " + protocollo.Azione.ToString() + "  value:" + protocollo.Mittente.Value );
+				writeLog("--> " + Topic + " - " + protocollo.Comando.ToString() + "Componente " + protocollo.Mittente.Tipo.ToString() +  " Azione " + protocollo.Azione.ToString() + "  value:" + protocollo.Mittente.ValueFor_writeDB());
 			}
 			catch (Exception ex)
 			{

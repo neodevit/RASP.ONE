@@ -13,14 +13,20 @@ namespace RaspaAction
 {
 	public class PlatForm_Light: IPlatform
 	{
-		public event Notifica ActionNotify;
+		GpioPin gpioPIN = null;
+		MQTT mqTT = null;
 		GpioPinValue valoreON = GpioPinValue.Low;
 		GpioPinValue valoreOFF = GpioPinValue.High;
 		RaspaProtocol Protocol;
+		private PlatformNotify notify;
 		GpioPinValue valore;
 		int PinNumber = 0;
 
-		public RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public PlatForm_Light()
+		{
+		}
+
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpi, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			try
@@ -29,11 +35,20 @@ namespace RaspaAction
 				if (protocol.Comando != enumComando.comando)
 					return new RaspaResult(false, "Platform deve eseguire solo comandi");
 
+				// GPIO
+				gpioPIN = gpi;
+
 				// pin
 				PinNumber = gpioPIN.PinNumber;
 
 				// memorizzo il protocol
 				Protocol = protocol;
+
+				// Memorizzo MTQTT
+				mqTT = mqtt;
+
+				// istanzio notify
+				notify = new PlatformNotify(mqTT);
 
 				#region CALCOLA OPTIONS
 				int PinNum = gpioPIN.PinNumber;
@@ -76,8 +91,8 @@ namespace RaspaAction
 							gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
 						}
-						else
-							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, "");
+						//else
+						//	notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, "");
 
 						break;
 					case enumAzione.off:
@@ -91,16 +106,16 @@ namespace RaspaAction
 							gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
 						}
-						else
-							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, "");
+						//else
+						//	notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, "");
 
 						break;
 					case enumAzione.read:
 						valore = gpioPIN.Read();
 						if (valore == valoreON)
-							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, "");
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, new List<string>());
 						else
-							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, "");
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, new List<string>());
 
 						break;
 
@@ -136,7 +151,7 @@ namespace RaspaAction
 				if (valore_impostato == valoreON)
 				{
 					// NOTIFY ON
-					ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, sender.PinNumber, Protocol.Value);
+					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, sender.PinNumber, new List<string>());
 					// SPEEK
 					if (Protocol != null)
 						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : ON ");
@@ -144,7 +159,7 @@ namespace RaspaAction
 				else
 				{
 					// NOTIFY OFF
-					ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, sender.PinNumber, Protocol.Value);
+					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, sender.PinNumber, new List<string>());
 					// SPEEK
 					if (Protocol != null)
 						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : OFF ");

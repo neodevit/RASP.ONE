@@ -12,11 +12,17 @@ namespace RaspaAction
 {
 	public class PlatForm_PIR: IPlatform
 	{
-		public event Notifica ActionNotify;
+		GpioPin gpioPIN = null;
+		MQTT mqTT = null;
 		private RaspaProtocol Protocol;
-		GpioPinValue valore;
 		GpioPinDriveMode Drive;
-		public RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		private PlatformNotify notify;
+
+		public PlatForm_PIR()
+		{
+		}
+
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpi, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(false, "NA");
 			try
@@ -28,6 +34,16 @@ namespace RaspaAction
 
 				// memorizzo il protocol
 				Protocol = protocol;
+
+				// GPIO
+				gpioPIN = gpi;
+
+				// Memorizzo MTQTT
+				mqTT = mqtt;
+
+				// istanzio notify
+				notify = new PlatformNotify(mqTT);
+
 				// PIN
 				int PinNum = gpioPIN.PinNumber;
 
@@ -64,9 +80,9 @@ namespace RaspaAction
 					case enumAzione.read:
 						Drive = gpioPIN.GetDriveMode();
 						if (Drive == GpioPinDriveMode.Input)
-							ActionNotify(true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.on, gpioPIN.PinNumber, Protocol.Value);
+							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.on, gpioPIN.PinNumber, new List<string>());
 						else
-							ActionNotify(true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.off, gpioPIN.PinNumber, Protocol.Value);
+							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.off, gpioPIN.PinNumber, new List<string>());
 
 						break;
 
@@ -89,7 +105,7 @@ namespace RaspaAction
 			if (e.Edge == GpioPinEdge.FallingEdge)
 			{
 				// NOTIFY OK
-				ActionNotify(true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber, Protocol.Value);
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber, new List<string>());
 				// SPEEK
 				if (Protocol != null)
 				{
@@ -104,7 +120,7 @@ namespace RaspaAction
 			if (e.Edge == GpioPinEdge.RisingEdge)
 			{
 				// NOTIFY OK
-				ActionNotify(true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber, Protocol.Value);
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber, new List<string>());
 
 				// SPEEK
 				if (Protocol != null)

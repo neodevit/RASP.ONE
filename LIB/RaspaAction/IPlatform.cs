@@ -1,4 +1,5 @@
 ﻿using RaspaEntity;
+using RaspaTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,8 @@ using Windows.Devices.Gpio;
 
 namespace RaspaAction
 {
-	interface IPlatform
+	public interface IPlatform
 	{
-		RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS, RaspaProtocol protocol);
-		event Notifica ActionNotify;
+		RaspaResult RUN(MQTT mqtt, GpioPin gpioPIN, Dictionary<int, bool> EVENTS, RaspaProtocol protocol);
 	}
 }

@@ -173,7 +173,7 @@ namespace RaspaCentral
 						WEBCAM_ENABLED.IsChecked = componente.Enabled;
 						WEBCAM_NOME.Text = componente.Nome ?? "";
 						WEBCAM_IP.Text = componente.IPv4 ?? "";
-						WEBCAM_VALUE.Text = componente.Value ?? "";
+						WEBCAM_VALUE.Text = componente.getIPCAMAddress();
 						WEBCAM_RETE.Text = componente.HWAddress ?? "";
 						break;
 					case enumComponente.webcam_rasp:
@@ -400,7 +400,8 @@ namespace RaspaCentral
 						componente.Enabled = (WEBCAM_ENABLED.IsChecked.HasValue) ? WEBCAM_ENABLED.IsChecked.Value : false;
 						componente.Nome = WEBCAM_NOME.Text;
 						componente.IPv4 = WEBCAM_IP.Text;
-						componente.Value = WEBCAM_VALUE.Text;
+						componente.Value = new List<string>();
+						componente.Value.Add(WEBCAM_VALUE.Text);
 						componente.HWAddress = WEBCAM_RETE.Text;
 						break;
 					case enumComponente.webcam_rasp:
@@ -524,7 +525,7 @@ namespace RaspaCentral
 							return new RaspaResult(false, "Errore : Indirizzo IP Obbligatorio");
 
 						// URL OBBLIGATORIA
-						if (string.IsNullOrEmpty(componente.Value))
+						if (string.IsNullOrEmpty(componente.getIPCAMAddress()))
 							return new RaspaResult(false, "Errore : URL ipcam grab image è Obbligatorio");
 
 						// IP DOPPIO

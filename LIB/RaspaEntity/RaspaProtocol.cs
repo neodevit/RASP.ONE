@@ -17,7 +17,7 @@ namespace RaspaEntity
 		{
 		}
 
-		public RaspaProtocol(bool esito,string message, enumComando comando, enumAzione azione, Componente mittente, Componente destinatario,string value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
+		public RaspaProtocol(bool esito,string message, enumComando comando, enumAzione azione, Componente mittente, Componente destinatario,List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
 		{
 			Esito = esito;
 			Message = message;
@@ -30,7 +30,7 @@ namespace RaspaEntity
 			SubcribeDestination = subcribeDestination;
 			SubcribeResponse = subcribeResponse;
 		}
-		public RaspaProtocol(enumComando comando, Componente mittente, enumAzione azione, Componente destinatario,string value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
+		public RaspaProtocol(enumComando comando, Componente mittente, enumAzione azione, Componente destinatario, List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
 		{
 			Esito = true;
 			Message = "";
@@ -76,24 +76,71 @@ namespace RaspaEntity
 		public Componente Destinatario { get; set; }
 
 		public Tempo RepetiteTime { get; set; }
-		public string Value { get; set; }
-		public Decimal GetValueDecimal()
+
+		#region VALUE
+		public List<string> Value { get; set; }
+
+		#region VALUE for DB
+		public void ValueFor_readDB(string val)
 		{
-			CultureInfo culture = new CultureInfo("it-IT");
-			return Convert.ToDecimal(Value, culture);
+			Value = val.Split('§').ToList<string>();
 		}
+		public string ValueFor_writeDB()
+		{
+			return string.Join("§", Value);
+		}
+		#endregion
+		#region VALUE TEMPERATURE UMIDITY
+		public string getTemperatureValue()
+		{
+			Decimal? res = getTemperature();
+			return (res.HasValue)?res.Value.ToString():"---";
+		}
+		public Decimal? getTemperature()
+		{
+			Decimal? res = null;
+			if ((Value != null && Value.Count > 0))
+				res = GetValueDecimal(0);
+			return res;
+		}
+		public string getUmidityValue()
+		{
+			Decimal? res = getUmidity();
+			return (res.HasValue) ? res.Value.ToString() : "---";
+		}
+		public Decimal? getUmidity()
+		{
+			Decimal? res = null;
+			if ((Value != null && Value.Count > 1))
+				res = GetValueDecimal(1);
+			return res;
+		}
+		#endregion
+		#region IPCAM
+		public string getIPCAMAddress()
+		{
+			string res = "about:blank";
+			if ((Value != null && Value.Count > 0))
+				res = Value[0];
+			return res;
+		}
+
+		#endregion
+
+		public Decimal GetValueDecimal(int num = 1, string Lenguage = "it-IT")
+		{
+			Decimal res = 0;
+			CultureInfo culture = new CultureInfo(Lenguage);
+			res = Convert.ToDecimal(Value[num], culture);
+			return res;
+		}
+		#endregion
+
+
 
 		public enumSubribe SubcribeDestination { get; set; }
 		public enumSubribe SubcribeResponse { get; set; }
 
-		public void swapMittDest()
-		{
-			Componente temp1 = Mittente;
-			Componente temp2 = Destinatario;
-			Mittente = temp2;
-			Destinatario = temp1;
-
-		}
 	}
 
 

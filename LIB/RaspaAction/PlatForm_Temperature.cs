@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 using Windows.UI.Xaml;
@@ -15,13 +16,19 @@ namespace RaspaAction
 {
 	public class PlatForm_Temperature : IPlatform
 	{
-		public event Notifica ActionNotify;
+		GpioPin gpioPIN = null;
+		MQTT mqTT = null;
 		RaspaProtocol Protocol;
 		private IDht _dht = null;
-		private DispatcherTimer _timer;
-		private bool _timerDelegate;
+		private Timer _timer;
 		private int PinNumber=0;
-		public RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		private PlatformNotify notify;
+
+		public PlatForm_Temperature()
+		{
+		}
+
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpi, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			try
@@ -30,8 +37,17 @@ namespace RaspaAction
 				if (protocol.Comando != enumComando.comando)
 					return new RaspaResult(false, "Platform deve eseguire solo comandi");
 
+				// GPIO
+				gpioPIN = gpi;
+
 				// memorizzo il protocol
 				Protocol = protocol;
+
+				// Memorizzo MTQTT
+				mqTT = mqtt;
+
+				// istanzio notify
+				notify = new PlatformNotify(mqTT);
 
 				// Pin
 				PinNumber = gpioPIN.PinNumber;
@@ -51,14 +67,14 @@ namespace RaspaAction
 				{
 					case enumAzione.off:
 						// stop timer
-						if (_timer != null)
-							_timer.Stop();
+						_timer?.Dispose();
 
 						// dispose sensor
 						_dht = null;
-						ActionNotify?.Invoke(true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.off, PinNumber, "");
+						notify.ActionNotify(Protocol,true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.off, PinNumber, new List<string>());
 
 						break;
+					case enumAzione.value:
 					case enumAzione.read:
 						// Istanzia sensor
 						if (tipo == enumTEMPOption.dht11)
@@ -67,10 +83,10 @@ namespace RaspaAction
 							_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
 
 						// read value
-						var task = readSensorAsync();
-						notifySensor(task.Result);
+						Timer_Tick();
 
 						break;
+					case enumAzione.on:
 					case enumAzione.readRepetitive:
 						// ------------------------------------------------------------
 						// se value è un numero >0 allora indica ogni quanti secondi 
@@ -82,23 +98,19 @@ namespace RaspaAction
 						else
 							_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
 
-						// start timer
-						_timer = new DispatcherTimer();
-						_timer.Interval = TimeSpan.FromSeconds(Protocol.RepetiteTime.mm);
-						if (!_timerDelegate)
-						{
-							_timer.Tick += this.Timer_Tick;
-							_timerDelegate = true;
-						}
+
 						// leggi subito il dato
-						var taskRep = readSensorAsync();
-						notifySensor(taskRep.Result);
+						Timer_Tick();
 
 						// aspetta un secondo
 						Task.Delay(1000);
 
-						// fai partire il timer
-						_timer.Start();
+						// start timer
+						if (Protocol.RepetiteTime != null)
+						{ 
+							int tempo = Protocol.RepetiteTime.mm * 60 * 1000;
+							_timer = new Timer(_ => Timer_Tick(), null, tempo, Timeout.Infinite);
+						}
 						break;
 				}
 
@@ -112,69 +124,52 @@ namespace RaspaAction
 			return res;
 		}
 
-		private void Timer_Tick(object sender, object e)
+		private void Timer_Tick()
 		{
-			var taskRep = readSensorAsync();
-			notifySensor(taskRep.Result);
-		}
+			double Temperature = 0;
+			double Humidity = 0;
 
-		private void readData()
-		{
 			try
 			{
+				DhtReading reading = readSensorAsync().Result;
 
+				if (reading.IsValid)
+				{
+					Temperature = reading.Temperature;
+					Humidity = reading.Humidity;
+
+					List<string> result = new List<string>();
+					result.Add(Temperature.ToString());
+					result.Add(Humidity.ToString());
+
+					notify.ActionNotify(Protocol, true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.value, PinNumber, result);
+
+
+				}
 			}
 			catch (Exception ex)
 			{
 				if (Debugger.IsAttached) Debugger.Break();
-				System.Diagnostics.Debug.WriteLine("SASSO API TEST - GET TEMPERATURE : " + ex.Message);
+				System.Diagnostics.Debug.WriteLine("SASSO API TEST - SET : " + ex.Message);
 			}
 		}
-		private async Task<resTempUmidity> readSensorAsync()
+
+		private async Task<DhtReading> readSensorAsync()
 		{
-			resTempUmidity sensorRes = null;
+			DhtReading reading = new DhtReading();
 			int attemp = 0;
 			try
 			{
 				// Loop finchè non legge un valore valido
-				DhtReading reading = new DhtReading();
-				while (!reading.IsValid && attemp<1000)
+				while (!reading.IsValid && attemp<5)
 				{
 					reading = await _dht.GetReadingAsync();
 					attemp++;
-				}
 
-				// se sono uscito dal while
-				if (reading.IsValid)
-				{
-					sensorRes = new resTempUmidity();
-					sensorRes.temperature = Convert.ToDecimal(reading.Temperature);
-					sensorRes.umidity = Convert.ToDecimal(reading.Humidity);
-				}
-
-			}
-			catch (Exception ex)
-			{
-				if (Debugger.IsAttached) Debugger.Break();
-				System.Diagnostics.Debug.WriteLine("SASSO API TEST - GET TEMPERATURE : " + ex.Message);
-			}
-
-			return sensorRes;
-		}
-		private void notifySensor(resTempUmidity sensorRes)
-		{
-			try
-			{
-				if (sensorRes != null)
-				{
-					Notifica handler = ActionNotify;
-
-					if (Protocol.Destinatario.Tipo == enumComponente.temperature || Protocol.Destinatario.Tipo == enumComponente.temperatureAndumidity)
-						this.ActionNotify?.Invoke(true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.value, PinNumber, sensorRes.temperature.ToString());
-
-
-					if (Protocol.Destinatario.Tipo == enumComponente.umidity || Protocol.Destinatario.Tipo == enumComponente.temperatureAndumidity)
-						this.ActionNotify?.Invoke(true, "Read Humidity", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumAzione.value, PinNumber, sensorRes.umidity.ToString());
+					// wait random da 0 a 1 secondi
+					Random rnd = new Random();
+					int ms = rnd.Next(0, 1000);
+					await Task.Delay(ms);
 				}
 			}
 			catch (Exception ex)
@@ -182,13 +177,9 @@ namespace RaspaAction
 				if (Debugger.IsAttached) Debugger.Break();
 				System.Diagnostics.Debug.WriteLine("SASSO API TEST - GET TEMPERATURE : " + ex.Message);
 			}
-		}
 
-	}
-	public class resTempUmidity
-	{
-		public decimal temperature { get; set; }
-		public decimal umidity { get; set; }
+			return reading;
+		}
 
 	}
 }

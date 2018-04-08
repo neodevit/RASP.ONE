@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Foundation.Metadata;
 using Windows.Globalization.DateTimeFormatting;
 using Windows.Networking;
 using Windows.Networking.Sockets;
@@ -48,14 +49,15 @@ namespace RaspaNode
 			Tabs.SelectedIndex = 2;
 		}
 
+		private RaspaProtocol OriginalMessage;
+		private Azione action = null;
 
-		private const string IPCentrale = "CENTRAL";
-		RaspaProtocol OriginalMessage;
-
-		bool flgGPIO = true;
-		bool flgNodoUpdate = true;
-		bool flgMQTT = true;
+		private const string IPCentrale = "192.168.1.10";
+		private bool flgGPIO = true;
+		private bool flgNodoUpdate = true;
+		private bool flgMQTT = true;
 		bool flgNodoSync = true;
+
 		public async void Start()
 		{
 			// --------------------------------------
@@ -107,9 +109,7 @@ namespace RaspaNode
 			// --------------------------------------
 			if (stato_gpio)
 			{
-				action = new Azione(GPIO, PIN, Action_events, PlatForm_events);
-				action.ActionNotify -= ActionNotify;
-				action.ActionNotify += ActionNotify;
+				action = new Azione(mqTT,GPIO, PIN, platform_Engine, PlatForm_events);
 			}
 
 		}
@@ -173,40 +173,13 @@ namespace RaspaNode
 		#endregion
 
 		#region COMANDI
-		Azione action = null;
 		private void MessageUDPInput(string message)
 		{
+			// leggi protocollo
 			OriginalMessage  = new RaspaProtocol(message);
 
-			if (action != null)
-				action.Execute(OriginalMessage);
-
-
-		}
-
-
-		private void ActionNotify(bool Esito,string Messaggio, enumSubribe subscribe,enumComponente componente, enumComando comando, enumAzione azione, int pin, string value)
-		{
-			try
-			{
-				// se sono messaggi che si automanda il nodo in fase actual allora esco
-				if (OriginalMessage.Mittente == null ||
-					OriginalMessage.Destinatario == null)
-					return;
-
-				// prepara il messaggio da inviare
-				OriginalMessage.swapMittDest();
-				OriginalMessage.SubcribeDestination = subscribe;
-				OriginalMessage.SubcribeResponse = enumSubribe.IPv4;
-				OriginalMessage.Comando = comando;
-				OriginalMessage.Azione = azione;
-				OriginalMessage.Esito = Esito;
-				OriginalMessage.Message = Messaggio;
-				OriginalMessage.Value = value??"";
-				mqTT.Publish(OriginalMessage);
-
-			}
-			catch { }
+			// esegue
+			action?.Execute(OriginalMessage);
 		}
 
 		#endregion
@@ -218,7 +191,8 @@ namespace RaspaNode
 		internal GpioController GPIO;
 		internal Dictionary<int, GpioPin> PIN;
 		internal Dictionary<int, bool> PlatForm_events;
-		internal Dictionary<int, bool> Action_events;
+		internal Dictionary<int, IPlatform> platform_Engine;
+
 
 		private RaspaResult INIT_GPIO()
 		{
@@ -237,7 +211,8 @@ namespace RaspaNode
 
 				// INIT PIN_events
 				PlatForm_events = new Dictionary<int, bool>();
-				Action_events = new Dictionary<int, bool>();
+				platform_Engine = new Dictionary<int, IPlatform>();
+
 
 				// INIT PIN
 				PIN = new Dictionary<int, GpioPin>();

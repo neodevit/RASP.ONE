@@ -307,7 +307,6 @@ namespace RaspaCentral
 								protocol = new RaspaProtocol();
 								protocol.Mittente = centrale;
 								protocol.Destinatario = rec;
-								protocol.Value = rec.Value;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.read;
 								writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
@@ -427,7 +426,13 @@ namespace RaspaCentral
 									case enumComponente.temperatureAndumidity:
 									case enumComponente.temperature:
 
-										decimal temperatura = protocol.GetValueDecimal();
+										string temperatura = protocol.getTemperatureValue();
+										string umidity = protocol.getUmidityValue();
+
+										Decimal? temperaturaVal = protocol.getTemperature();
+										Decimal? umidityVal = protocol.getUmidity();
+
+										string Tooltip = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Temperature : " + temperatura + Environment.NewLine + "Umidity : " + umidity;
 
 										#region TEMPERATURE
 										switch (protocol.Azione)
@@ -444,30 +449,32 @@ namespace RaspaCentral
 												break;
 											case enumAzione.on:
 												img.Source = temp_3.Source;
-												ToolTipService.SetToolTip(img, temperatura.ToString());
+												ToolTipService.SetToolTip(img, Tooltip);
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
 											case enumAzione.value:
-												ToolTipService.SetToolTip(img, temperatura.ToString());
+												ToolTipService.SetToolTip(img, Tooltip);
 
-												if (temperatura <= 3)                                   // GELO
-													img.Source = temp_0.Source;
-												else if (temperatura > 3 && temperatura <= 13)          // MINIMA
-													img.Source = temp_1.Source;
-												else if (temperatura > 13 && temperatura <= 19)         // FREDDO
-													img.Source = temp_2.Source;
-												else if (temperatura > 19 && temperatura <= 25)         // NORMALE
-													img.Source = temp_3.Source;
-												else if (temperatura > 25 && temperatura <= 30)         // CALDO
-													img.Source = temp_4.Source;
-												else if (temperatura > 30)                              // MASSIMA
-													img.Source = temp_5.Source;
-
-												RaspaResult res = DB.ModComponentiValue(tag.ID, protocol.Value, Utente);
+												if (temperaturaVal.HasValue)
+												{
+													if (temperaturaVal.Value <= 3)											// GELO
+														img.Source = temp_0.Source;
+													else if (temperaturaVal.Value > 3 && temperaturaVal.Value <= 13)        // MINIMA
+														img.Source = temp_1.Source;
+													else if (temperaturaVal.Value > 13 && temperaturaVal.Value <= 19)       // FREDDO
+														img.Source = temp_2.Source;
+													else if (temperaturaVal.Value > 19 && temperaturaVal.Value <= 25)       // NORMALE
+														img.Source = temp_3.Source;
+													else if (temperaturaVal.Value > 25 && temperaturaVal.Value <= 30)       // CALDO
+														img.Source = temp_4.Source;
+													else if (temperaturaVal.Value > 30)										// MASSIMA
+														img.Source = temp_5.Source;
+												}
+												RaspaResult res = DB.ModComponentiValue(tag.ID, protocol.ValueFor_writeDB(), Utente);
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
 											case enumAzione.errore:
-												ToolTipService.SetToolTip(img, "Err");
+												ToolTipService.SetToolTip(img, "Error");
 												img.Source = temp_0.Source;
 												DB.ModComponentiStato(tag.ID, enumStato.error, Utente);
 												break;
@@ -584,6 +591,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.read;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -599,6 +607,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.on;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -614,6 +623,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.off;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -639,6 +649,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.read;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -654,6 +665,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.on;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -669,6 +681,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.off;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -692,6 +705,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -700,13 +714,14 @@ namespace RaspaCentral
 								break;
 							case enumStato.off:
 								// ---------------------------------
-								// chiama nodo per PIR ON
+								// chiama nodo per TEMPERATURE ON
 								// ---------------------------------
 								protocol = new RaspaProtocol();
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -715,13 +730,14 @@ namespace RaspaCentral
 								break;
 							case enumStato.on:
 								// ---------------------------------
-								// chiama nodo per PIR OFF
+								// chiama nodo per TEMPERATURE OFF
 								// ---------------------------------
 								protocol = new RaspaProtocol();
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -734,7 +750,7 @@ namespace RaspaCentral
 
 						break;
 					case enumComponente.webcam_ip:
-						ipcam1.playIPCam(componente.Nome, componente.Value);
+						ipcam1.playIPCam(componente.Nome, componente.getIPCAMAddress());
 						ipcam1.Visibility = Visibility.Visible;
 						break;
 					case enumComponente.webcam_rasp:
@@ -931,7 +947,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						Actualcomponente.Value = (item == null) ? "" : item.Value;
+						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
 					case enumComponente.centrale:
@@ -948,7 +964,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						Actualcomponente.Value = (item == null) ? "" : item.Value;
+						Actualcomponente.Value = (item == null) ? new List<string>(): item.Value;
 
 						break;
 					case enumComponente.light:
@@ -967,7 +983,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						Actualcomponente.Value = (item == null) ? "1" : item.Value;
+						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
 					case enumComponente.pir:
@@ -986,7 +1002,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						Actualcomponente.Value = (item == null) ? "2" : item.Value;
+						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
 					case enumComponente.temperature:
@@ -996,8 +1012,9 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = (item == null) ? "---" : item.Value;
-						Actualcomponente.Value = (item == null) ? "" : item.Value;
+						ToolTipCustom = (item == null) ? "---" : "Temperature : " + item.getTemperatureValue() + Environment.NewLine + "Umidity : " + item.getUmidityValue();
+						;
+						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
 					case enumComponente.webcam_ip:
@@ -1013,7 +1030,7 @@ namespace RaspaCentral
 										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
 										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
 
-						Actualcomponente.Value = (item == null) ? "" : item.Value;
+						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
 
@@ -1188,7 +1205,10 @@ namespace RaspaCentral
 								break;
 							case enumStato.on:
 							case enumStato.signal:
-									decimal temperatura = oggetto.GetValueDecimal();
+								decimal? temperatura = oggetto.getTemperature();
+								if (!temperatura.HasValue)
+									res = new BitmapImage(new Uri("ms-appx:///Assets/temp_disabled.png"));
+								else
 									if (temperatura <= 3)                                   // GELO
 										res = new BitmapImage(new Uri("ms-appx:///Assets/temp0.png"));
 									else if (temperatura > 3 && temperatura <= 13)          // MINIMA

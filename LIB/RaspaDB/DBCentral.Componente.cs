@@ -811,11 +811,16 @@ namespace RaspaDB
 						else
 							item.Node_Pin = 0;
 
-						if (!reader.IsDBNull(reader.GetOrdinal("Value")))
-							item.Value = reader.GetString("Value");
-						else
-							item.Value = "";
 
+						// VALUE
+						if (!reader.IsDBNull(reader.GetOrdinal("Value")))
+							item.ValueFor_readDB(reader.GetString("Value"));
+						else
+							item.Value = new List<string>();
+
+
+
+						// OPTIONS
 						if (!reader.IsDBNull(reader.GetOrdinal("Options")))
 							item.Options = reader.GetString("Options");
 						else
@@ -936,7 +941,7 @@ namespace RaspaDB
 
 						mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
 						mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
-						mySqlCommand.Parameters.AddWithValue("@Value", value.Value??"");
+						mySqlCommand.Parameters.AddWithValue("@Value", value.ValueFor_writeDB());
 
 						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
 						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
@@ -1048,7 +1053,7 @@ namespace RaspaDB
 
 						mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
 						mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
-						mySqlCommand.Parameters.AddWithValue("@Value", value.Value);
+						mySqlCommand.Parameters.AddWithValue("@Value", value.ValueFor_writeDB());
 
 						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
 						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);

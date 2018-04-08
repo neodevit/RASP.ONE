@@ -17,29 +17,32 @@ using Windows.UI.Core;
 
 namespace RaspaAction
 {
-	public delegate void Notifica(bool Esito,string Message, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione,int Pin,string Value);
-
 	public class Azione
 	{
-		public event Notifica ActionNotify;
-
+		RaspaProtocol Protocol;
 		GpioController GPIO = null;
+		MQTT mqTT = null;
+
 		Dictionary<int,GpioPin> PIN = null;
 		Dictionary<int,bool> action_EVENTS = null;
 		Dictionary<int,bool> platform_EVENTS = null;
-		RaspaProtocol Protocol;
-		public Azione(GpioController gpio, Dictionary<int, GpioPin> pin, Dictionary<int, bool> action_events, Dictionary<int, bool> platform_events)
+		Dictionary<int,IPlatform> platform_Engine = null;
+		IPlatform Platform = null;
+
+		public Azione(MQTT mqtt,GpioController gpio, Dictionary<int, GpioPin> pin, Dictionary<int, IPlatform> platform_engine, Dictionary<int, bool> platform_events)
 		{
 			// ASSIGN
 			GPIO = gpio;
 			PIN = pin;
-			action_EVENTS = action_events;
+			mqTT = mqtt;
+
+			platform_Engine = platform_engine;
 			platform_EVENTS = platform_events;
 		}
+
 		public void Execute(RaspaProtocol protocol)
 		{
-			GpioPin gpioPIN;
-			IPlatform Platform;
+			GpioPin gpioPIN=null;
 			RaspaResult res = new RaspaResult(true);
 			try
 			{
@@ -57,7 +60,38 @@ namespace RaspaAction
 					return;
 
 				//-----------------------------------------
-				// AZIONE
+				// PLATFORM
+				//-----------------------------------------
+				if (!platform_Engine.ContainsKey(pin) || platform_Engine[pin] == null)
+				{
+					// CHOSE PLATFORM
+					switch (Protocol.Destinatario.Tipo)
+					{
+						case enumComponente.light:
+							Platform = new PlatForm_Light();
+							break;
+						case enumComponente.pir:
+							Platform = new PlatForm_PIR();
+							break;
+						case enumComponente.temperature:
+						case enumComponente.umidity:
+						case enumComponente.temperatureAndumidity:
+							Platform = new PlatForm_Temperature();
+							break;
+					}
+
+					// ADD PLATFORM
+					if (Platform != null)
+						platform_Engine.Add(pin, Platform);
+				}
+				else
+				{
+					// REUSE PLATFORM
+					Platform = platform_Engine[pin];
+				}
+
+				//-----------------------------------------
+				// PIN
 				//-----------------------------------------
 				switch (Protocol.Comando)
 				{
@@ -79,16 +113,6 @@ namespace RaspaAction
 									if (Debugger.IsAttached) Debugger.Break();
 									return;
 								}
-
-								Platform = new PlatForm_Light();
-								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
-								{
-									Platform.ActionNotify -= PlatformNotify;
-									Platform.ActionNotify += PlatformNotify;
-									// memorizzo che ho già impostato evento
-									action_EVENTS[gpioPIN.PinNumber] = true;
-								}
-								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
 							case enumComponente.pir:
 								// Prendo il pin
@@ -98,16 +122,6 @@ namespace RaspaAction
 									if (Debugger.IsAttached) Debugger.Break();
 									return;
 								}
-
-								Platform = new PlatForm_PIR();
-								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
-								{
-									Platform.ActionNotify -= PlatformNotify;
-									Platform.ActionNotify += PlatformNotify;
-									// memorizzo che ho già impostato evento
-									action_EVENTS[gpioPIN.PinNumber] = true;
-								}
-								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
 
 							case enumComponente.temperatureAndumidity:
@@ -120,16 +134,6 @@ namespace RaspaAction
 									if (Debugger.IsAttached) Debugger.Break();
 									return;
 								}
-
-								Platform = new PlatForm_Temperature();
-								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
-								{
-									Platform.ActionNotify -= PlatformNotify;
-									Platform.ActionNotify += PlatformNotify;
-									// memorizzo che ho già impostato evento
-									action_EVENTS[gpioPIN.PinNumber] = false; // faccio in modo che con FALSE ridichiara sempre l'evento se così funziona bisogna togliere che l'evento lo dichiara solo 1 volta ma dichiararlo sempre
-								}
-								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
 							default:
 								res = new RaspaResult(false, "COMPONENTE : " + Protocol.Destinatario.Tipo.ToString() + " non esistente", "");
@@ -140,6 +144,18 @@ namespace RaspaAction
 						res =  new RaspaResult(false, "COMANDO : " + Protocol.Comando.ToString() + " non esistente", "");
 						break;
 				}
+
+				//-----------------------------------------
+				// EXECUTE
+				//-----------------------------------------
+				if (gpioPIN != null)
+					res = Platform.RUN(mqTT, gpioPIN, platform_EVENTS, Protocol);
+				else
+				{
+					if (Debugger.IsAttached) Debugger.Break();
+					return;
+				}
+
 			}
 			catch (Exception ex)
 			{
@@ -149,43 +165,24 @@ namespace RaspaAction
 			}
 		}
 
-
-
-
-
-		private void PlatformNotify(bool Esito, string Messaggio, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione, int pin, string value)
-		{
-			try
-			{
-				ActionNotify(Esito, Messaggio,subscribe, componente, comando, azione, pin, value);
-			}
-			catch (Exception ex)
-			{
-				if (Debugger.IsAttached) Debugger.Break();
-				System.Diagnostics.Debug.WriteLine("SASSO API TEST - PIN VALUE CHANGE : " + ex.Message);
-			}
-		}
-
-
 		#region GET PIN
 		// GET PIN con RETRY
 		private GpioPin GetPIN(int pin, GpioPinValue? InitValue = GpioPinValue.High, GpioSharingMode? sharingMode = GpioSharingMode.SharedReadOnly)
 		{
 			GpioPin res=null;
+			int attemp = 0;
 			try
 			{
-				for (int i = 0; i <= 5; i++)
+				// Loop finchè non legge un valore valido
+				while (res==null && attemp < 5)
 				{
 					res = GetPIN_single(pin, InitValue, sharingMode);
-					if (res == null)
-					{
-						// wait random da 1 a 3 secondi
-						Random rnd = new Random();
-						int ms = rnd.Next(1, 3000);
-						Task.Delay(ms);
-					}
-					else
-						break;
+					attemp++;
+
+					// wait random da 0 a 1 secondi
+					Random rnd = new Random();
+					int ms = rnd.Next(0, 1000);
+					Task.Delay(ms);
 				}
 			}
 			catch (Exception ex)

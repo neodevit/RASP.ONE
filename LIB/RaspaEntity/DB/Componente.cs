@@ -87,12 +87,71 @@ namespace RaspaEntity
 		public ComponenteAction Action { get; set; }
 		public int Node_Num { get; set; }
 		public int Node_Pin { get; set; }
-		public string Value { get; set; }
-		public Decimal GetValueDecimal()
+
+		#region VALUE
+		public List<string> Value { get; set; }
+
+		#region VALUE for DB
+		public void ValueFor_readDB(string val)
 		{
-			CultureInfo culture = new CultureInfo("it-IT");
-			return Convert.ToDecimal(Value, culture);
+			if (string.IsNullOrEmpty(val))
+				Value = val.Split('§').ToList<string>(); 
 		}
+		public string ValueFor_writeDB()
+		{
+			string res = "";
+			if (Value!=null)
+				res = string.Join("§", Value);
+			return res;
+		}
+		#endregion
+
+		#region VALUE TEMPERATURE UMIDITY
+		public string getTemperatureValue()
+		{
+			Decimal? res = getTemperature();
+			return (res.HasValue) ? res.Value.ToString() : "---";
+		}
+		public Decimal? getTemperature()
+		{
+			Decimal? res = null;
+			if ((Value != null && Value.Count > 0))
+				res = GetValueDecimal(0);
+			return res;
+		}
+		public string getUmidityValue()
+		{
+			Decimal? res = getUmidity();
+			return (res.HasValue) ? res.Value.ToString() : "---";
+		}
+		public Decimal? getUmidity()
+		{
+			Decimal? res = null;
+			if ((Value != null && Value.Count > 1))
+				res = GetValueDecimal(1);
+			return res;
+		}
+		#endregion
+
+		#region IPCAM
+		public string getIPCAMAddress()
+		{
+			string res = "about:blank";
+			if ((Value != null && Value.Count > 0))
+				res = Value[0];
+			return res;
+		}
+		#endregion
+
+		public Decimal GetValueDecimal(int num = 1,string Lenguage = "it-IT")
+		{
+			Decimal res = 0;
+			CultureInfo culture = new CultureInfo(Lenguage);
+			res = Convert.ToDecimal(Value[num], culture);
+			return res;
+		}
+		#endregion
+
 		public string IPv4 { get; set; }
 		public string IPv6 { get; set; }
 		public string BlueTooth { get; set; }
