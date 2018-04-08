@@ -6,14 +6,6 @@
 
 namespace RaspaEntity
 {
-	public enum enumPirValue
-	{
-		nessuno = 0,
-		off = 1,
-		on = 2,
-		signal = 3,
-		err = 4,
-	}
 	public enum enumPIROption
 	{
 		nessuno = 0,
@@ -21,34 +13,50 @@ namespace RaspaEntity
 		RisingEdge = 2,
 	}
 
-	public enum enumPINValue
-	{
-		nessuno = 0,
-		off = 1,
-		on = 2,
-		err = 3,
-	}
 	public enum enumPINOptionIsON
 	{
 		nessuno = 0,
 		low = 1,
 		hight = 2,
 	}
+
+	public enum enumTEMPOption
+	{
+		dht11 = 0,
+		dht22 = 1,
+	}
+
+
+
+
 	public enum enumStato
 	{
 		nessuno=0,
 		off = 1,
 		on = 2,
+		signal=3,
+		error=4,
 	}
 	public enum enumComando
 	{
 		nessuno = 0,
 		notify  = 1,
-		get  = 2,
-		set = 3,
 		comando = 4,
 		nodeInit=5,
 		nodeReload = 6,
+	}
+	public enum enumAzione
+	{
+		nessuno = 0,
+		on = 1,
+		off = 2,
+		read = 3,
+		readRepetitive = 4,
+		write = 5,
+		writeRepetitive=6,
+		signal=7,
+		value=8,
+		errore=9,
 	}
 
 	// Allineare ENUM con tabella 41_COMPONENTE_TIPO
@@ -61,13 +69,12 @@ namespace RaspaEntity
 		centrale = 4,
 		webcam_ip=5,
 		webcam_rasp=6,
+		temperatureAndumidity = 7,
+		temperature = 8,
+		umidity=9,
 	}
-	public enum enumAzione
-	{
-		nessuno = 0,
-		get = 1,
-		set = 2,
-	}
+
+
 	public enum enumTipoPIN
 	{
 		gpio = 0,
@@ -92,5 +99,14 @@ namespace RaspaEntity
 		warning = 5,
 		alert = 6,
 		conflitto = 7,
+	}
+
+	public enum enumSubribe
+	{
+		IPv4=0,
+		central=1,
+		rules=2,            // only one in network
+		hearbit =3,         
+		reload =4,			// only one in network
 	}
 }

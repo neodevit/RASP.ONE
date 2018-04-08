@@ -29,11 +29,22 @@ namespace RaspaTools
 		private const string ServerUser = "sassoribelle";
 		private const string ServerPass = "123456Ab";
 
-		public MQTT(string NodeID,string NodeName,string NodeIP)
+		private List<string> ConnectedSubscription;
+		public MQTT(string NodeID,string NodeName,string NodeIP, List<string> subscription=null)
 		{
 			ClientID = NodeID;
 			ClientIP = NodeIP;
 			ClientName = NodeName;
+			// --------------------
+			// sottoscrizioni
+			// --------------------
+			ConnectedSubscription = subscription;
+			// se null creo
+			if (ConnectedSubscription == null)
+				ConnectedSubscription = new List<string>();
+			// se non sottoscrive il suo ip aggiungo
+			if (!ConnectedSubscription.Contains(NodeIP))
+				ConnectedSubscription.Add(NodeIP);
 		}
 
 
@@ -268,7 +279,6 @@ namespace RaspaTools
 				if (flgManaged)
 					await CLIENT_managed.StopAsync();
 
-
 				writeLog("CLIENT STOPPED");
 
 			}
@@ -304,15 +314,11 @@ namespace RaspaTools
 			{
 				writeLog("CLIENT CONNECT");
 
-				// ADD SUBSCRIPTION
-				string TopicSubscript = createTopic(ClientIP);
+				if (ConnectedSubscription!=null)
+					foreach (string subscription in ConnectedSubscription)
+						Subscribe(subscription);
 
-				if (flgManaged)
-					await CLIENT_managed.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
-				else
-					await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
-
-				writeLog("CLIENT SUBSCRIPTION " + TopicSubscript);
+				writeLog("CLIENT SUBSCRIPTION - CLIENT IP : " + ClientIP);
 			}
 			catch (Exception ex)
 			{
@@ -324,11 +330,42 @@ namespace RaspaTools
 		#region SEND
 		public void Publish(RaspaProtocol protocollo)
 		{
+			string Topic = "";
 			try
 			{
-				publishcommand(createTopic(protocollo.Destinatario.IPv4), protocollo.BuildJson());
+				// ---------------------------------------
+				// PREVENT LOOP
+				// ---------------------------------------
+				// ip loop
+				if (protocollo.SubcribeDestination == enumSubribe.IPv4 &&
+					protocollo.Destinatario.IPv4 == ClientIP)
+				{
+					writeLog("CLIENT SEND - LOOP PREVENT : " + "Destinatario e mittente hanno lo stesso IP");
+					return;
+				}
+				// topic loop
+				if (protocollo.SubcribeDestination != enumSubribe.IPv4 &&
+					ConnectedSubscription.Contains(protocollo.SubcribeDestination.ToString()))
+				{
+					writeLog("CLIENT SEND - LOOP PREVENT : " + "Destinatario e mittente hanno lo stesso TOPIC");
+					return;
+				}
 
-				writeLog("--> " + protocollo.Destinatario.IPv4 + " - " + protocollo.Message + " - value:" + protocollo.Mittente.Value );
+				// ---------------------------------------
+				// CALCOLATE TOPIC
+				// ---------------------------------------
+				// compongo il topic se IP (punto-punto) o se famiglia di sottoscrittori (punto-molti)
+				if (protocollo.SubcribeDestination == enumSubribe.IPv4)
+					Topic = createTopic(protocollo.Destinatario.IPv4);
+				else
+					Topic = createTopic(protocollo.SubcribeDestination.ToString());
+
+				// ---------------------------------------
+				// PUBLISH
+				// ---------------------------------------
+				publishcommand(Topic, protocollo.BuildJson());
+
+				writeLog("--> " + Topic + " - " + protocollo.Comando.ToString() + "Componente " + protocollo.Mittente.Tipo.ToString() +  " Azione " + protocollo.Azione.ToString() + "  value:" + protocollo.Mittente.Value );
 			}
 			catch (Exception ex)
 			{
@@ -368,10 +405,13 @@ namespace RaspaTools
 			{
 				writeLog("CLIENT Subscribing ... " + Topic);
 
+				string TopicSubscript = createTopic(Topic);
+
+
 				if (flgManaged)
-					await CLIENT_managed.SubscribeAsync(new TopicFilterBuilder().WithTopic(Topic).Build());
+					await CLIENT_managed.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
 				else
-					await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(Topic).Build());
+					await CLIENT.SubscribeAsync(new TopicFilterBuilder().WithTopic(TopicSubscript).Build());
 
 				writeLog("CLIENT SUBSCRIBED " + Topic);
 			}
@@ -380,11 +420,29 @@ namespace RaspaTools
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+
+		public bool IsConnected()
+		{
+			bool res = false;
+			try
+			{
+				if (flgManaged)
+					res = CLIENT_managed.IsConnected;
+				else
+					res = CLIENT.IsConnected;
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+			return res;
+		}
+
 		#endregion
 
 		private string createTopic(string IP)
 		{
-			return "RAPSPA/" + IP;
+			return "RASP.ONE/" + IP;
 		}
 
 		#region LOG

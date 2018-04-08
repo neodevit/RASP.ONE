@@ -125,6 +125,7 @@
     <Content Include="Assets\acqua_on.png" />
     <Content Include="Assets\battery.png" />
     <Content Include="Assets\bell_active.png" />
+    <Content Include="Assets\bell_disabled.png" />
     <Content Include="Assets\bell_err.png" />
     <Content Include="Assets\bell_off.png" />
     <Content Include="Assets\bell_on.png" />
@@ -139,7 +140,9 @@
     <Content Include="Assets\camera_on.png" />
     <Content Include="Assets\camera_small.png" />
     <Content Include="Assets\categ_220.png" />
+    <Content Include="Assets\categ_door.png" />
     <Content Include="Assets\categ_gps.png" />
+    <Content Include="Assets\categ_h20.png" />
     <Content Include="Assets\categ_houseSecure.png" />
     <Content Include="Assets\categ_light.png" />
     <Content Include="Assets\categ_map.png" />
@@ -147,6 +150,7 @@
     <Content Include="Assets\categ_photo.png" />
     <Content Include="Assets\categ_pir.png" />
     <Content Include="Assets\categ_stat.png" />
+    <Content Include="Assets\categ_temp.png" />
     <Content Include="Assets\categ_webcam.png" />
     <Content Include="Assets\central.png" />
     <Content Include="Assets\central_err.png" />
@@ -339,6 +343,20 @@
     <Content Include="Assets\television.png" />
     <Content Include="Assets\television_add.png" />
     <Content Include="Assets\television_delete.png" />
+    <Content Include="Assets\temp0.png" />
+    <Content Include="Assets\temp0T.png" />
+    <Content Include="Assets\temp1.png" />
+    <Content Include="Assets\temp1T.png" />
+    <Content Include="Assets\temp2.png" />
+    <Content Include="Assets\temp2T.png" />
+    <Content Include="Assets\temp3.png" />
+    <Content Include="Assets\temp3T.png" />
+    <Content Include="Assets\temp4.png" />
+    <Content Include="Assets\temp4T.png" />
+    <Content Include="Assets\temp5.png" />
+    <Content Include="Assets\temp5T.png" />
+    <Content Include="Assets\temperr.png" />
+    <Content Include="Assets\temp_disabled.png" />
     <Content Include="Assets\textfield.png" />
     <Content Include="Assets\textfield_add.png" />
     <Content Include="Assets\textfield_delete.png" />

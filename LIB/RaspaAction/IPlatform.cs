@@ -11,6 +11,6 @@ namespace RaspaAction
 	interface IPlatform
 	{
 		RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS, RaspaProtocol protocol);
-		event ActionNotify ActionNotify;
+		event Notifica ActionNotify;
 	}
 }

@@ -17,10 +17,11 @@ using Windows.UI.Core;
 
 namespace RaspaAction
 {
-	public delegate void ActionNotify(bool Esito,string Message, enumComponente componente,int Pin,string Value);
+	public delegate void Notifica(bool Esito,string Message, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione,int Pin,string Value);
+
 	public class Azione
 	{
-		public event ActionNotify ActionNotify;
+		public event Notifica ActionNotify;
 
 		GpioController GPIO = null;
 		Dictionary<int,GpioPin> PIN = null;
@@ -35,12 +36,15 @@ namespace RaspaAction
 			action_EVENTS = action_events;
 			platform_EVENTS = platform_events;
 		}
-		public void Execute(RaspaProtocol Protocol)
+		public void Execute(RaspaProtocol protocol)
 		{
+			GpioPin gpioPIN;
 			IPlatform Platform;
 			RaspaResult res = new RaspaResult(true);
 			try
 			{
+				Protocol = protocol;
+
 				//-----------------------------------------
 				// PREPARA INPUT
 				//-----------------------------------------
@@ -51,44 +55,31 @@ namespace RaspaAction
 				// GPIO
 				if (PIN == null || !PIN.ContainsKey(pin))
 					return;
-				// Prendo il pin
-				GpioPin gpioPIN = GetPIN(pin);
-				if (gpioPIN==null)
-					return;
 
 				//-----------------------------------------
 				// AZIONE
 				//-----------------------------------------
 				switch (Protocol.Comando)
 				{
+					case enumComando.nodeInit:
+						break;
+					case enumComando.nodeReload:
+						break;
 					case enumComando.notify:
 						break;
-					case enumComando.get:
-						Platform = new PlatForm_GET();
-						if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
-						{
-							Platform.ActionNotify -= PlatformNotify;
-							Platform.ActionNotify += PlatformNotify;
-							// memorizzo che ho già impostato evento
-							action_EVENTS[gpioPIN.PinNumber] = true;
-						}
-						res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
-						break;
-					case enumComando.set:
-						Platform = new PlatForm_SET();
-						if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
-						{
-							Platform.ActionNotify -= PlatformNotify;
-							Platform.ActionNotify += PlatformNotify;
-							// memorizzo che ho già impostato evento
-							action_EVENTS[gpioPIN.PinNumber] = true;
-						}
-						res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
-						break;
 					case enumComando.comando:
-						switch(Protocol.Destinatario.Tipo)
+
+						switch (Protocol.Destinatario.Tipo)
 						{
 							case enumComponente.light:
+								// Prendo il pin
+								gpioPIN = GetPIN(pin);
+								if (gpioPIN == null)
+								{
+									if (Debugger.IsAttached) Debugger.Break();
+									return;
+								}
+
 								Platform = new PlatForm_Light();
 								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
 								{
@@ -100,6 +91,14 @@ namespace RaspaAction
 								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
 							case enumComponente.pir:
+								// Prendo il pin
+								gpioPIN = GetPIN(pin);
+								if (gpioPIN == null)
+								{
+									if (Debugger.IsAttached) Debugger.Break();
+									return;
+								}
+
 								Platform = new PlatForm_PIR();
 								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
 								{
@@ -110,12 +109,33 @@ namespace RaspaAction
 								}
 								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
 								break;
+
+							case enumComponente.temperatureAndumidity:
+							case enumComponente.temperature:
+							case enumComponente.umidity:
+								// Prendo il pin
+								gpioPIN = GetPIN(pin,null, GpioSharingMode.Exclusive);
+								if (gpioPIN == null)
+								{
+									if (Debugger.IsAttached) Debugger.Break();
+									return;
+								}
+
+								Platform = new PlatForm_Temperature();
+								if (!action_EVENTS.ContainsKey(gpioPIN.PinNumber) || !action_EVENTS[gpioPIN.PinNumber])
+								{
+									Platform.ActionNotify -= PlatformNotify;
+									Platform.ActionNotify += PlatformNotify;
+									// memorizzo che ho già impostato evento
+									action_EVENTS[gpioPIN.PinNumber] = false; // faccio in modo che con FALSE ridichiara sempre l'evento se così funziona bisogna togliere che l'evento lo dichiara solo 1 volta ma dichiararlo sempre
+								}
+								res = Platform.RUN(gpioPIN, platform_EVENTS, Protocol);
+								break;
 							default:
 								res = new RaspaResult(false, "COMPONENTE : " + Protocol.Destinatario.Tipo.ToString() + " non esistente", "");
 								break;
 						}
 						break;
-
 					default:
 						res =  new RaspaResult(false, "COMANDO : " + Protocol.Comando.ToString() + " non esistente", "");
 						break;
@@ -129,11 +149,15 @@ namespace RaspaAction
 			}
 		}
 
-		private void PlatformNotify(bool Esito, string Messaggio, enumComponente componente, int pin, string value)
+
+
+
+
+		private void PlatformNotify(bool Esito, string Messaggio, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione, int pin, string value)
 		{
 			try
 			{
-				ActionNotify(Esito, Messaggio, componente, pin, value);
+				ActionNotify(Esito, Messaggio,subscribe, componente, comando, azione, pin, value);
 			}
 			catch (Exception ex)
 			{
@@ -142,7 +166,37 @@ namespace RaspaAction
 			}
 		}
 
-		private GpioPin GetPIN(int pin, GpioPinValue? InitValue = GpioPinValue.High)
+
+		#region GET PIN
+		// GET PIN con RETRY
+		private GpioPin GetPIN(int pin, GpioPinValue? InitValue = GpioPinValue.High, GpioSharingMode? sharingMode = GpioSharingMode.SharedReadOnly)
+		{
+			GpioPin res=null;
+			try
+			{
+				for (int i = 0; i <= 5; i++)
+				{
+					res = GetPIN_single(pin, InitValue, sharingMode);
+					if (res == null)
+					{
+						// wait random da 1 a 3 secondi
+						Random rnd = new Random();
+						int ms = rnd.Next(1, 3000);
+						Task.Delay(ms);
+					}
+					else
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("SASSO API TEST - PIN VALUE CHANGE : " + ex.Message);
+			}
+			return res;
+		}
+		// get PIN
+		private GpioPin GetPIN_single(int pin, GpioPinValue? InitValue = GpioPinValue.High, GpioSharingMode? sharingMode = GpioSharingMode.SharedReadOnly)
 		{
 			GpioPin res = null;
 			try
@@ -162,6 +216,11 @@ namespace RaspaAction
 							PIN[pin].Write(InitValue.Value);
 							PIN[pin].SetDriveMode(GpioPinDriveMode.Output);
 						}
+
+						if (sharingMode.HasValue)
+						{
+							PIN[pin] = GPIO.OpenPin(pin, sharingMode.Value);
+						}
 					}
 
 					res = PIN[pin];
@@ -169,12 +228,11 @@ namespace RaspaAction
 			}
 			catch (Exception ex)
 			{
-				if (Debugger.IsAttached) Debugger.Break();
 				System.Diagnostics.Debug.WriteLine("SASSO API TEST - GET PIN : " + ex.Message);
 			}
 			return res;
 		}
-
+		#endregion
 
 	}
 }

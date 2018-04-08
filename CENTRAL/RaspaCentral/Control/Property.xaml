@@ -12,7 +12,7 @@
     d:DesignWidth="400">
 
     <Grid Width="400" Height="500">
-        <RelativePanel x:Name="NODO_Property" Visibility="Visible" Margin="0,0,0,50">
+        <RelativePanel x:Name="NODO_Property" Visibility="Collapsed" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_node.png" Opacity="0.5" Margin="155,5,-60,205" />
             <TextBlock HorizontalAlignment="Left" Margin="0,1,0,0" Text="NODE" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,59,0,0" Text="ID" VerticalAlignment="Top"/>
@@ -98,6 +98,31 @@
             <RadioButton x:Name="PIR_falling" Content="Falling Edge" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,269,-125,-269"/>
             <RadioButton x:Name="PIR_rising" Content="Rising Edge" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="255,269,-255,-269"/>
         </RelativePanel>
+        <RelativePanel x:Name="TEMP_Property" Visibility="Visible" Margin="0,0,0,50">
+            <Image Source="ms-appx:///Assets/categ_temp.png" Opacity="0.5" Margin="205,5,-85,230" />
+            <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" Text="TEMPERATURE / UMIDITY" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
+            <TextBlock Margin="16,42,0,0" Text="ID" />
+            <TextBox x:Name="TEMP_ID" IsEnabled="False" Margin="125,36,0,19" Text="..." />
+            <TextBlock HorizontalAlignment="Left" Margin="16,75,0,-4" Text="ENABLED" VerticalAlignment="Top"/>
+            <CheckBox x:Name="TEMP_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
+            <TextBlock HorizontalAlignment="Left" Margin="16,110,0,-4" Text="NAME" VerticalAlignment="Top"/>
+            <TextBox x:Name="TEMP_NOME" HorizontalAlignment="Left" Margin="125,106,-57,0" Text="..." VerticalAlignment="Top" Width="267"/>
+            <TextBlock Text="REPEAT" Margin="16,150,-16,-150"  />
+            <ToggleSwitch x:Name="TEMP_REPEAT" HorizontalAlignment="Left" Margin="125,142,0,0"   VerticalAlignment="Top" Toggled="TEMP_REPEAT_Toggled"/>
+            <telerikInput:RadNumericBox x:Name="TEMP_REPEAT_MINUTS" AllowNullValue="False" Maximum="9000" Minimum="0" Margin="212,146,8,-130" ValueFormat="{}{0,0:N0} min"/>
+            <TextBlock Text="NODE" Margin="17,188,-17,-190"  />
+            <ComboBox x:Name="TEMP_NODO" HorizontalAlignment="Left" Margin="125,183,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,231,-1,-3" Text="PIN" VerticalAlignment="Top"/>
+            <ComboBox x:Name="TEMP_PIN" HorizontalAlignment="Left" Margin="126,226,-1,-3" VerticalAlignment="Top"/>
+            <TextBlock Text="IP" Margin="215,188,-214,-188" />
+            <TextBlock x:Name="TEMP_IP" Text="..." Margin="240,188,-238,-188" />
+            <TextBlock HorizontalAlignment="Left" Margin="15,308,0,-104" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="TEMP_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,330,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="110"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,275,-1,-47" Text="MODE" VerticalAlignment="Top"/>
+            <RadioButton x:Name="TEMP_DHT11" Content="DHT 11" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,269,-125,-269"/>
+            <RadioButton x:Name="TEMP_DHT22" Content="DHT 22" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="255,269,-255,-269"/>
+        </RelativePanel>
+
         <RelativePanel x:Name="WEBCAM_Property" Visibility="Collapsed"  Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_webcam.png" Opacity="0.5" Margin="205,5,-85,230" />
             <TextBlock HorizontalAlignment="Left" Margin="0,20,0,0" Text="IP CAM" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>

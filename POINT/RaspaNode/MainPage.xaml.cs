@@ -49,7 +49,7 @@ namespace RaspaNode
 		}
 
 
-		private const string IPCentrale = "192.168.1.10";
+		private const string IPCentrale = "CENTRAL";
 		RaspaProtocol OriginalMessage;
 
 		bool flgGPIO = true;
@@ -107,7 +107,7 @@ namespace RaspaNode
 			// --------------------------------------
 			if (stato_gpio)
 			{
-				action = new Azione(GPIO, PIN, Action_events,PlatForm_events);
+				action = new Azione(GPIO, PIN, Action_events, PlatForm_events);
 				action.ActionNotify -= ActionNotify;
 				action.ActionNotify += ActionNotify;
 			}
@@ -184,7 +184,8 @@ namespace RaspaNode
 
 		}
 
-		private void ActionNotify(bool Esito,string Messaggio,enumComponente componente, int pin, string value)
+
+		private void ActionNotify(bool Esito,string Messaggio, enumSubribe subscribe,enumComponente componente, enumComando comando, enumAzione azione, int pin, string value)
 		{
 			try
 			{
@@ -195,11 +196,15 @@ namespace RaspaNode
 
 				// prepara il messaggio da inviare
 				OriginalMessage.swapMittDest();
-				OriginalMessage.Comando = enumComando.notify;
+				OriginalMessage.SubcribeDestination = subscribe;
+				OriginalMessage.SubcribeResponse = enumSubribe.IPv4;
+				OriginalMessage.Comando = comando;
+				OriginalMessage.Azione = azione;
 				OriginalMessage.Esito = Esito;
 				OriginalMessage.Message = Messaggio;
-				OriginalMessage.Value = value;
+				OriginalMessage.Value = value??"";
 				mqTT.Publish(OriginalMessage);
+
 			}
 			catch { }
 		}
@@ -376,6 +381,8 @@ namespace RaspaNode
 				protocol.Destinatario = new Componente();
 				protocol.Destinatario.IPv4 = IPCentrale;
 				protocol.Destinatario.Tipo = enumComponente.nessuno;
+				protocol.SubcribeResponse = enumSubribe.IPv4;
+				protocol.SubcribeDestination = enumSubribe.reload;
 				mqTT.Publish(protocol);
 			}
 			catch (Exception ex)
@@ -408,6 +415,8 @@ namespace RaspaNode
 				protocol.Destinatario = new Componente();
 				protocol.Destinatario.IPv4 = IPCentrale;
 				protocol.Destinatario.Tipo = enumComponente.nessuno;
+				protocol.SubcribeResponse = enumSubribe.IPv4;
+				protocol.SubcribeDestination = enumSubribe.reload;
 				mqTT.Publish(protocol);
 			}
 			catch (Exception ex)

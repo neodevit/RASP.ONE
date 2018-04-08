@@ -93,7 +93,7 @@ namespace RaspaCentral
 
 						LIGHT_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
 						LIGHT_ENABLED.IsChecked = componente.Enabled;
-						LIGHT_ATTIVO.IsOn = componente.Attivo == enumStato.on;
+						LIGHT_ATTIVO.IsOn = componente.Stato == enumStato.on;
 						LIGHT_NOME.Text = componente.Nome ?? "";
 						LIGHT_IP.Text = componente.IPv4 ?? "";
 						LIGHT_DESCRIZIONE.Text = componente.Descrizione ?? "";
@@ -116,7 +116,7 @@ namespace RaspaCentral
 
 						PIR_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
 						PIR_ENABLED.IsChecked = componente.Enabled;
-						PIR_ATTIVO.IsOn = componente.Attivo == enumStato.on;
+						PIR_ATTIVO.IsOn = componente.Stato == enumStato.on;
 						PIR_NOME.Text = componente.Nome ?? "";
 						PIR_IP.Text = componente.IPv4 ?? "";
 						PIR_DESCRIZIONE.Text = componente.Descrizione ?? "";
@@ -132,6 +132,38 @@ namespace RaspaCentral
 						// OPTIONS
 						PIR_falling.IsChecked = (componente.Options == ((int)enumPIROption.FallingEdge).ToString()) ? true : false;
 						PIR_rising.IsChecked = (componente.Options == ((int)enumPIROption.RisingEdge).ToString()) ? true : false;
+
+						break;
+					case enumComponente.temperatureAndumidity:
+					case enumComponente.temperature:
+					case enumComponente.umidity:
+						ToolbarPropertyShow(componente.Tipo);
+
+						TEMP_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
+						TEMP_ENABLED.IsChecked = componente.Enabled;
+
+						TEMP_REPEAT.IsOn = componente.repeat;
+						TEMP_REPEAT_MINUTS.IsEnabled = componente.repeat;
+						if (componente.repeat)
+							TEMP_REPEAT_MINUTS.Value = componente.repeatTime.mm;
+						else
+							TEMP_REPEAT_MINUTS.Value = null;
+
+						TEMP_NOME.Text = componente.Nome ?? "";
+						TEMP_IP.Text = componente.IPv4 ?? "";
+						TEMP_DESCRIZIONE.Text = componente.Descrizione ?? "";
+
+						// LOAD COMBO
+						initPropertyComboNodes(TEMP_NODO);
+						initPropertyComboPIN(TEMP_PIN);
+
+						// NODE NUM
+						TEMP_NODO.SelectedValue = componente.Node_Num;
+						TEMP_PIN.SelectedValue = componente.Node_Pin;
+
+						// OPTIONS
+						TEMP_DHT11.IsChecked = (componente.Options == ((int)enumTEMPOption.dht11).ToString()) ? true : false;
+						TEMP_DHT22.IsChecked = (componente.Options == ((int)enumTEMPOption.dht22).ToString()) ? true : false;
 
 						break;
 
@@ -171,6 +203,7 @@ namespace RaspaCentral
 			LIGHT_Property.Visibility = Visibility.Collapsed;
 			PIR_Property.Visibility = Visibility.Collapsed;
 			WEBCAM_Property.Visibility = Visibility.Collapsed;
+			TEMP_Property.Visibility = Visibility.Collapsed;
 			switch (show)
 			{
 				case enumComponente.nodo:
@@ -189,6 +222,11 @@ namespace RaspaCentral
 					WEBCAM_Property.Visibility = Visibility.Visible;
 					break;
 				case enumComponente.webcam_rasp:
+					break;
+				case enumComponente.temperatureAndumidity:
+				case enumComponente.temperature:
+				case enumComponente.umidity:
+					TEMP_Property.Visibility = Visibility.Visible;
 					break;
 
 			}
@@ -300,7 +338,7 @@ namespace RaspaCentral
 						componente.Node_Pin = Convert.ToInt32(LIGHT_PIN.SelectedValue);
 
 						// VALUE
-						componente.Value = (LIGHT_ATTIVO.IsOn) ? ((int)enumPINValue.on).ToString() : ((int)enumPINValue.off).ToString();
+						componente.Stato = (LIGHT_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
 
 						// OPTIONS
 						enumPINOptionIsON valueLight = enumPINOptionIsON.nessuno;
@@ -320,7 +358,7 @@ namespace RaspaCentral
 						componente.Node_Pin = Convert.ToInt32(PIR_PIN.SelectedValue);
 
 						// VALUE
-						componente.Value = (PIR_ATTIVO.IsOn) ? ((int)enumPirValue.signal).ToString() : ((int)enumPirValue.on).ToString();
+						componente.Stato = (LIGHT_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
 
 						// OPTION
 						enumPIROption valuePIR = enumPIROption.nessuno;
@@ -331,6 +369,33 @@ namespace RaspaCentral
 
 						componente.Options = ((int)valuePIR).ToString();
 						break;
+					case enumComponente.temperature:
+					case enumComponente.umidity:
+					case enumComponente.temperatureAndumidity:
+						componente.Enabled = (TEMP_ENABLED.IsChecked.HasValue) ? TEMP_ENABLED.IsChecked.Value : false;
+						componente.Stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+						componente.Nome = TEMP_NOME.Text;
+						componente.IPv4 = TEMP_IP.Text;
+						componente.Descrizione = TEMP_DESCRIZIONE.Text;
+						componente.Node_Num = Convert.ToInt32(TEMP_NODO.SelectedValue);
+						componente.Node_Pin = Convert.ToInt32(TEMP_PIN.SelectedValue);
+
+						// REPEAT
+						componente.repeat = TEMP_REPEAT.IsOn; 
+						if (TEMP_REPEAT.IsOn)
+							componente.repeatTime.totaleMM = (TEMP_REPEAT_MINUTS.Value.HasValue)?Convert.ToInt32(TEMP_REPEAT_MINUTS.Value):0;
+
+						// OPTION
+						enumTEMPOption valueTEMP = enumTEMPOption.dht22;
+						if (TEMP_DHT11.IsChecked.HasValue && TEMP_DHT11.IsChecked.Value)
+							valueTEMP = enumTEMPOption.dht11;
+						if (TEMP_DHT22.IsChecked.HasValue && TEMP_DHT22.IsChecked.Value)
+							valueTEMP = enumTEMPOption.dht22;
+
+						componente.Options = ((int)valueTEMP).ToString();
+
+						break;
+
 					case enumComponente.webcam_ip:
 						componente.Enabled = (WEBCAM_ENABLED.IsChecked.HasValue) ? WEBCAM_ENABLED.IsChecked.Value : false;
 						componente.Nome = WEBCAM_NOME.Text;
@@ -429,6 +494,30 @@ namespace RaspaCentral
 						if (ExistAltroNodePin)
 							return new RaspaResult(false, "Errore : Esiste già il Componente con NODO : " + componente.Node_Num + " e PIN " + componente.Node_Pin);
 						break;
+					case enumComponente.temperature:
+					case enumComponente.umidity:
+					case enumComponente.temperatureAndumidity:
+						// NODE NUM OBBLIGATORIO
+						int numT = Convert.ToInt32(componente.Node_Num);
+						if (numT == 0)
+							return new RaspaResult(false, "Errore : Specificare un NODE NUM > 0");
+
+						// PIN NUM OBBLIGATORIO
+						int numTP = Convert.ToInt32(componente.Node_Num);
+						if (numTP == 0)
+							return new RaspaResult(false, "Errore : Specificare un NODE PIN");
+
+						// NoDE & PIN DOPPIO
+						bool ExistAltroNodePinT = DB.existAltroComponenteConStessoNodeNumAndPin(componente.ID, componente.Node_Num, componente.Node_Pin);
+						if (ExistAltroNodePinT)
+							return new RaspaResult(false, "Errore : Esiste già il Componente con NODO : " + componente.Node_Num + " e PIN " + componente.Node_Pin);
+
+						// REPEAT deve specificare i minuti
+						if (TEMP_REPEAT.IsOn && (!TEMP_REPEAT_MINUTS.Value.HasValue || TEMP_REPEAT_MINUTS.Value.Value==0))
+							return new RaspaResult(false, "Errore : Se specifichi un controllo ripetitivo devi specificare i minuti ogni quanto interrogare il termometro ");
+
+						break;
+
 					case enumComponente.webcam_ip:
 						// IP OBBLIGATORIO
 						if (string.IsNullOrEmpty(componente.IPv4))
@@ -569,7 +658,7 @@ namespace RaspaCentral
 				if (comboNodo == null)
 					return;
 
-				if ((componente.Tipo == enumComponente.light || componente.Tipo == enumComponente.pir) && comboNodo.SelectedValue != null)
+				if (comboNodo.SelectedValue != null)
 				{
 					// Leggo NODO ID selected
 					int Node_Num = Convert.ToInt32(comboNodo.SelectedValue.ToString());
@@ -577,10 +666,23 @@ namespace RaspaCentral
 					DBCentral DB = new DBCentral();
 					Componenti recs = DB.GetComponenteByNodeNum(Node_Num);
 					if (recs.Count > 0)
-						if (componente.Tipo == enumComponente.light)
-							LIGHT_IP.Text = recs[0].IPv4;
-						else if (componente.Tipo == enumComponente.pir)
-							PIR_IP.Text = recs[0].IPv4;
+					{
+						switch (componente.Tipo)
+						{
+							case enumComponente.pir:
+								PIR_IP.Text = recs[0].IPv4;
+								break;
+							case enumComponente.light:
+								LIGHT_IP.Text = recs[0].IPv4;
+								break;
+							case enumComponente.temperature:
+							case enumComponente.umidity:
+							case enumComponente.temperatureAndumidity:
+								TEMP_IP.Text = recs[0].IPv4;
+								break;
+
+						}
+					}
 				}
 			}
 			catch (Exception ex)
@@ -618,6 +720,13 @@ namespace RaspaCentral
 				chiamante.messaggio.Text = "Errore : " + ex.Message;
 				if (Debugger.IsAttached) Debugger.Break();
 			}
+		}
+		#endregion
+
+		#region TEMPERATURE
+		private void TEMP_REPEAT_Toggled(object sender, RoutedEventArgs e)
+		{
+			TEMP_REPEAT_MINUTS.IsEnabled = (TEMP_REPEAT.IsOn);
 		}
 		#endregion
 	}

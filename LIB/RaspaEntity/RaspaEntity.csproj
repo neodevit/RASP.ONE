@@ -107,6 +107,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DB\Componente.cs" />
+    <Compile Include="DB\Tempo.cs" />
     <Compile Include="enum.cs" />
     <Compile Include="Follow.cs" />
     <Compile Include="DB\GPIOPin.cs" />

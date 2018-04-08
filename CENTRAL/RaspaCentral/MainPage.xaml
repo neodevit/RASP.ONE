@@ -12,17 +12,13 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Width="1280" Height="800">
         <Border BorderThickness="1" BorderBrush="Black" Width="1280" Height="800" />
 
-        
 
-                        
-                        
-                        
+        
         <Pivot x:Name="Tabs" RenderTransformOrigin="0,0" >
 
             <PivotItem x:Name="TabsMappa" Header="Mappa" RenderTransformOrigin="0,0" Margin="14,-1,10,1">
                 <Grid  RenderTransformOrigin="0,0" >
 
-                            
                     <Grid x:Name="GridMappa"  RenderTransformOrigin="0,0"  Margin="0,0,375,0">
                         <RelativePanel >
 
@@ -31,14 +27,14 @@
                                 <Image x:Name="Mappa" Height="500" Width="625" Source="Assets/mappaPT.png" 
                                 DragOver="Mappa_DragOver" Drop="Mappa_Drop" AllowDrop="True" Opacity="1" 
                                 HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="0,0,-56,-18" 
-                                Tapped="Mappa_Tapped"    />
+                                Tapped="Mappa_Tapped"  
+                                       Stretch="Fill" />
                             </Border>
 
                             <Ellipse x:Name="evidenziazione" 
                                     Height="36" Width="36" 
                                     Fill="Transparent" Visibility="Collapsed"
                                     Stroke="SteelBlue" StrokeThickness="3" />
-
                         </RelativePanel>
                     </Grid>
 
@@ -62,7 +58,7 @@
                     </RelativePanel>
 
                     <!--COMPONENTI-->
-                    <RelativePanel x:Name="ToolbarComponenti" Visibility="Visible" Width="550" Margin="70,88,-70,-88" >
+                    <RelativePanel x:Name="ToolbarComponenti" Visibility="Collapsed" Width="550" Margin="70,88,-70,-88" >
                         <Grid>
                             <TextBlock HorizontalAlignment="Left" Margin="65,38,0,345" Text="Luce" TextWrapping="Wrap" />
                             <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="47,41,424,387" Source="/Assets/light_off.png" 
@@ -77,6 +73,11 @@
                             <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam.png" 
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16" Margin="182,41,287,387"  />
+
+                            <TextBlock HorizontalAlignment="Left"  Text="TEMPERATURE" TextWrapping="Wrap" Margin="203,68,0,300" />
+                            <Image x:Name="toolbar_temperature" Tag="RASP.ONE_7"  Source="/Assets/temp3.png" 
+                                CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                Width="16" Height="16" Margin="183,71,288,357"  />
 
                             <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
                             <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="349,42,122,386" Source="Assets/raspberry.png" 
@@ -127,6 +128,19 @@
                             <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
                             <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="PIR Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
                             <Image x:Name="bell_err" Source="/Assets/bell_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
+                            <!--temperatura-->
+                            <TextBlock HorizontalAlignment="Left" Margin="27,70,0,0" Text="TEMPERATURA Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_0" Source="/Assets/temp0.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,91,0,0" Text="FREDDO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_1" Source="/Assets/temp1_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,111,0,0" Text="MINIMO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_2" Source="/Assets/temp2.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="NORMALE" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_3" Source="/Assets/temp3.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="CALDO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_4" Source="/Assets/temp4.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="MASSIMO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_5" Source="/Assets/temp5.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
                         </Grid>
                     </RelativePanel>
                     </RelativePanel>
@@ -181,6 +195,8 @@
     <ToggleButton  x:Name="editing" IsChecked="false"
         HorizontalAlignment="Left" Margin="527,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="Editing" ></ToggleButton>
     <Image x:Name="btnRefresh" Source="Assets/refresh.png" Width="32" Height="32" Margin="608,15,640,753" Tapped="btnRefresh_Tapped" />
+
+        <Button x:Name="speek" Click="speek_Click" Margin="674,12,0,755" Height="33" Width="43" />
 
     </Grid>
 </Page>

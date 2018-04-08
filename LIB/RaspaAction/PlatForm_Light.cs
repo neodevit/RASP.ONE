@@ -1,4 +1,5 @@
 ﻿using RaspaEntity;
+using RaspaTools;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,19 +13,30 @@ namespace RaspaAction
 {
 	public class PlatForm_Light: IPlatform
 	{
-		public event ActionNotify ActionNotify;
+		public event Notifica ActionNotify;
 		GpioPinValue valoreON = GpioPinValue.Low;
 		GpioPinValue valoreOFF = GpioPinValue.High;
+		RaspaProtocol Protocol;
+		GpioPinValue valore;
+		int PinNumber = 0;
 
-		public RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS,RaspaProtocol Protocol)
+		public RaspaResult RUN(GpioPin gpioPIN, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
-			GpioPinValue PinValue = GpioPinValue.Low;
 			try
 			{
-				enumPINValue value = (enumPINValue)Convert.ToInt32(Protocol.Value);
-				int PinNum = gpioPIN.PinNumber;
+				// controlli formali
+				if (protocol.Comando != enumComando.comando)
+					return new RaspaResult(false, "Platform deve eseguire solo comandi");
 
+				// pin
+				PinNumber = gpioPIN.PinNumber;
+
+				// memorizzo il protocol
+				Protocol = protocol;
+
+				#region CALCOLA OPTIONS
+				int PinNum = gpioPIN.PinNumber;
 
 				if (Protocol.Destinatario.Options == ((int)enumPINOptionIsON.low).ToString())
 				{
@@ -36,8 +48,8 @@ namespace RaspaAction
 					valoreON = GpioPinValue.High;
 					valoreOFF = GpioPinValue.Low;
 				}
-				GpioPinValue? nuovo_valore = (Protocol.Value == ((int)enumPINValue.on).ToString()) ? valoreON : valoreOFF;
-
+				#endregion
+				#region EVENTS
 				if (!EVENTS.ContainsKey(PinNum) || !EVENTS[PinNum])
 				{
 					gpioPIN.ValueChanged -= Light_ValueChanged;
@@ -46,27 +58,55 @@ namespace RaspaAction
 					// memorizzo che ho già impostato evento
 					EVENTS[PinNum] = true;
 				}
+				#endregion
 
-				// Se il valore da impostare è = al valore corrente
-				// restituisco errore di operazione non eseguita
-				if (nuovo_valore.HasValue && nuovo_valore.Value != gpioPIN.Read())
+				//-------------------
+				// SCEGLI AZIONE
+				//-------------------
+				switch (Protocol.Azione)
 				{
-					gpioPIN.Write(nuovo_valore.Value);
-					gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
+					case enumAzione.on:
+						valore = valoreON;
+						if (valore != gpioPIN.Read())
+						{
+							//-------------------
+							// AZIONE
+							//-------------------
+							gpioPIN.Write(valore);
+							gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
-					// RILEGGO
-					PinValue = gpioPIN.Read();
-					if (PinValue != nuovo_valore)
-						ActionNotify(false, "Non sono riuscito a settare SET.valore ", enumComponente.light, PinNum, Protocol.Value);
+						}
+						else
+							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, "");
+
+						break;
+					case enumAzione.off:
+						valore = valoreOFF;
+						if (valore != gpioPIN.Read())
+						{
+							//-------------------
+							// AZIONE
+							//-------------------
+							gpioPIN.Write(valore);
+							gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
+
+						}
+						else
+							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, "");
+
+						break;
+					case enumAzione.read:
+						valore = gpioPIN.Read();
+						if (valore == valoreON)
+							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, "");
+						else
+							ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, "");
+
+						break;
+
+
 				}
-				else
-				{
-					res = new RaspaResult(true, "Warning : Valore da impostare " + value.ToString() + " è già il valore corrente del pin " + PinNum);
-					res.Warning = true;
-					// notifico perchè il centrale deve aggiornare lo stato
-					string valueInvariato = (nuovo_valore.Value == valoreON) ? ((int)enumPINValue.on).ToString() : ((int)enumPINValue.off).ToString();
-					ActionNotify(true, "Pin SET invariato", enumComponente.light, PinNum, valueInvariato);
-				}
+
 			}
 			catch (Exception ex)
 			{
@@ -77,11 +117,45 @@ namespace RaspaAction
 			return res;
 		}
 
+
 		private void Light_ValueChanged(GpioPin sender, GpioPinValueChangedEventArgs e)
 		{
-			string value = (sender.Read() == valoreON) ? ((int)enumPINValue.on).ToString() : ((int)enumPINValue.off).ToString();
+			SpeechService speek = new SpeechService();
+			try
+			{
 
-			ActionNotify(true, "Pin SET Change", enumComponente.light, sender.PinNumber, value);
+				//-------------------
+				// RILEGGO
+				//-------------------
+				GpioPinValue valore_impostato = sender.Read();
+
+				//-------------------
+				// RISPONDO
+				//-------------------
+				// ON/OFF 
+				if (valore_impostato == valoreON)
+				{
+					// NOTIFY ON
+					ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, sender.PinNumber, Protocol.Value);
+					// SPEEK
+					if (Protocol != null)
+						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : ON ");
+				}
+				else
+				{
+					// NOTIFY OFF
+					ActionNotify(true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, sender.PinNumber, Protocol.Value);
+					// SPEEK
+					if (Protocol != null)
+						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : OFF ");
+				}
+
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("SASSO API TEST - LIGHT : " + ex.Message);
+			}
 		}
 
 	}

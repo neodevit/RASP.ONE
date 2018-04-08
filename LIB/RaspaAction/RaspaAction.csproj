@@ -108,8 +108,7 @@
   <ItemGroup>
     <Compile Include="Azione.cs" />
     <Compile Include="IPlatform.cs" />
-    <Compile Include="PlatForm_GET.cs" />
-    <Compile Include="PlatForm_SET.cs" />
+    <Compile Include="PlatForm_Temperature.cs" />
     <Compile Include="PlatForm_PIR.cs" />
     <Compile Include="PlatForm_Light.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -135,6 +134,10 @@
     <ProjectReference Include="..\..\LIB\RaspaTools\RaspaTools.csproj">
       <Project>{b47fb5db-8814-4a24-90fb-4616d2bd824d}</Project>
       <Name>RaspaTools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sensor\Sensors.Dht\Sensors.Dht.vcxproj">
+      <Project>{2cd70a4f-9eed-4cda-9e07-1a2bd33b4976}</Project>
+      <Name>Sensors.Dht</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
