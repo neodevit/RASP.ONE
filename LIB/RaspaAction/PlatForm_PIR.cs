@@ -22,7 +22,7 @@ namespace RaspaAction
 		{
 		}
 
-		public RaspaResult RUN(MQTT mqtt, GpioPin gpi, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(false, "NA");
 			try
@@ -36,7 +36,7 @@ namespace RaspaAction
 				Protocol = protocol;
 
 				// GPIO
-				gpioPIN = gpi;
+				gpioPIN = gpio;
 
 				// Memorizzo MTQTT
 				mqTT = mqtt;

@@ -106,14 +106,17 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CO2.cs" />
     <Compile Include="MQ4.cs" />
-    <Compile Include="Moisture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Sensors.rd.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AdafruitClassLibrary">
+      <Version>1.0.7.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.6</Version>
+      <Version>6.0.8</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

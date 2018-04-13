@@ -26,7 +26,7 @@ namespace RaspaAction
 		{
 		}
 
-		public RaspaResult RUN(MQTT mqtt, GpioPin gpi, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			try
@@ -36,7 +36,7 @@ namespace RaspaAction
 					return new RaspaResult(false, "Platform deve eseguire solo comandi");
 
 				// GPIO
-				gpioPIN = gpi;
+				gpioPIN = gpio;
 
 				// pin
 				PinNumber = gpioPIN.PinNumber;
@@ -50,8 +50,10 @@ namespace RaspaAction
 				// istanzio notify
 				notify = new PlatformNotify(mqTT);
 
-				#region CALCOLA OPTIONS
+				// PIN NUMBER
 				int PinNum = gpioPIN.PinNumber;
+
+				#region CALCOLA OPTIONS
 
 				if (Protocol.Destinatario.Options == ((int)enumPINOptionIsON.low).ToString())
 				{

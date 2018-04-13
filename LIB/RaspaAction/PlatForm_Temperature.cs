@@ -28,7 +28,7 @@ namespace RaspaAction
 		{
 		}
 
-		public RaspaResult RUN(MQTT mqtt, GpioPin gpi, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			try
@@ -37,10 +37,11 @@ namespace RaspaAction
 				if (protocol.Comando != enumComando.comando)
 					return new RaspaResult(false, "Platform deve eseguire solo comandi");
 
+				// ripetitive timer
 				_timer = new Timer(_ => Timer_Tick(), null,-1, Timeout.Infinite);
 
 				// GPIO
-				gpioPIN = gpi;
+				gpioPIN = gpio;
 
 				// memorizzo il protocol
 				Protocol = protocol;
@@ -101,18 +102,11 @@ namespace RaspaAction
 							_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
 
 
-						// leggi subito il dato
-						//Timer_Tick();
-
-						// aspetta un secondo
-						//Task.Delay(1000);
-
 						// start timer
 						if (Protocol.RepetiteTime != null)
 						{ 
 							int tempo = Protocol.RepetiteTime.mm * 60 * 1000;
 							_timer?.Change(0, tempo);
-							//_timer = new Timer(_ => Timer_Tick(), null, tempo, Timeout.Infinite);
 						}
 						else
 							Timer_Tick();

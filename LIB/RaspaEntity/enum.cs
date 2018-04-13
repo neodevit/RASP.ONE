@@ -57,6 +57,7 @@ namespace RaspaEntity
 		signal=7,
 		value=8,
 		errore=9,
+		signalOFF=10,
 	}
 
 	// Allineare ENUM con tabella 41_COMPONENTE_TIPO
