@@ -33,6 +33,7 @@ using MQTTnet.Protocol;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Media.SpeechSynthesis;
 using Windows.Media.Playback;
+using System.Threading;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -44,6 +45,7 @@ namespace RaspaCentral
     public sealed partial class MainPage : Page
     {
 		public string Utente = "Fabio";
+		Dictionary<int,Timer> timer = new Dictionary<int, Timer>();
 
 		public MainPage()
         {
@@ -51,7 +53,7 @@ namespace RaspaCentral
 
 		}
 
-		bool flgINIT_NODO_Component = false;
+		bool flgINIT_NODO_Component = true;
 		protected override async void OnNavigatedTo(NavigationEventArgs e)
 		{
 			// CENTRAL
@@ -223,16 +225,19 @@ namespace RaspaCentral
 		}
 		private void writeLogVideo(string Messaggio)
 		{
-			// scrivi log
-			Trasmission.Items.Insert(0, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")+ " " + Messaggio);
-			// pulisci log vecchi
-			try
-			{
-				if (Trasmission.Items.Count > 50)
-					for (int i = 50; i <= Trasmission.Items.Count; i++)
-						Trasmission.Items.RemoveAt(i);
-			}
-			catch { }
+			var ignore = Trasmission.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			{ 
+				// scrivi log
+				Trasmission.Items.Insert(0, DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")+ " " + Messaggio);
+				// pulisci log vecchi
+				try
+				{
+					if (Trasmission.Items.Count > 50)
+						for (int i = 50; i <= Trasmission.Items.Count; i++)
+							Trasmission.Items.RemoveAt(i);
+				}
+				catch { }
+			});
 		}
 		#endregion
 
@@ -252,10 +257,10 @@ namespace RaspaCentral
 		}
 		#endregion
 
+
 		#region INIT
 		private void initComponentiFromNode()
 		{
-			RaspaProtocol protocol;
 			messaggio.Text = "";
 			try
 			{
@@ -263,14 +268,41 @@ namespace RaspaCentral
 				DBCentral DB = new DBCentral();
 				Componenti recs = DB.GetComponenti();
 				foreach (Componente rec in recs)
+					initComponente(rec);
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		public void initComponente(Componente rec)
+		{
+			RaspaProtocol protocol;
+			try
+			{
+				switch (rec.Tipo)
 				{
-					switch (rec.Tipo)
-					{
-						case enumComponente.centrale:
-							break;
-						case enumComponente.nodo:
-							break;
-						case enumComponente.light:
+					case enumComponente.centrale:
+						break;
+					case enumComponente.nodo:
+						break;
+					case enumComponente.light:
+						protocol = new RaspaProtocol();
+						protocol.Mittente = centrale;
+						protocol.Destinatario = rec;
+						protocol.Comando = enumComando.comando;
+						protocol.Azione = enumAzione.read;
+						protocol.SubcribeDestination = enumSubribe.IPv4;
+						protocol.SubcribeResponse = enumSubribe.central;
+
+						writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
+						MQTTRSend(protocol);
+
+						break;
+					case enumComponente.pir:
+						if (rec.Enabled)
+						{
 							protocol = new RaspaProtocol();
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
@@ -281,47 +313,32 @@ namespace RaspaCentral
 
 							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
 							MQTTRSend(protocol);
+						}
 
-							break;
-						case enumComponente.pir:
-							if (rec.Enabled)
-							{
-								protocol = new RaspaProtocol();
-								protocol.Mittente = centrale;
-								protocol.Destinatario = rec;
-								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.read;
-								protocol.SubcribeDestination = enumSubribe.IPv4;
-								protocol.SubcribeResponse = enumSubribe.central;
+						break;
+					case enumComponente.temperature:
+					case enumComponente.umidity:
+					case enumComponente.temperatureAndumidity:
+						if (rec.Enabled)
+						{
+							protocol = new RaspaProtocol();
+							protocol.Mittente = centrale;
+							protocol.Destinatario = rec;
+							protocol.Comando = enumComando.comando;
+							protocol.Azione = (rec.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
+							protocol.SubcribeDestination = enumSubribe.IPv4;
+							protocol.SubcribeResponse = enumSubribe.central;
 
-								writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-								MQTTRSend(protocol);
-							}
+							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
+							MQTTRSend(protocol);
+						}
+						break;
+					case enumComponente.webcam_ip:
+						break;
+					case enumComponente.webcam_rasp:
+						break;
 
-							break;
-						case enumComponente.temperature:
-						case enumComponente.umidity:
-						case enumComponente.temperatureAndumidity:
-							if (rec.Enabled)
-							{
-								protocol = new RaspaProtocol();
-								protocol.Mittente = centrale;
-								protocol.Destinatario = rec;
-								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.read;
-								writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-								protocol.SubcribeDestination = enumSubribe.IPv4;
-								protocol.SubcribeResponse = enumSubribe.central;
-
-								MQTTRSend(protocol);
-							}
-							break;
-						case enumComponente.webcam_ip:
-							break;
-						case enumComponente.webcam_rasp:
-							break;
-
-					}
 				}
 			}
 			catch (Exception ex)
@@ -440,17 +457,18 @@ namespace RaspaCentral
 											case enumAzione.nessuno:
 												img.Source = temp_0.Source;
 												ToolTipService.SetToolTip(img, "---");
-												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
 												break;
 											case enumAzione.off:
 												img.Source = temp_0.Source;
 												ToolTipService.SetToolTip(img, "OFF");
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
 												break;
 											case enumAzione.on:
 												img.Source = temp_3.Source;
 												ToolTipService.SetToolTip(img, Tooltip);
-												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
 												break;
 											case enumAzione.value:
 												ToolTipService.SetToolTip(img, Tooltip);
@@ -470,13 +488,12 @@ namespace RaspaCentral
 													else if (temperaturaVal.Value > 30)										// MASSIMA
 														img.Source = temp_5.Source;
 												}
-												RaspaResult res = DB.ModComponentiValue(tag.ID, protocol.ValueFor_writeDB(), Utente);
-												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
 												break;
 											case enumAzione.errore:
 												ToolTipService.SetToolTip(img, "Error");
 												img.Source = temp_0.Source;
-												DB.ModComponentiStato(tag.ID, enumStato.error, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.error, Utente);
 												break;
 										}
 										#endregion
@@ -591,7 +608,6 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.read;
-								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -607,7 +623,6 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.on;
-								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -623,7 +638,6 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.off;
-								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -649,7 +663,6 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.read;
-								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -665,7 +678,6 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.on;
-								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -681,7 +693,6 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = enumAzione.off;
-								protocol.RepetiteTime = componente.repeatTime;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -705,7 +716,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
-								protocol.RepetiteTime = componente.repeatTime;
+								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -721,7 +732,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
-								protocol.RepetiteTime = componente.repeatTime;
+								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -737,7 +748,7 @@ namespace RaspaCentral
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
 								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
-								protocol.RepetiteTime = componente.repeatTime;
+								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 

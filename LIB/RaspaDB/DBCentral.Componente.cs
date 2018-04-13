@@ -1159,6 +1159,48 @@ namespace RaspaDB
 			}
 			return res;
 		}
+		public RaspaResult ModComponentiValueAndStato(int ID, string Value, enumStato Stato, string Utente)
+		{
+			RaspaResult res = new RaspaResult(false);
+			try
+			{
+				if (ID == 0)
+					return new RaspaResult(false, "UPDATE NODE VALUE con ID non valorizzato");
+
+				string sql = "";
+				sql += "UPDATE `70_COMPONENTE`";
+				sql += " SET `Value` = @Value";
+				sql += "    ,`Stato` = @Stato";
+
+				sql += "    ,`UserMod` = @Utente";
+				sql += "    ,`DataMod` = NOW()";
+				sql += " WHERE `ID` = @ID;";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@ID", ID);
+						mySqlCommand.Parameters.AddWithValue("@Value", Value);
+						mySqlCommand.Parameters.AddWithValue("@Stato", (int)Stato);
+						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+						mySqlCommand.Connection.Open();
+						mySqlCommand.ExecuteNonQuery();
+					}
+				}
+
+				res = new RaspaResult(true, "Update VALUE COMPONENTI ID " + ID + "Eseguito");
+				res.ID = ID;
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				res = new RaspaResult(false, enumLevel.error, ex.Message);
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
 
 		public RaspaResult DelComponentiByID(int ID)
 		{

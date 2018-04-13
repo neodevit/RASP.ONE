@@ -52,7 +52,6 @@ namespace RaspaNode
 		private RaspaProtocol OriginalMessage;
 		private Azione action = null;
 
-		private const string IPCentrale = "192.168.1.10";
 		private bool flgGPIO = true;
 		private bool flgNodoUpdate = true;
 		private bool flgMQTT = true;
@@ -354,7 +353,6 @@ namespace RaspaNode
 				protocol.Comando = enumComando.nodeInit;
 				protocol.Mittente = nodo;
 				protocol.Destinatario = new Componente();
-				protocol.Destinatario.IPv4 = IPCentrale;
 				protocol.Destinatario.Tipo = enumComponente.nessuno;
 				protocol.SubcribeResponse = enumSubribe.IPv4;
 				protocol.SubcribeDestination = enumSubribe.reload;
@@ -388,7 +386,6 @@ namespace RaspaNode
 				protocol.Comando = enumComando.nodeReload;
 				protocol.Mittente = nodo;
 				protocol.Destinatario = new Componente();
-				protocol.Destinatario.IPv4 = IPCentrale;
 				protocol.Destinatario.Tipo = enumComponente.nessuno;
 				protocol.SubcribeResponse = enumSubribe.IPv4;
 				protocol.SubcribeDestination = enumSubribe.reload;

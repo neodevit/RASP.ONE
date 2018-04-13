@@ -80,9 +80,9 @@ namespace RaspaAction
 					case enumAzione.read:
 						Drive = gpioPIN.GetDriveMode();
 						if (Drive == GpioPinDriveMode.Input)
-							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.on, gpioPIN.PinNumber, new List<string>());
+							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.on, gpioPIN.PinNumber);
 						else
-							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.off, gpioPIN.PinNumber, new List<string>());
+							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.off, gpioPIN.PinNumber);
 
 						break;
 
@@ -105,7 +105,7 @@ namespace RaspaAction
 			if (e.Edge == GpioPinEdge.FallingEdge)
 			{
 				// NOTIFY OK
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber, new List<string>());
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber);
 				// SPEEK
 				if (Protocol != null)
 				{
@@ -120,7 +120,7 @@ namespace RaspaAction
 			if (e.Edge == GpioPinEdge.RisingEdge)
 			{
 				// NOTIFY OK
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber, new List<string>());
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber);
 
 				// SPEEK
 				if (Protocol != null)

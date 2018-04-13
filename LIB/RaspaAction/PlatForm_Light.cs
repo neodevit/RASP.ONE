@@ -91,8 +91,8 @@ namespace RaspaAction
 							gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
 						}
-						//else
-						//	notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, "");
+						else
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber);
 
 						break;
 					case enumAzione.off:
@@ -106,16 +106,16 @@ namespace RaspaAction
 							gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
 						}
-						//else
-						//	notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, "");
+						else
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber);
 
 						break;
 					case enumAzione.read:
 						valore = gpioPIN.Read();
 						if (valore == valoreON)
-							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber, new List<string>());
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber);
 						else
-							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber, new List<string>());
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber);
 
 						break;
 
@@ -151,7 +151,7 @@ namespace RaspaAction
 				if (valore_impostato == valoreON)
 				{
 					// NOTIFY ON
-					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, sender.PinNumber, new List<string>());
+					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, sender.PinNumber);
 					// SPEEK
 					if (Protocol != null)
 						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : ON ");
@@ -159,7 +159,7 @@ namespace RaspaAction
 				else
 				{
 					// NOTIFY OFF
-					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, sender.PinNumber, new List<string>());
+					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, sender.PinNumber);
 					// SPEEK
 					if (Protocol != null)
 						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : OFF ");

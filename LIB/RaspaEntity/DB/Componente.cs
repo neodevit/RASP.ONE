@@ -94,7 +94,7 @@ namespace RaspaEntity
 		#region VALUE for DB
 		public void ValueFor_readDB(string val)
 		{
-			if (string.IsNullOrEmpty(val))
+			if (!string.IsNullOrEmpty(val))
 				Value = val.Split('§').ToList<string>(); 
 		}
 		public string ValueFor_writeDB()

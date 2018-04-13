@@ -24,7 +24,6 @@ namespace RaspaAction
 		MQTT mqTT = null;
 
 		Dictionary<int,GpioPin> PIN = null;
-		Dictionary<int,bool> action_EVENTS = null;
 		Dictionary<int,bool> platform_EVENTS = null;
 		Dictionary<int,IPlatform> platform_Engine = null;
 		IPlatform Platform = null;

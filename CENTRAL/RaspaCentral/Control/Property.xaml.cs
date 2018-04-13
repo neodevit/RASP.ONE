@@ -609,6 +609,12 @@ namespace RaspaCentral
 				// actual image
 				chiamante.ActualImage = chiamante.create_object(componente.Tipo, componente);
 
+				// reinizializza il componente sul nodo
+				// se non lo si fa le configurazioni inserite
+				// avranno solo effetto alla prossima riesecuzione
+				// o al refresh di tutti i componenti disegnati
+				chiamante.initComponente(componente);
+
 				// spegnere tutti i pannelly property
 				chiamante.ToolbarShow(enumShowToolbar.componenti);
 			}

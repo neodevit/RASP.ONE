@@ -15,7 +15,15 @@ namespace RaspaAction
 		{
 			mqTT = mqtt;
 		}
-		public void ActionNotify(RaspaProtocol Original,bool Esito, string Messaggio, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione, int pin, List<string> value)
+		public void ActionNotify(RaspaProtocol Original, bool Esito, string Messaggio, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione, int pin)
+		{
+			try
+			{
+				ActionNotify(Original, Esito, Messaggio, subscribe, componente, comando, azione, pin, new List<string>());
+			}
+			catch { }
+		}
+		public void ActionNotify(RaspaProtocol Original,bool Esito, string Messaggio, enumSubribe subscribe, enumComponente componente, enumComando comando, enumAzione azione, int pin, List<string> value )
 		{
 			RaspaProtocol Protocol = new RaspaProtocol();
 			try
