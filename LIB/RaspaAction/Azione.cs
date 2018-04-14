@@ -72,6 +72,9 @@ namespace RaspaAction
 						case enumComponente.pir:
 							Platform = new PlatForm_PIR();
 							break;
+						case enumComponente.bell:
+							Platform = new PlatForm_Bell();
+							break;
 						case enumComponente.temperature:
 						case enumComponente.umidity:
 						case enumComponente.temperatureAndumidity:
@@ -114,6 +117,15 @@ namespace RaspaAction
 								}
 								break;
 							case enumComponente.pir:
+								// Prendo il pin
+								gpioPIN = GetPIN(pin);
+								if (gpioPIN == null)
+								{
+									if (Debugger.IsAttached) Debugger.Break();
+									return;
+								}
+								break;
+							case enumComponente.bell:
 								// Prendo il pin
 								gpioPIN = GetPIN(pin);
 								if (gpioPIN == null)

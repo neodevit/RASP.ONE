@@ -129,6 +129,15 @@
     <Content Include="Assets\bell_err.png" />
     <Content Include="Assets\bell_off.png" />
     <Content Include="Assets\bell_on.png" />
+    <Content Include="Assets\button.png" />
+    <Content Include="Assets\button_disabled.png" />
+    <Content Include="Assets\button_err.png" />
+    <Content Include="Assets\button_off.png" />
+    <Content Include="Assets\button_on.png" />
+    <Content Include="Assets\button_push.png" />
+    <Content Include="Assets\button_push_disabled.png" />
+    <Content Include="Assets\button_push_err.png" />
+    <Content Include="Assets\button_push_on.png" />
     <Content Include="Assets\camera.png" />
     <Content Include="Assets\camera_add.png" />
     <Content Include="Assets\camera_delete.png" />
@@ -140,6 +149,8 @@
     <Content Include="Assets\camera_on.png" />
     <Content Include="Assets\camera_small.png" />
     <Content Include="Assets\categ_220.png" />
+    <Content Include="Assets\categ_bell.png" />
+    <Content Include="Assets\categ_button_push.png" />
     <Content Include="Assets\categ_door.png" />
     <Content Include="Assets\categ_gps.png" />
     <Content Include="Assets\categ_h20.png" />
@@ -271,7 +282,6 @@
     <Content Include="Assets\lock_edit.png" />
     <Content Include="Assets\lock_go.png" />
     <Content Include="Assets\lock_open.png" />
-    <Content Include="Assets\logo.png" />
     <Content Include="Assets\mappaPT.png" />
     <Content Include="Assets\music.png" />
     <Content Include="Assets\new.png" />
@@ -287,6 +297,11 @@
     <Content Include="Assets\phone_add.png" />
     <Content Include="Assets\phone_delete.png" />
     <Content Include="Assets\phone_sound.png" />
+    <Content Include="Assets\pir_active.png" />
+    <Content Include="Assets\pir_disabled.png" />
+    <Content Include="Assets\pir_err.png" />
+    <Content Include="Assets\pir_off.png" />
+    <Content Include="Assets\pir_on.png" />
     <Content Include="Assets\plugin.png" />
     <Content Include="Assets\plugin_add.png" />
     <Content Include="Assets\plugin_delete.png" />
@@ -332,6 +347,10 @@
     <Content Include="Assets\sound_low.png" />
     <Content Include="Assets\sound_mute.png" />
     <Content Include="Assets\sound_none.png" />
+    <Content Include="Assets\switch_disabled.png" />
+    <Content Include="Assets\switch_err.png" />
+    <Content Include="Assets\switch_off.png" />
+    <Content Include="Assets\switch_on.png" />
     <Content Include="Assets\telephone.png" />
     <Content Include="Assets\telephone_add.png" />
     <Content Include="Assets\telephone_delete.png" />

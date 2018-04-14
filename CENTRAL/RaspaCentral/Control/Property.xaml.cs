@@ -134,6 +134,26 @@ namespace RaspaCentral
 						PIR_rising.IsChecked = (componente.Options == ((int)enumPIROption.RisingEdge).ToString()) ? true : false;
 
 						break;
+					case enumComponente.bell:
+						ToolbarPropertyShow(componente.Tipo);
+
+						BELL_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
+						BELL_ENABLED.IsChecked = componente.Enabled;
+						BELL_ATTIVO.IsOn = componente.Stato == enumStato.on;
+						BELL_NOME.Text = componente.Nome ?? "";
+						BELL_IP.Text = componente.IPv4 ?? "";
+						BELL_DESCRIZIONE.Text = componente.Descrizione ?? "";
+
+						// LOAD COMBO
+						initPropertyComboNodes(BELL_NODO);
+						initPropertyComboPIN(BELL_PIN);
+
+						// NODE NUM
+						BELL_NODO.SelectedValue = componente.Node_Num;
+						BELL_PIN.SelectedValue = componente.Node_Pin;
+
+						break;
+
 					case enumComponente.temperatureAndumidity:
 					case enumComponente.temperature:
 					case enumComponente.umidity:
@@ -204,6 +224,7 @@ namespace RaspaCentral
 			PIR_Property.Visibility = Visibility.Collapsed;
 			WEBCAM_Property.Visibility = Visibility.Collapsed;
 			TEMP_Property.Visibility = Visibility.Collapsed;
+			BELL_Property.Visibility = Visibility.Collapsed;
 			switch (show)
 			{
 				case enumComponente.nodo:
@@ -217,6 +238,9 @@ namespace RaspaCentral
 					break;
 				case enumComponente.pir:
 					PIR_Property.Visibility = Visibility.Visible;
+					break;
+				case enumComponente.bell:
+					BELL_Property.Visibility = Visibility.Visible;
 					break;
 				case enumComponente.webcam_ip:
 					WEBCAM_Property.Visibility = Visibility.Visible;
@@ -358,7 +382,7 @@ namespace RaspaCentral
 						componente.Node_Pin = Convert.ToInt32(PIR_PIN.SelectedValue);
 
 						// VALUE
-						componente.Stato = (LIGHT_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
+						componente.Stato = (PIR_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
 
 						// OPTION
 						enumPIROption valuePIR = enumPIROption.nessuno;
@@ -369,6 +393,19 @@ namespace RaspaCentral
 
 						componente.Options = ((int)valuePIR).ToString();
 						break;
+					case enumComponente.bell:
+						componente.Enabled = (BELL_ENABLED.IsChecked.HasValue) ? BELL_ENABLED.IsChecked.Value : false;
+						componente.Nome = BELL_NOME.Text;
+						componente.IPv4 = BELL_IP.Text;
+						componente.Descrizione = BELL_DESCRIZIONE.Text;
+						componente.Node_Num = Convert.ToInt32(BELL_NODO.SelectedValue);
+						componente.Node_Pin = Convert.ToInt32(BELL_PIN.SelectedValue);
+
+						// VALUE
+						componente.Stato = (BELL_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
+
+						break;
+
 					case enumComponente.temperature:
 					case enumComponente.umidity:
 					case enumComponente.temperatureAndumidity:
@@ -480,6 +517,7 @@ namespace RaspaCentral
 						break;
 					case enumComponente.pir:
 					case enumComponente.light:
+					case enumComponente.bell:
 						// NODE NUM OBBLIGATORIO
 						int numN = Convert.ToInt32(componente.Node_Num);
 						if (numN == 0)

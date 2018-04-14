@@ -65,7 +65,7 @@
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16"   />
                             <TextBlock HorizontalAlignment="Left" Margin="65,68,0,317" Text="PIR" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="43,71,420,357" Source="/Assets/bell_on.png" 
+                            <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="43,71,420,357" Source="/Assets/pir_on.png" 
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16"  />
 
@@ -79,7 +79,12 @@
                                 CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                 Width="16" Height="16" Margin="183,71,288,357"  />
 
-                            <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
+                            <TextBlock HorizontalAlignment="Left"  Text="BELL" TextWrapping="Wrap" Margin="203,96,0,272" />
+                            <Image x:Name="toolbar_bell" Tag="RASP.ONE_10"  Source="/Assets/bell_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="16" Height="16" Margin="183,97,288,331"  />
+
+                                <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
                             <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="349,42,122,386" Source="Assets/raspberry.png" 
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16"  />
@@ -121,27 +126,36 @@
                             <Image x:Name="light_err" Source="/Assets/light_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,51,0,0" VerticalAlignment="Top" />
                             <!--pir-->
                             <TextBlock HorizontalAlignment="Left" Margin="27,70,0,0" Text="PIR Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="bell_off" Source="/Assets/bell_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
+                            <Image x:Name="pir_off" Source="/Assets/pir_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
                             <TextBlock HorizontalAlignment="Left" Margin="27,91,0,0" Text="PIR Acceso" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="bell_on" Source="/Assets/bell_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
+                            <Image x:Name="pir_on" Source="/Assets/pir_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
                             <TextBlock HorizontalAlignment="Left" Margin="27,111,0,0" Text="PIR Segnalazione" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
+                            <Image x:Name="pir_active" Source="/Assets/pir_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
                             <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="PIR Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="bell_err" Source="/Assets/bell_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
+                            <Image x:Name="pir_err" Source="/Assets/pir_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
                             <!--temperatura-->
-                            <TextBlock HorizontalAlignment="Left" Margin="27,70,0,0" Text="TEMPERATURA Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="temp_0" Source="/Assets/temp0.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,73,0,0" VerticalAlignment="Top" />
-                            <TextBlock HorizontalAlignment="Left" Margin="27,91,0,0" Text="FREDDO" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="temp_1" Source="/Assets/temp1_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,93,0,0" VerticalAlignment="Top" />
-                            <TextBlock HorizontalAlignment="Left" Margin="27,111,0,0" Text="MINIMO" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="temp_2" Source="/Assets/temp2.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,113,0,0" VerticalAlignment="Top" />
-                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="NORMALE" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="temp_3" Source="/Assets/temp3.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
-                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="CALDO" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="temp_4" Source="/Assets/temp4.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
-                            <TextBlock HorizontalAlignment="Left" Margin="27,131,0,0" Text="MASSIMO" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Image x:Name="temp_5" Source="/Assets/temp5.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,133,0,0" VerticalAlignment="Top" />
-                        </Grid>
+                            <TextBlock HorizontalAlignment="Left" Margin="27,153,0,0" Text="TEMPERATURA Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_0" Source="/Assets/temp0.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,153,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,173,0,0" Text="FREDDO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_1" Source="/Assets/temp1.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,173,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,193,0,0" Text="MINIMO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_2" Source="/Assets/temp2.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,193,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,213,0,0" Text="NORMALE" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_3" Source="/Assets/temp3.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,213,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,233,0,0" Text="CALDO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_4" Source="/Assets/temp4.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,233,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="27,253,0,0" Text="MASSIMO" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="temp_5" Source="/Assets/temp5.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="0,253,0,0" VerticalAlignment="Top" />
+                            <!--push button-->
+                            <TextBlock HorizontalAlignment="Left" Margin="223,6,-63,0" Text="Bell Spento" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_off" Source="/Assets/bell_off.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="194,9,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="223,27,0,0" Text="Bell Acceso" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_on" Source="/Assets/bell_on.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="194,29,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="223,47,0,0" Text="Bell Premuto" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_active" Source="/Assets/bell_active.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="194,49,0,0" VerticalAlignment="Top" />
+                            <TextBlock HorizontalAlignment="Left" Margin="223,70,0,0" Text="Bell Error" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Image x:Name="bell_err" Source="/Assets/bell_err.png"  Width="16" Height="16" HorizontalAlignment="Left"  Margin="194,71,0,0" VerticalAlignment="Top" />
+                            </Grid>
                     </RelativePanel>
                     </RelativePanel>
 

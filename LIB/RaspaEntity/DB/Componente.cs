@@ -17,6 +17,12 @@ namespace RaspaEntity
 			repeatTime = new Tempo();
 			follow = new Follow();
 		}
+		public Componente(bool enabled,enumComponente tipo, enumStato stato)
+		{
+			Enabled = enabled;
+			Tipo = tipo;
+			Stato = stato;
+		}
 		public Componente(int id, bool enabled, bool trusted, int num, string ipv4)
 		{
 			ID = id;

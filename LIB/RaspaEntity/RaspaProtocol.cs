@@ -127,6 +127,7 @@ namespace RaspaEntity
 
 		#endregion
 
+
 		public Decimal GetValueDecimal(int num = 1, string Lenguage = "it-IT")
 		{
 			Decimal res = 0;
