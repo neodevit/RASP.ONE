@@ -39,6 +39,14 @@ namespace RaspaCentral
 		{
 			drawGPIOcomp(enumComponente.light, GPIOpin, 0, 0);
 		}
+		public void drawGPIO_TEMP(int GPIOpin)
+		{
+			drawGPIOcomp(enumComponente.temperatureAndumidity, GPIOpin, 0, 0);
+		}
+		public void drawGPIO_PUSH(int GPIOpin)
+		{
+			drawGPIOcomp(enumComponente.push, GPIOpin, 0, 0);
+		}
 
 		private void drawGPIOcomp(enumComponente componente,int GPIO_A,int GPIO_B, int GPIO_C)
 		{
@@ -81,10 +89,34 @@ namespace RaspaCentral
 					schemaConnection(BASE, pir.NUM, enumTipoPIN.gpio, "S2", 335, 280);
 					// POWER
 					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 310, 280);
-
-
 					break;
 
+				case enumComponente.temperatureAndumidity:
+					// COMPOONENTE PHOTO
+					schemaPhoto("ms-appx:///Assets/component_temp.png", 17, 257, 200, 381);
+
+					// GND
+					schemaConnection(BASE, 6, enumTipoPIN.ground, "S1", 340, 250);
+					// SIGNAL
+					GPIOPin temp = DB.GetGPIOPinByGPIOnum(GPIO_A);
+					schemaConnection(BASE, temp.NUM, enumTipoPIN.gpio, "S2", 317, 250);
+					// POWER
+					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 292, 250);
+
+					break;
+				case enumComponente.push:
+					// COMPOONENTE PHOTO
+					schemaPhoto("ms-appx:///Assets/component_push.png", 17, 257, 200, 381);
+
+					// GND
+					schemaConnection(BASE, 6, enumTipoPIN.ground, "S1", 340, 250);
+					// SIGNAL
+					GPIOPin push = DB.GetGPIOPinByGPIOnum(GPIO_A);
+					schemaConnection(BASE, push.NUM, enumTipoPIN.gpio, "S2", 317, 250);
+					// POWER
+					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 292, 250);
+
+					break;
 			}
 		}
 		#region draw GPIO PIN

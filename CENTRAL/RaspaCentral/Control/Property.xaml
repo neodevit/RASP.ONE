@@ -61,19 +61,17 @@
             <CheckBox x:Name="LIGHT_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,110,0,-4" Text="NAME" VerticalAlignment="Top"/>
             <TextBox x:Name="LIGHT_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-            <TextBlock Text="ACTIVE" Margin="16,150,-16,-150"  />
-            <ToggleSwitch x:Name="LIGHT_ATTIVO" HorizontalAlignment="Left" Margin="125,142,0,0"   VerticalAlignment="Top"/>
-            <TextBlock Text="NODE" Margin="17,188,-17,-190"  />
-            <ComboBox x:Name="LIGHT_NODO" HorizontalAlignment="Left" Margin="125,183,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,231,-1,-3" Text="PIN" VerticalAlignment="Top"/>
-            <ComboBox x:Name="LIGHT_PIN" HorizontalAlignment="Left" Margin="126,226,-1,-3" VerticalAlignment="Top"/>
-            <TextBlock Text="IP" Margin="215,188,-214,-188" />
-            <TextBlock x:Name="LIGHT_IP" Text="..." Margin="240,188,-238,-188" />
-            <TextBlock HorizontalAlignment="Left" Margin="15,307,0,-103" Text="DESCRIPTION" VerticalAlignment="Top"/>
-            <TextBox x:Name="LIGHT_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,330,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="110"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,273,0,-45" Text="MODE (is on)" VerticalAlignment="Top"/>
-            <RadioButton x:Name="LIGHT_Low" Content="Low" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,267,-125,-267"/>
-            <RadioButton x:Name="LIGHT_High" Content="High" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="204,267,-204,-267"/>
+            <TextBlock Text="NODE" Margin="17,157,-17,-159"  />
+            <ComboBox x:Name="LIGHT_NODO" HorizontalAlignment="Left" Margin="125,152,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,200,-1,0" Text="PIN" VerticalAlignment="Top"/>
+            <ComboBox x:Name="LIGHT_PIN" HorizontalAlignment="Left" Margin="126,195,-1,0" VerticalAlignment="Top"/>
+            <TextBlock Text="IP" Margin="215,157,-214,-157" />
+            <TextBlock x:Name="LIGHT_IP" Text="..." Margin="240,157,-238,-157" />
+            <TextBlock HorizontalAlignment="Left" Margin="15,276,0,-72" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="LIGHT_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,305,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="135"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,242,0,-14" Text="MODE (is on)" VerticalAlignment="Top"/>
+            <RadioButton x:Name="LIGHT_Low" Content="Low" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,236,-125,-236"/>
+            <RadioButton x:Name="LIGHT_High" Content="High" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="204,236,-204,-236"/>
         </RelativePanel>
         <RelativePanel x:Name="PIR_Property" Visibility="Collapsed" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_pir.png" Opacity="0.5" Margin="185,5,-65,230" />
@@ -84,19 +82,17 @@
             <CheckBox x:Name="PIR_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,110,0,-4" Text="NAME" VerticalAlignment="Top"/>
             <TextBox x:Name="PIR_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-            <TextBlock Text="ACTIVE" Margin="16,150,-16,-150"  />
-            <ToggleSwitch x:Name="PIR_ATTIVO" HorizontalAlignment="Left" Margin="125,142,0,0"   VerticalAlignment="Top"/>
-            <TextBlock Text="NODE" Margin="17,188,-17,-190"  />
-            <ComboBox x:Name="PIR_NODO" HorizontalAlignment="Left" Margin="125,183,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,231,-1,-3" Text="PIN" VerticalAlignment="Top"/>
-            <ComboBox x:Name="PIR_PIN" HorizontalAlignment="Left" Margin="126,226,-1,-3" VerticalAlignment="Top"/>
-            <TextBlock Text="IP" Margin="215,188,-214,-188" />
-            <TextBlock x:Name="PIR_IP" Text="..." Margin="240,188,-238,-188" />
-            <TextBlock HorizontalAlignment="Left" Margin="15,308,0,-104" Text="DESCRIPTION" VerticalAlignment="Top"/>
-            <TextBox x:Name="PIR_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,330,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="110"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,275,-1,-47" Text="MODE" VerticalAlignment="Top"/>
-            <RadioButton x:Name="PIR_falling" Content="Falling Edge" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,269,-125,-269"/>
-            <RadioButton x:Name="PIR_rising" Content="Rising Edge" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="255,269,-255,-269"/>
+            <TextBlock Text="NODE" Margin="17,156,-17,-158"  />
+            <ComboBox x:Name="PIR_NODO" HorizontalAlignment="Left" Margin="125,151,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,199,-1,0" Text="PIN" VerticalAlignment="Top"/>
+            <ComboBox x:Name="PIR_PIN" HorizontalAlignment="Left" Margin="126,194,-1,0" VerticalAlignment="Top"/>
+            <TextBlock Text="IP" Margin="215,156,-214,-156" />
+            <TextBlock x:Name="PIR_IP" Text="..." Margin="240,156,-238,-156" />
+            <TextBlock HorizontalAlignment="Left" Margin="15,276,0,-72" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="PIR_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,303,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="137"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,243,-1,-15" Text="MODE" VerticalAlignment="Top"/>
+            <RadioButton x:Name="PIR_falling" Content="Falling Edge" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,237,-125,-237"/>
+            <RadioButton x:Name="PIR_rising" Content="Rising Edge" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="255,237,-255,-237"/>
         </RelativePanel>
         <RelativePanel x:Name="TEMP_Property" Visibility="Collapsed" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_temp.png" Opacity="0.5" Margin="205,5,-85,230" />
@@ -118,29 +114,27 @@
             <TextBlock x:Name="TEMP_IP" Text="..." Margin="240,188,-238,-188" />
             <TextBlock HorizontalAlignment="Left" Margin="15,308,0,-104" Text="DESCRIPTION" VerticalAlignment="Top"/>
             <TextBox x:Name="TEMP_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,330,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="110"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,275,-1,-47" Text="MODE" VerticalAlignment="Top"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,275,-1,-47" Text="HARDWARE" VerticalAlignment="Top"/>
             <RadioButton x:Name="TEMP_DHT11" Content="DHT 11" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,269,-125,-269"/>
             <RadioButton x:Name="TEMP_DHT22" Content="DHT 22" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="255,269,-255,-269"/>
         </RelativePanel>
-        <RelativePanel x:Name="BELL_Property" Visibility="Visible" Margin="0,0,0,50">
-            <Image Source="ms-appx:///Assets/categ_bell.png" Opacity="0.5" Margin="185,5,-65,230" />
-            <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" Text="BELL" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
+        <RelativePanel x:Name="PUSH_Property" Visibility="Visible" Margin="0,0,0,50">
+            <Image Source="ms-appx:///Assets/categ_button_push.png" Opacity="0.5" Margin="185,5,-65,230" />
+            <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" Text="PUSH BUTTON" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
             <TextBlock Margin="16,42,0,0" Text="ID" />
-            <TextBox x:Name="BELL_ID" IsEnabled="False" Margin="125,36,0,19" Text="..." />
+            <TextBox x:Name="PUSH_ID" IsEnabled="False" Margin="125,36,0,19" Text="..." />
             <TextBlock HorizontalAlignment="Left" Margin="16,75,0,-4" Text="ENABLED" VerticalAlignment="Top"/>
-            <CheckBox x:Name="BELL_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
+            <CheckBox x:Name="PUSH_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
             <TextBlock HorizontalAlignment="Left" Margin="16,110,0,-4" Text="NAME" VerticalAlignment="Top"/>
-            <TextBox x:Name="BELL_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
-            <TextBlock Text="ACTIVE" Margin="16,150,-16,-150"  />
-            <ToggleSwitch x:Name="BELL_ATTIVO" HorizontalAlignment="Left" Margin="125,142,0,0"   VerticalAlignment="Top"/>
-            <TextBlock Text="NODE" Margin="17,188,-17,-190"  />
-            <ComboBox x:Name="BELL_NODO" HorizontalAlignment="Left" Margin="125,183,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,231,-1,-3" Text="PIN" VerticalAlignment="Top"/>
-            <ComboBox x:Name="BELL_PIN" HorizontalAlignment="Left" Margin="126,226,-1,-3" VerticalAlignment="Top"/>
-            <TextBlock Text="IP" Margin="215,188,-214,-188" />
-            <TextBlock x:Name="BELL_IP" Text="..." Margin="240,188,-238,-188" />
-            <TextBlock HorizontalAlignment="Left" Margin="15,275,0,-71" Text="DESCRIPTION" VerticalAlignment="Top"/>
-            <TextBox x:Name="BELL_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,299,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="141"/>
+            <TextBox x:Name="PUSH_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
+            <TextBlock Text="NODE" Margin="17,156,-17,-158"  />
+            <ComboBox x:Name="PUSH_NODO" HorizontalAlignment="Left" Margin="125,151,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,199,-1,0" Text="PIN" VerticalAlignment="Top"/>
+            <ComboBox x:Name="PUSH_PIN" HorizontalAlignment="Left" Margin="126,194,-1,0" VerticalAlignment="Top"/>
+            <TextBlock Text="IP" Margin="215,156,-214,-156" />
+            <TextBlock x:Name="PUSH_IP" Text="..." Margin="240,156,-238,-156" />
+            <TextBlock HorizontalAlignment="Left" Margin="15,241,0,-37" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="PUSH_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,265,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="175"/>
         </RelativePanel>
 
         <RelativePanel x:Name="WEBCAM_Property" Visibility="Collapsed"  Margin="0,0,0,50">

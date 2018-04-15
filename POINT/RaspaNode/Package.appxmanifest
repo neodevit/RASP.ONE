@@ -4,7 +4,7 @@
   <mp:PhoneIdentity PhoneProductId="2c3b579f-7077-4bda-b750-13992ac38f99" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>RaspaNode</DisplayName>
-    <PublisherDisplayName>neode</PublisherDisplayName>
+    <PublisherDisplayName>neodev</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>

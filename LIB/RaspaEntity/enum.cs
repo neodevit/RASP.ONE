@@ -73,7 +73,7 @@ namespace RaspaEntity
 		temperatureAndumidity = 7,
 		temperature = 8,
 		umidity=9,
-		bell=10,
+		push=10,
 	}
 
 

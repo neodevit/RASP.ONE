@@ -338,7 +338,7 @@ namespace RaspaCentral
 						break;
 					case enumComponente.webcam_rasp:
 						break;
-					case enumComponente.bell:
+					case enumComponente.push:
 						if (rec.Enabled)
 						{
 							protocol = new RaspaProtocol();
@@ -349,7 +349,7 @@ namespace RaspaCentral
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
+							writeLogVideo("INIT ON <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
 							MQTTRSend(protocol);
 						}
 						break;
@@ -514,21 +514,23 @@ namespace RaspaCentral
 										#endregion
 										break;
 
-									case enumComponente.bell:
+									case enumComponente.push:
 										switch (protocol.Azione)
 										{
 											case enumAzione.nessuno:
 											case enumAzione.errore:
+												img.Source = push_err.Source;
+												break;
 											case enumAzione.off:
-												img.Source = bell_err.Source;
+												img.Source = push_off.Source;
 												break;
 											case enumAzione.on:
-												img.Source = bell_on.Source;
+												img.Source = push_on.Source;
 												break;
 											case enumAzione.signal:
-												img.Source = bell_active.Source;
+												img.Source = push_active.Source;
 												SpeechService speek = new SpeechService();
-												speek.parla("DIN DON");
+												speek.parla("CHI CAZZO ROMPE A QUEST'ORA");
 												break;
 										}
 										break;
@@ -715,7 +717,7 @@ namespace RaspaCentral
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
-								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " SET ON ");
+								writeLogVideo("--> OFF " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " SET ON ");
 								MQTTRSend(protocol);
 								break;
 							case enumStato.on:
@@ -730,7 +732,7 @@ namespace RaspaCentral
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
-								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " SET OFF ");
+								writeLogVideo("--> ON " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " SET OFF ");
 								MQTTRSend(protocol);
 
 								break;
@@ -794,12 +796,13 @@ namespace RaspaCentral
 						}
 
 						break;
-					case enumComponente.bell:
+					case enumComponente.push:
 						switch (componente.Stato)
 						{
 							case enumStato.nessuno:
 							case enumStato.error:
 							case enumStato.off:
+							case enumStato.on:
 								// ---------------------------------
 								// chiama nodo per TEMPERATURE OFF
 								// ---------------------------------
@@ -1072,8 +1075,8 @@ namespace RaspaCentral
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
-					case enumComponente.bell:
-						Actualcomponente.Nome = (item == null) ? "BELL " : item.Nome;
+					case enumComponente.push:
+						Actualcomponente.Nome = (item == null) ? "PUSH BUTTON " : item.Nome;
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
@@ -1222,79 +1225,80 @@ namespace RaspaCentral
 			return immagine;
 		}
 
-		private BitmapImage choseImageByComponente(Componente oggetto)
+		private ImageSource choseImageByComponente(Componente oggetto)
 		{
-			BitmapImage res = new BitmapImage(new Uri("ms-appx:///Assets/error.png"));
+			ImageSource res = cross.Source;
+			//res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_rasp_error.png"));
 
 			switch (oggetto.Tipo)
 			{
 				case enumComponente.nessuno:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/error.png"));
+					res = cross.Source;
 					break;
 				case enumComponente.light:
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/light_disabled.png"));
+						res = light_disabled.Source;
 					else
 						switch (oggetto.Stato)
 						{
 							case enumStato.nessuno:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/light_off.png"));
+								res = light_off.Source;
 								break;
 							case enumStato.off:
-							res = new BitmapImage(new Uri("ms-appx:///Assets/light_off.png"));
+							res = light_off.Source;
 								break;
 							case enumStato.on:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/light_on.png"));
+								res = light_on.Source;
 								break;
 							case enumStato.error:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/light_err.png"));
+								res = light_err.Source;
 								break;
 						}
 					break;
 				case enumComponente.pir:
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/pir_disabled.png"));
+						res = pir_disabled.Source;
 					else
 						switch (oggetto.Stato)
 						{
 							case enumStato.nessuno:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/pir_on.png"));
+								res = pir_on.Source;
 								break;
 							case enumStato.off:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/pir_off.png"));
+								res = pir_off.Source;
 								break;
 							case enumStato.on:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/pir_on.png"));
+								res = pir_on.Source;
 								break;
 							case enumStato.signal:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/pir_active.png"));
+								res = pir_active.Source;
 								break;
 							case enumStato.error:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/pir_err.png"));
+								res = pir_err.Source;
 								break;
 						}
 
 					break;
-				case enumComponente.bell:
+				case enumComponente.push:
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/bell_disabled.png"));
+						res = push_disabled.Source;
 					else
 						switch (oggetto.Stato)
 						{
 							case enumStato.nessuno:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/bell_on.png"));
+								res = push_on.Source;
 								break;
 							case enumStato.off:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/bell_off.png"));
+								res = push_off.Source; 
 								break;
 							case enumStato.on:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/bell_on.png"));
+								res = push_on.Source;
 								break;
 							case enumStato.signal:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/bell_active.png"));
+								res = push_active.Source;
 								break;
 							case enumStato.error:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/bell_err.png"));
+								res = push_err.Source;
 								break;
 						}
 
@@ -1303,80 +1307,81 @@ namespace RaspaCentral
 				case enumComponente.umidity:
 				case enumComponente.temperatureAndumidity:
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/temp_disabled.png"));
+						res = temp_disabled.Source;
 					else
 						switch (oggetto.Stato)
 						{
 							case enumStato.nessuno:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/temperr.png"));
+								res = temperr.Source;
 								break;
 							case enumStato.off:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/temp_disabled.png"));
+								res = temp_disabled.Source;
 								break;
 							case enumStato.on:
 							case enumStato.signal:
 								decimal? temperatura = oggetto.getTemperature();
 								if (!temperatura.HasValue)
-									res = new BitmapImage(new Uri("ms-appx:///Assets/temp_disabled.png"));
+									res = temp_disabled.Source;
 								else
 									if (temperatura <= 3)                                   // GELO
-										res = new BitmapImage(new Uri("ms-appx:///Assets/temp0.png"));
+										res = temp_0.Source;
 									else if (temperatura > 3 && temperatura <= 13)          // MINIMA
-										res = new BitmapImage(new Uri("ms-appx:///Assets/temp1.png"));
+										res = temp_1.Source;
 									else if (temperatura > 13 && temperatura <= 19)         // FREDDO
-										res = new BitmapImage(new Uri("ms-appx:///Assets/temp2.png"));
+										res = temp_2.Source;
 									else if (temperatura > 19 && temperatura <= 25)         // NORMALE
-										res = new BitmapImage(new Uri("ms-appx:///Assets/temp3.png"));
+										res = temp_3.Source;
 									else if (temperatura > 25 && temperatura <= 30)         // CALDO
-										res = new BitmapImage(new Uri("ms-appx:///Assets/temp4.png"));
+										res = temp_4.Source;
 									else if (temperatura > 30)                              // MASSIMA
-										res = new BitmapImage(new Uri("ms-appx:///Assets/temp5.png"));
+										res = temp_5.Source;
 
 								break;
 							case enumStato.error:
-								res = new BitmapImage(new Uri("ms-appx:///Assets/temperr.png"));
+								res = temperr.Source;
 								break;
 						}
 					break;
 
 				case enumComponente.nodo:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/raspberry.png"));
+					res = raspberry.Source;
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/raspberry_off.png"));
+						res = raspberry_off.Source;
 					if (!oggetto.Trusted)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/raspberry_untrusted.png"));
+						res = raspberry_untrusted.Source;
 					if (oggetto.Error)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/raspberry_err.png"));
+						res = raspberry_err.Source;
 					break;
 				case enumComponente.centrale:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/central.png"));
+					res = central.Source;
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/central_off.png"));
+						res = central_off.Source;
 					if (!oggetto.Trusted)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/central_untrusted.png"));
+						res = central_untrusted.Source;
 					if (oggetto.Error)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/central_err.png"));
+						res = central_err.Source;
 					break;
 				case enumComponente.webcam_ip:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.png"));
+					res = webcam.Source;
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_off.png"));
+						res = webcam_off.Source;
 					if (!oggetto.Trusted)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_untrusted.png"));
+						res = webcam_untrusted.Source;
 					if (oggetto.Error)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_error.png"));
+						res = webcam_error.Source;
 					break;
 				case enumComponente.webcam_rasp:
-					res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.rasp.png"));
+					res = webcam_rasp.Source;
 					if (!oggetto.Enabled)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.rasp_off.png"));
+						res = webcam_rasp_off.Source;
 					if (!oggetto.Trusted)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam.rasp_untrusted.png"));
+						res = webcam_rasp_untrusted.Source;
 					if (oggetto.Error)
-						res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_error.png"));
+						res = webcam_rasp_error.Source;
 					break;
 
 			}
+
 			return res;
 		}
 		#endregion
@@ -1694,8 +1699,12 @@ namespace RaspaCentral
 					case enumComponente.temperature:
 					case enumComponente.umidity:
 					case enumComponente.temperatureAndumidity:
+						gpio.drawGPIO_TEMP(item.Node_Pin);
+						ToolbarShow(enumShowToolbar.schema);
 						break;
-					case enumComponente.bell:
+					case enumComponente.push:
+						gpio.drawGPIO_PUSH(item.Node_Pin);
+						ToolbarShow(enumShowToolbar.schema);
 						break;
 					case enumComponente.webcam_ip:
 						break;

@@ -134,9 +134,10 @@
     <Content Include="Assets\button_err.png" />
     <Content Include="Assets\button_off.png" />
     <Content Include="Assets\button_on.png" />
-    <Content Include="Assets\button_push.png" />
+    <Content Include="Assets\button_push_active.png" />
     <Content Include="Assets\button_push_disabled.png" />
     <Content Include="Assets\button_push_err.png" />
+    <Content Include="Assets\button_push_off.png" />
     <Content Include="Assets\button_push_on.png" />
     <Content Include="Assets\camera.png" />
     <Content Include="Assets\camera_add.png" />
@@ -148,6 +149,7 @@
     <Content Include="Assets\camera_off.png" />
     <Content Include="Assets\camera_on.png" />
     <Content Include="Assets\camera_small.png" />
+    <Content Include="Assets\cancel.png" />
     <Content Include="Assets\categ_220.png" />
     <Content Include="Assets\categ_bell.png" />
     <Content Include="Assets\categ_button_push.png" />
@@ -172,6 +174,8 @@
     <Content Include="Assets\component_light.png" />
     <Content Include="Assets\component_light2.png" />
     <Content Include="Assets\component_pir.png" />
+    <Content Include="Assets\component_push.png" />
+    <Content Include="Assets\component_temp.png" />
     <Content Include="Assets\computer.png" />
     <Content Include="Assets\computer_add.png" />
     <Content Include="Assets\computer_delete.png" />
@@ -181,6 +185,7 @@
     <Content Include="Assets\computer_key.png" />
     <Content Include="Assets\computer_link.png" />
     <Content Include="Assets\connect.png" />
+    <Content Include="Assets\cross.png" />
     <Content Include="Assets\database.png" />
     <Content Include="Assets\database_add.png" />
     <Content Include="Assets\database_connect.png" />
@@ -383,13 +388,14 @@
     <Content Include="Assets\textfield_rename.png" />
     <Content Include="Assets\ventola.png" />
     <Content Include="Assets\webcam.png" />
-    <Content Include="Assets\webcam.rasp.png" />
-    <Content Include="Assets\webcam.rasp_off.png" />
-    <Content Include="Assets\webcam.rasp_untrusted.png" />
     <Content Include="Assets\webcam_add.png" />
     <Content Include="Assets\webcam_delete.png" />
     <Content Include="Assets\webcam_error.png" />
     <Content Include="Assets\webcam_off.png" />
+    <Content Include="Assets\webcam_rasp.png" />
+    <Content Include="Assets\webcam_rasp_error.png" />
+    <Content Include="Assets\webcam_rasp_off.png" />
+    <Content Include="Assets\webcam_rasp_untrusted.png" />
     <Content Include="Assets\webcam_untrusted.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />

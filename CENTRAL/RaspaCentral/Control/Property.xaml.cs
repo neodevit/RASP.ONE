@@ -93,7 +93,6 @@ namespace RaspaCentral
 
 						LIGHT_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
 						LIGHT_ENABLED.IsChecked = componente.Enabled;
-						LIGHT_ATTIVO.IsOn = componente.Stato == enumStato.on;
 						LIGHT_NOME.Text = componente.Nome ?? "";
 						LIGHT_IP.Text = componente.IPv4 ?? "";
 						LIGHT_DESCRIZIONE.Text = componente.Descrizione ?? "";
@@ -116,7 +115,6 @@ namespace RaspaCentral
 
 						PIR_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
 						PIR_ENABLED.IsChecked = componente.Enabled;
-						PIR_ATTIVO.IsOn = componente.Stato == enumStato.on;
 						PIR_NOME.Text = componente.Nome ?? "";
 						PIR_IP.Text = componente.IPv4 ?? "";
 						PIR_DESCRIZIONE.Text = componente.Descrizione ?? "";
@@ -134,23 +132,22 @@ namespace RaspaCentral
 						PIR_rising.IsChecked = (componente.Options == ((int)enumPIROption.RisingEdge).ToString()) ? true : false;
 
 						break;
-					case enumComponente.bell:
+					case enumComponente.push:
 						ToolbarPropertyShow(componente.Tipo);
 
-						BELL_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
-						BELL_ENABLED.IsChecked = componente.Enabled;
-						BELL_ATTIVO.IsOn = componente.Stato == enumStato.on;
-						BELL_NOME.Text = componente.Nome ?? "";
-						BELL_IP.Text = componente.IPv4 ?? "";
-						BELL_DESCRIZIONE.Text = componente.Descrizione ?? "";
+						PUSH_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
+						PUSH_ENABLED.IsChecked = componente.Enabled;
+						PUSH_NOME.Text = componente.Nome ?? "";
+						PUSH_IP.Text = componente.IPv4 ?? "";
+						PUSH_DESCRIZIONE.Text = componente.Descrizione ?? "";
 
 						// LOAD COMBO
-						initPropertyComboNodes(BELL_NODO);
-						initPropertyComboPIN(BELL_PIN);
+						initPropertyComboNodes(PUSH_NODO);
+						initPropertyComboPIN(PUSH_PIN);
 
 						// NODE NUM
-						BELL_NODO.SelectedValue = componente.Node_Num;
-						BELL_PIN.SelectedValue = componente.Node_Pin;
+						PUSH_NODO.SelectedValue = componente.Node_Num;
+						PUSH_PIN.SelectedValue = componente.Node_Pin;
 
 						break;
 
@@ -224,7 +221,7 @@ namespace RaspaCentral
 			PIR_Property.Visibility = Visibility.Collapsed;
 			WEBCAM_Property.Visibility = Visibility.Collapsed;
 			TEMP_Property.Visibility = Visibility.Collapsed;
-			BELL_Property.Visibility = Visibility.Collapsed;
+			PUSH_Property.Visibility = Visibility.Collapsed;
 			switch (show)
 			{
 				case enumComponente.nodo:
@@ -239,8 +236,8 @@ namespace RaspaCentral
 				case enumComponente.pir:
 					PIR_Property.Visibility = Visibility.Visible;
 					break;
-				case enumComponente.bell:
-					BELL_Property.Visibility = Visibility.Visible;
+				case enumComponente.push:
+					PUSH_Property.Visibility = Visibility.Visible;
 					break;
 				case enumComponente.webcam_ip:
 					WEBCAM_Property.Visibility = Visibility.Visible;
@@ -361,9 +358,6 @@ namespace RaspaCentral
 						componente.Node_Num = Convert.ToInt32(LIGHT_NODO.SelectedValue);
 						componente.Node_Pin = Convert.ToInt32(LIGHT_PIN.SelectedValue);
 
-						// VALUE
-						componente.Stato = (LIGHT_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
-
 						// OPTIONS
 						enumPINOptionIsON valueLight = enumPINOptionIsON.nessuno;
 						if (LIGHT_Low.IsChecked.HasValue && LIGHT_Low.IsChecked.Value)
@@ -381,9 +375,6 @@ namespace RaspaCentral
 						componente.Node_Num = Convert.ToInt32(PIR_NODO.SelectedValue);
 						componente.Node_Pin = Convert.ToInt32(PIR_PIN.SelectedValue);
 
-						// VALUE
-						componente.Stato = (PIR_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
-
 						// OPTION
 						enumPIROption valuePIR = enumPIROption.nessuno;
 						if (PIR_falling.IsChecked.HasValue && PIR_falling.IsChecked.Value)
@@ -393,16 +384,13 @@ namespace RaspaCentral
 
 						componente.Options = ((int)valuePIR).ToString();
 						break;
-					case enumComponente.bell:
-						componente.Enabled = (BELL_ENABLED.IsChecked.HasValue) ? BELL_ENABLED.IsChecked.Value : false;
-						componente.Nome = BELL_NOME.Text;
-						componente.IPv4 = BELL_IP.Text;
-						componente.Descrizione = BELL_DESCRIZIONE.Text;
-						componente.Node_Num = Convert.ToInt32(BELL_NODO.SelectedValue);
-						componente.Node_Pin = Convert.ToInt32(BELL_PIN.SelectedValue);
-
-						// VALUE
-						componente.Stato = (BELL_ATTIVO.IsOn) ? enumStato.on : enumStato.off;
+					case enumComponente.push:
+						componente.Enabled = (PUSH_ENABLED.IsChecked.HasValue) ? PUSH_ENABLED.IsChecked.Value : false;
+						componente.Nome = PUSH_NOME.Text;
+						componente.IPv4 = PUSH_IP.Text;
+						componente.Descrizione = PUSH_DESCRIZIONE.Text;
+						componente.Node_Num = Convert.ToInt32(PUSH_NODO.SelectedValue);
+						componente.Node_Pin = Convert.ToInt32(PUSH_PIN.SelectedValue);
 
 						break;
 
@@ -517,7 +505,7 @@ namespace RaspaCentral
 						break;
 					case enumComponente.pir:
 					case enumComponente.light:
-					case enumComponente.bell:
+					case enumComponente.push:
 						// NODE NUM OBBLIGATORIO
 						int numN = Convert.ToInt32(componente.Node_Num);
 						if (numN == 0)
@@ -719,6 +707,9 @@ namespace RaspaCentral
 								break;
 							case enumComponente.light:
 								LIGHT_IP.Text = recs[0].IPv4;
+								break;
+							case enumComponente.push:
+								PUSH_IP.Text = recs[0].IPv4;
 								break;
 							case enumComponente.temperature:
 							case enumComponente.umidity:
