@@ -12,7 +12,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.16299.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -141,6 +141,10 @@
     <ProjectReference Include="..\Sensor\Sensors.Dht\Sensors.Dht.vcxproj">
       <Project>{2cd70a4f-9eed-4cda-9e07-1a2bd33b4976}</Project>
       <Name>Sensors.Dht</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sensor\Sensors\Sensors.csproj">
+      <Project>{256d732a-c0fb-4507-987c-d4e510b2fb8e}</Project>
+      <Name>Sensors</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

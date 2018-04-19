@@ -75,10 +75,11 @@ namespace RaspaAction
 						case enumComponente.push:
 							Platform = new PlatForm_Push();
 							break;
-						case enumComponente.temperature:
 						case enumComponente.umidity:
-						case enumComponente.temperatureAndumidity:
-							Platform = new PlatForm_Temperature();
+							Platform = new PlatForm_Temperature(true);
+							break;
+						case enumComponente.temperature:
+							Platform = new PlatForm_Temperature(false);
 							break;
 					}
 
@@ -119,7 +120,6 @@ namespace RaspaAction
 								}
 								break;
 
-							case enumComponente.temperatureAndumidity:
 							case enumComponente.temperature:
 							case enumComponente.umidity:
 								// Prendo il pin

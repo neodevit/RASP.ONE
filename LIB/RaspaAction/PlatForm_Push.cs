@@ -64,7 +64,7 @@ namespace RaspaAction
 				//-------------------
 				switch (Protocol.Azione)
 				{
-					case enumAzione.on:
+					case enumStato.on:
 						// Check if input pull-up resistors are supported
 						// are supported if button have resitor embedded
 						// else add resistor 10k from 5v to pin
@@ -77,25 +77,25 @@ namespace RaspaAction
 						// We don't want to be overwhelmed with events so we filter these out.
 						gpioPIN.DebounceTimeout = TimeSpan.FromMilliseconds(50);
 						// restiutuisci esito
-						notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.on, gpioPIN.PinNumber);
+						notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
 						break;
-					case enumAzione.off:
+					case enumStato.off:
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 						// restituisci esito
-						notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.off, gpioPIN.PinNumber);
+						notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
 						break;
-					case enumAzione.read:
+					case enumStato.read:
 						Drive = gpioPIN.GetDriveMode();
 						if (Drive == GpioPinDriveMode.InputPullUp)
 						{
 							valore = gpioPIN.Read();
 							if (valore == GpioPinValue.High)
-								notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.signal, gpioPIN.PinNumber);
+								notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.signal, gpioPIN.PinNumber);
 							else
-								notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.on, gpioPIN.PinNumber);
+								notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
 						}
 						else
-							notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.off, gpioPIN.PinNumber);
+							notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
 
 						break;
 
@@ -116,7 +116,7 @@ namespace RaspaAction
 		{
 			if (args.Edge == GpioPinEdge.FallingEdge)
 			{
-				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.signal, gpioPIN.PinNumber);
+				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.signal, gpioPIN.PinNumber);
 				// SPEEK
 				if (Protocol != null)
 				{
@@ -126,7 +126,7 @@ namespace RaspaAction
 			}
 			else
 			{
-				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumAzione.on, gpioPIN.PinNumber);
+				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
 			}
 		}
 

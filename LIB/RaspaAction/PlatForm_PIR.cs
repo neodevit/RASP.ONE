@@ -71,18 +71,18 @@ namespace RaspaAction
 				//-------------------
 				switch (Protocol.Azione)
 				{
-					case enumAzione.on:
+					case enumStato.on:
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
 						break;
-					case enumAzione.off:
+					case enumStato.off:
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 						break;
-					case enumAzione.read:
+					case enumStato.read:
 						Drive = gpioPIN.GetDriveMode();
 						if (Drive == GpioPinDriveMode.Input)
-							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.on, gpioPIN.PinNumber);
+							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
 						else
-							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.off, gpioPIN.PinNumber);
+							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
 
 						break;
 
@@ -105,7 +105,7 @@ namespace RaspaAction
 			if (e.Edge == GpioPinEdge.FallingEdge)
 			{
 				// NOTIFY OK
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber);
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signal, sender.PinNumber);
 				// SPEEK
 				if (Protocol != null)
 				{
@@ -120,7 +120,7 @@ namespace RaspaAction
 			if (e.Edge == GpioPinEdge.RisingEdge)
 			{
 				// NOTIFY OK
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber);
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signal, sender.PinNumber);
 
 				// SPEEK
 				if (Protocol != null)

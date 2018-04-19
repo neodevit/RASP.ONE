@@ -41,8 +41,13 @@ namespace RaspaCentral
 		}
 		public void drawGPIO_TEMP(int GPIOpin)
 		{
-			drawGPIOcomp(enumComponente.temperatureAndumidity, GPIOpin, 0, 0);
+			drawGPIOcomp(enumComponente.temperature, GPIOpin, 0, 0);
 		}
+		public void drawGPIO_UMIDITY(int GPIOpin)
+		{
+			drawGPIOcomp(enumComponente.umidity, GPIOpin, 0, 0);
+		}
+
 		public void drawGPIO_PUSH(int GPIOpin)
 		{
 			drawGPIOcomp(enumComponente.push, GPIOpin, 0, 0);
@@ -91,7 +96,8 @@ namespace RaspaCentral
 					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 310, 280);
 					break;
 
-				case enumComponente.temperatureAndumidity:
+				case enumComponente.temperature:
+				case enumComponente.umidity:
 					// COMPOONENTE PHOTO
 					schemaPhoto("ms-appx:///Assets/component_temp.png", 17, 257, 200, 381);
 

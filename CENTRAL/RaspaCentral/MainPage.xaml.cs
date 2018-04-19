@@ -124,7 +124,7 @@ namespace RaspaCentral
 				centrale = db.GetComponenteByIPv4(IPv4, enumComponente.centrale);
 
 				if (centrale == null)
-					res = new RaspaResult(false, "Centrale non riconosciuto nel sistema");
+					return new RaspaResult(false, "Centrale non riconosciuto nel sistema");
 
 				centrale.HostName = client.GetHostName();
 				centrale.IPv4 = IPv4;
@@ -292,7 +292,7 @@ namespace RaspaCentral
 						protocol.Mittente = centrale;
 						protocol.Destinatario = rec;
 						protocol.Comando = enumComando.comando;
-						protocol.Azione = enumAzione.read;
+						protocol.Azione = enumStato.read;
 						protocol.SubcribeDestination = enumSubribe.IPv4;
 						protocol.SubcribeResponse = enumSubribe.central;
 
@@ -307,7 +307,7 @@ namespace RaspaCentral
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
-							protocol.Azione = enumAzione.read;
+							protocol.Azione = enumStato.read;
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
@@ -316,16 +316,30 @@ namespace RaspaCentral
 						}
 
 						break;
-					case enumComponente.temperature:
 					case enumComponente.umidity:
-					case enumComponente.temperatureAndumidity:
 						if (rec.Enabled)
 						{
 							protocol = new RaspaProtocol();
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
-							protocol.Azione = (rec.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+							protocol.Azione = (rec.repeat) ? enumStato.readRepetitive : enumStato.read;
+							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
+							protocol.SubcribeDestination = enumSubribe.IPv4;
+							protocol.SubcribeResponse = enumSubribe.central;
+
+							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
+							MQTTRSend(protocol);
+						}
+						break;
+					case enumComponente.temperature:
+						if (rec.Enabled)
+						{
+							protocol = new RaspaProtocol();
+							protocol.Mittente = centrale;
+							protocol.Destinatario = rec;
+							protocol.Comando = enumComando.comando;
+							protocol.Azione = (rec.repeat) ? enumStato.readRepetitive : enumStato.read;
 							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
@@ -345,7 +359,7 @@ namespace RaspaCentral
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
-							protocol.Azione = enumAzione.on;
+							protocol.Azione = enumStato.on;
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
@@ -400,28 +414,25 @@ namespace RaspaCentral
 							case enumComando.notify:
 								#region NOTIFY
 
+								img.Source = choseImageByComponente(protocol);
+
 								switch (protocol.Mittente.Tipo)
 								{
 									case enumComponente.light:
 										#region LIGHT
 										switch (protocol.Azione)
 										{
-											case enumAzione.nessuno:
+											case enumStato.nessuno:
 												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
-
-												img.Source = light_err.Source;
 												break;
-											case enumAzione.off:
-												img.Source = light_off.Source;
+											case enumStato.off:
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 												break;
-											case enumAzione.on:
-												img.Source = light_on.Source;
+											case enumStato.on:
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
-											case enumAzione.errore:
-												img.Source = light_err.Source;
-												DB.ModComponentiStato(tag.ID, enumStato.error, Utente);
+											case enumStato.errore:
+												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 												break;
 										}
 										#endregion
@@ -430,85 +441,85 @@ namespace RaspaCentral
 										#region PIR
 										switch (protocol.Azione)
 										{
-											case enumAzione.nessuno:
-												img.Source = pir_err.Source;
+											case enumStato.nessuno:
 												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
 												break;
-											case enumAzione.off:
-												img.Source = pir_off.Source;
+											case enumStato.off:
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 												break;
-											case enumAzione.on:
-												img.Source = pir_on.Source;
+											case enumStato.on:
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
-											case enumAzione.signal:
-												img.Source = pir_active.Source;
+											case enumStato.signal:
 												DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
 												break;
-											case enumAzione.errore:
-												img.Source = pir_err.Source;
-												DB.ModComponentiStato(tag.ID, enumStato.error, Utente);
+											case enumStato.errore:
+												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 												break;
 										}
 										#endregion
 										break;
 									case enumComponente.umidity:
-										break;
-									case enumComponente.temperatureAndumidity:
-									case enumComponente.temperature:
-
-										string temperatura = protocol.getTemperatureValue();
 										string umidity = protocol.getUmidityValue();
-
-										Decimal? temperaturaVal = protocol.getTemperature();
 										Decimal? umidityVal = protocol.getUmidity();
+										string TooltipUmidity = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Umidity : " + umidity;
 
-										string Tooltip = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Temperature : " + temperatura + Environment.NewLine + "Umidity : " + umidity;
-
-										#region TEMPERATURE
+										#region UMIDITY
 										switch (protocol.Azione)
 										{
-											case enumAzione.nessuno:
-												img.Source = temp_0.Source;
+											case enumStato.nessuno:
 												ToolTipService.SetToolTip(img, "---");
 												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
 												break;
-											case enumAzione.off:
-												img.Source = temp_0.Source;
+											case enumStato.off:
 												ToolTipService.SetToolTip(img, "OFF");
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
 												break;
-											case enumAzione.on:
-												img.Source = temp_3.Source;
-												ToolTipService.SetToolTip(img, Tooltip);
+											case enumStato.on:
+												ToolTipService.SetToolTip(img, TooltipUmidity);
 												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
 												break;
-											case enumAzione.value:
-												ToolTipService.SetToolTip(img, Tooltip);
-
-												if (temperaturaVal.HasValue)
-												{
-													if (temperaturaVal.Value <= 3)											// GELO
-														img.Source = temp_0.Source;
-													else if (temperaturaVal.Value > 3 && temperaturaVal.Value <= 13)        // MINIMA
-														img.Source = temp_1.Source;
-													else if (temperaturaVal.Value > 13 && temperaturaVal.Value <= 19)       // FREDDO
-														img.Source = temp_2.Source;
-													else if (temperaturaVal.Value > 19 && temperaturaVal.Value <= 25)       // NORMALE
-														img.Source = temp_3.Source;
-													else if (temperaturaVal.Value > 25 && temperaturaVal.Value <= 30)       // CALDO
-														img.Source = temp_4.Source;
-													else if (temperaturaVal.Value > 30)										// MASSIMA
-														img.Source = temp_5.Source;
-												}
+											case enumStato.value:
+												ToolTipService.SetToolTip(img, TooltipUmidity);
 												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
 												break;
-											case enumAzione.errore:
+											case enumStato.errore:
 												ToolTipService.SetToolTip(img, "Error");
-												img.Source = temp_0.Source;
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.error, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
+												break;
+										}
+										#endregion
+										break;
+									case enumComponente.temperature:
+
+										string temperatura = protocol.getTemperatureValue();
+										Decimal? temperaturaVal = protocol.getTemperature();
+										string TooltipTemperature = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Temperature : " + temperatura;
+
+										#region TEMPERATURE
+										switch (protocol.Azione)
+										{
+											case enumStato.nessuno:
+												ToolTipService.SetToolTip(img, "---");
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
+												break;
+											case enumStato.off:
+												ToolTipService.SetToolTip(img, "OFF");
+												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
+												break;
+											case enumStato.on:
+												ToolTipService.SetToolTip(img, TooltipTemperature);
+												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
+												break;
+											case enumStato.value:
+												ToolTipService.SetToolTip(img, TooltipTemperature);
+												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
+												break;
+											case enumStato.errore:
+												ToolTipService.SetToolTip(img, "Error");
+												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
 												break;
 										}
 										#endregion
@@ -517,18 +528,7 @@ namespace RaspaCentral
 									case enumComponente.push:
 										switch (protocol.Azione)
 										{
-											case enumAzione.nessuno:
-											case enumAzione.errore:
-												img.Source = push_err.Source;
-												break;
-											case enumAzione.off:
-												img.Source = push_off.Source;
-												break;
-											case enumAzione.on:
-												img.Source = push_on.Source;
-												break;
-											case enumAzione.signal:
-												img.Source = push_active.Source;
+											case enumStato.signal:
 												SpeechService speek = new SpeechService();
 												speek.parla("CHI CAZZO ROMPE A QUEST'ORA");
 												break;
@@ -638,12 +638,12 @@ namespace RaspaCentral
 						switch(componente.Stato)
 						{
 							case enumStato.nessuno:
-							case enumStato.error:
+							case enumStato.errore:
 								protocol = new RaspaProtocol();
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.read;
+								protocol.Azione = enumStato.read;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -658,7 +658,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.on;
+								protocol.Azione = enumStato.on;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -673,7 +673,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.off;
+								protocol.Azione = enumStato.off;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -682,7 +682,7 @@ namespace RaspaCentral
 
 								break;
 							case enumStato.signal:
-								img.Source = pir_on.Source;
+								img.Source = loadImage("pir_on");
 								DB.ModComponentiStato(componente.ID.Value, enumStato.on, Utente);
 
 								break;
@@ -693,12 +693,12 @@ namespace RaspaCentral
 						switch (componente.Stato)
 						{
 							case enumStato.nessuno:
-							case enumStato.error:
+							case enumStato.errore:
 								protocol = new RaspaProtocol();
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.read;
+								protocol.Azione = enumStato.read;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -713,7 +713,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.on;
+								protocol.Azione = enumStato.on;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -728,7 +728,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.off;
+								protocol.Azione = enumStato.off;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -739,19 +739,70 @@ namespace RaspaCentral
 						}
 
 						break;
-					case enumComponente.temperature:
 					case enumComponente.umidity:
-					case enumComponente.temperatureAndumidity:
-
 						switch (componente.Stato)
 						{
 							case enumStato.nessuno:
-							case enumStato.error:
+							case enumStato.errore:
 								protocol = new RaspaProtocol();
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+								protocol.Azione = (componente.repeat) ? enumStato.readRepetitive : enumStato.read;
+								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
+								protocol.SubcribeDestination = enumSubribe.IPv4;
+								protocol.SubcribeResponse = enumSubribe.central;
+
+								writeLogVideo("<-- READ " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " READ UMIDITY ");
+								MQTTRSend(protocol);
+								break;
+							case enumStato.off:
+								// ---------------------------------
+								// chiama nodo per UMIDITY ON
+								// ---------------------------------
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Azione = (componente.repeat) ? enumStato.readRepetitive : enumStato.read;
+								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
+								protocol.SubcribeDestination = enumSubribe.IPv4;
+								protocol.SubcribeResponse = enumSubribe.central;
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " READ UMIDITY ");
+								MQTTRSend(protocol);
+								break;
+							case enumStato.on:
+								// ---------------------------------
+								// chiama nodo per UMIDITY OFF
+								// ---------------------------------
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Azione = (componente.repeat) ? enumStato.readRepetitive : enumStato.read;
+								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
+								protocol.SubcribeDestination = enumSubribe.IPv4;
+								protocol.SubcribeResponse = enumSubribe.central;
+
+								writeLogVideo("--> " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString() + " READ UMIDITY ");
+								MQTTRSend(protocol);
+
+								break;
+
+						}
+						break;
+					case enumComponente.temperature:
+
+						switch (componente.Stato)
+						{
+							case enumStato.nessuno:
+							case enumStato.errore:
+								protocol = new RaspaProtocol();
+								protocol.Mittente = centrale;
+								protocol.Destinatario = componente;
+								protocol.Comando = enumComando.comando;
+								protocol.Azione = (componente.repeat) ? enumStato.readRepetitive : enumStato.read;
 								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
@@ -767,7 +818,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+								protocol.Azione = (componente.repeat) ? enumStato.readRepetitive : enumStato.read;
 								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
@@ -783,7 +834,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = (componente.repeat) ? enumAzione.readRepetitive : enumAzione.read;
+								protocol.Azione = (componente.repeat) ? enumStato.readRepetitive : enumStato.read;
 								protocol.RepetiteTime = (componente.repeat) ? componente.repeatTime : null;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
@@ -800,7 +851,7 @@ namespace RaspaCentral
 						switch (componente.Stato)
 						{
 							case enumStato.nessuno:
-							case enumStato.error:
+							case enumStato.errore:
 							case enumStato.off:
 							case enumStato.on:
 								// ---------------------------------
@@ -810,7 +861,7 @@ namespace RaspaCentral
 								protocol.Mittente = centrale;
 								protocol.Destinatario = componente;
 								protocol.Comando = enumComando.comando;
-								protocol.Azione = enumAzione.on;
+								protocol.Azione = enumStato.on;
 								protocol.SubcribeDestination = enumSubribe.IPv4;
 								protocol.SubcribeResponse = enumSubribe.central;
 
@@ -1094,14 +1145,21 @@ namespace RaspaCentral
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
-					case enumComponente.temperature:
 					case enumComponente.umidity:
-					case enumComponente.temperatureAndumidity:
+						Actualcomponente.Nome = (item == null) ? "UMIDITA' " : item.Nome;
+						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
+						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
+						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
+						ToolTipCustom = (item == null) ? "---" : "Umidità : " + item.getUmidityValue();
+						;
+						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
+						break;
+					case enumComponente.temperature:
 						Actualcomponente.Nome = (item == null) ? "TEMPERATURE " : item.Nome;
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = (item == null) ? "---" : "Temperature : " + item.getTemperatureValue() + Environment.NewLine + "Umidity : " + item.getUmidityValue();
+						ToolTipCustom = (item == null) ? "---" : "Temperature : " + item.getTemperatureValue();
 						;
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1145,8 +1203,9 @@ namespace RaspaCentral
 				// creo TAG : ID_VALUE_COMP
 				string Tag = "RASP.ONE_" + ((item != null && item.ID.HasValue) ? item.ID.Value + "_" + ((int)comp).ToString() : "0_" + ((int)comp).ToString() );
 				// se esiste già una immagine con quel tag non la ricreo
-				if (ExistComponentWithTagInPage(Tag))
-					return null;
+				Image FoundComponent = GetComponentByTag(Tag);
+				if (FoundComponent != null)
+					immagine = FoundComponent;
 
 				// Creo Immagine da Tools
 				immagine.Name = (item != null && item.ID.HasValue) ? "C_" + item.ID.Value : "C_0";
@@ -1224,160 +1283,246 @@ namespace RaspaCentral
 			}
 			return immagine;
 		}
+		private BitmapImage loadImage(string name)
+		{
+			BitmapImage res = new BitmapImage(new Uri("ms-appx:///Assets/cross.png"));
+			try
+			{
+				// ACQUA
+				res = new BitmapImage(new Uri("ms-appx:///Assets/"+ name + ".png"));
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				res = new BitmapImage(new Uri("ms-appx:///Assets/error.png"));
+			}
+			return res;
+		}
 
+		private ImageSource choseImageByComponente(RaspaProtocol protocol)
+		{
+			string valore = "";
+			switch (protocol.Mittente.Tipo)
+			{
+				case enumComponente.temperature:
+					decimal? temp = protocol.getTemperature();
+					valore = (temp.HasValue) ? temp.ToString() : "";
+					break;
+				case enumComponente.umidity:
+					decimal? umidity = protocol.getUmidity();
+					valore = (umidity.HasValue) ? umidity.ToString() : "";
+					break;
+			}
+			return choseImageByComponente(protocol.Mittente.Tipo, protocol.Azione, valore);
+		}
 		private ImageSource choseImageByComponente(Componente oggetto)
 		{
-			ImageSource res = cross.Source;
-			//res = new BitmapImage(new Uri("ms-appx:///Assets/webcam_rasp_error.png"));
-
+			string valore = "";
 			switch (oggetto.Tipo)
 			{
+				case enumComponente.temperature:
+					decimal? temp = oggetto.getTemperature();
+					valore = (temp.HasValue) ? temp.ToString() : "";
+					break;
+				case enumComponente.umidity:
+					decimal? umidity = oggetto.getTemperature();
+					valore = (umidity.HasValue) ? umidity.ToString() : "";
+					break;
+			}
+			return choseImageByComponente(oggetto.Tipo, oggetto.Stato, valore, oggetto.Enabled, oggetto.Trusted = true, oggetto.Error);
+		}
+		private ImageSource choseImageByComponente(enumComponente tipo, enumStato stato,string valore, bool Enabled=true, bool Trusted = true,bool Error=false)
+		{
+			ImageSource res = loadImage("exclamation");
+
+			switch (tipo)
+			{
 				case enumComponente.nessuno:
-					res = cross.Source;
+					res = loadImage("exclamation");
 					break;
 				case enumComponente.light:
-					if (!oggetto.Enabled)
-						res = light_disabled.Source;
+					if (!Enabled)
+						res = loadImage("light_disabled");
 					else
-						switch (oggetto.Stato)
+						switch (stato)
 						{
 							case enumStato.nessuno:
-								res = light_off.Source;
+								res = loadImage("light_err");
 								break;
 							case enumStato.off:
-							res = light_off.Source;
+								res = loadImage("light_off");
 								break;
 							case enumStato.on:
-								res = light_on.Source;
+								res = loadImage("light_on");
 								break;
-							case enumStato.error:
-								res = light_err.Source;
+							case enumStato.errore:
+								res = loadImage("light_err");
 								break;
 						}
 					break;
 				case enumComponente.pir:
-					if (!oggetto.Enabled)
-						res = pir_disabled.Source;
+					if (!Enabled)
+						res = loadImage("pir_disabled");
 					else
-						switch (oggetto.Stato)
+						switch (stato)
 						{
 							case enumStato.nessuno:
-								res = pir_on.Source;
+								res = loadImage("pir_on");
 								break;
 							case enumStato.off:
-								res = pir_off.Source;
+								res = loadImage("pir_off");
 								break;
 							case enumStato.on:
-								res = pir_on.Source;
+								res = loadImage("pir_on");
 								break;
 							case enumStato.signal:
-								res = pir_active.Source;
+								res = loadImage("pir_active");
 								break;
-							case enumStato.error:
-								res = pir_err.Source;
+							case enumStato.errore:
+								res = loadImage("pir_err");
 								break;
 						}
 
 					break;
 				case enumComponente.push:
-					if (!oggetto.Enabled)
-						res = push_disabled.Source;
+					if (!Enabled)
+						res = loadImage("push_disabled");
 					else
-						switch (oggetto.Stato)
+						switch (stato)
 						{
 							case enumStato.nessuno:
-								res = push_on.Source;
+								res = loadImage("push_on");
 								break;
 							case enumStato.off:
-								res = push_off.Source; 
+								res = loadImage("push_off");
 								break;
 							case enumStato.on:
-								res = push_on.Source;
+								res = loadImage("push_on");
 								break;
 							case enumStato.signal:
-								res = push_active.Source;
+								res = loadImage("push_active");
 								break;
-							case enumStato.error:
-								res = push_err.Source;
+							case enumStato.errore:
+								res = loadImage("push_err");
 								break;
 						}
 
 					break;
-				case enumComponente.temperature:
 				case enumComponente.umidity:
-				case enumComponente.temperatureAndumidity:
-					if (!oggetto.Enabled)
-						res = temp_disabled.Source;
+					if (!Enabled)
+						res = loadImage("umidity_disabled");
 					else
-						switch (oggetto.Stato)
+						switch (stato)
 						{
 							case enumStato.nessuno:
-								res = temperr.Source;
+								res = loadImage("umidity_err");
 								break;
 							case enumStato.off:
-								res = temp_disabled.Source;
+								res = loadImage("umidity_off");
 								break;
 							case enumStato.on:
-							case enumStato.signal:
-								decimal? temperatura = oggetto.getTemperature();
-								if (!temperatura.HasValue)
-									res = temp_disabled.Source;
+							case enumStato.value:
+								if (valore=="")
+									res = loadImage("umidity_null");
 								else
-									if (temperatura <= 3)                                   // GELO
-										res = temp_0.Source;
-									else if (temperatura > 3 && temperatura <= 13)          // MINIMA
-										res = temp_1.Source;
-									else if (temperatura > 13 && temperatura <= 19)         // FREDDO
-										res = temp_2.Source;
-									else if (temperatura > 19 && temperatura <= 25)         // NORMALE
-										res = temp_3.Source;
-									else if (temperatura > 25 && temperatura <= 30)         // CALDO
-										res = temp_4.Source;
-									else if (temperatura > 30)                              // MASSIMA
-										res = temp_5.Source;
+								{
+									decimal umidity = Convert.ToDecimal(valore);
 
+									if (umidity <= 5)                               // BASSA
+										res = loadImage("umidity_0");
+									else if (umidity > 5 && umidity <= 15)          // MINIMA
+										res = loadImage("umidity_1");
+									else if (umidity > 15 && umidity <= 30)         // SECCO
+										res = loadImage("umidity_2");
+									else if (umidity > 30 && umidity <= 55)         // NORMALE
+										res = loadImage("umidity_3");
+									else if (umidity > 55 && umidity <= 70)         // UMIDO
+										res = loadImage("umidity_4");
+									else if (umidity > 70)                          // ALTA
+										res = loadImage("umidity_5");
+								}
 								break;
-							case enumStato.error:
-								res = temperr.Source;
+							case enumStato.errore:
+								res = loadImage("umidity_err");
+								break;
+						}
+					break;
+
+				case enumComponente.temperature:
+					if (!Enabled)
+						res = loadImage("temp_disabled");
+					else
+						switch (stato)
+						{
+							case enumStato.nessuno:
+								res = loadImage("temp_err");
+								break;
+							case enumStato.off:
+								res = loadImage("temp_disabled");
+								break;
+							case enumStato.on:
+							case enumStato.value:
+								if (valore == "")
+									res = loadImage("temp_null");
+								else
+								{
+									decimal temperatura = Convert.ToDecimal(valore);
+
+									if (temperatura <= 3)                                   // GELO
+										res = loadImage("temp_0");
+									else if (temperatura > 3 && temperatura <= 13)          // MINIMA
+										res = loadImage("temp_1");
+									else if (temperatura > 13 && temperatura <= 19)         // FREDDO
+										res = loadImage("temp_2");
+									else if (temperatura > 19 && temperatura <= 25)         // NORMALE
+										res = loadImage("temp_3");
+									else if (temperatura > 25 && temperatura <= 30)         // CALDO
+										res = loadImage("temp_4");
+									else if (temperatura > 30)                              // MASSIMA
+										res = loadImage("temp_5");
+								}
+								break;
+							case enumStato.errore:
+								res = loadImage("temp_err");
 								break;
 						}
 					break;
 
 				case enumComponente.nodo:
-					res = raspberry.Source;
-					if (!oggetto.Enabled)
-						res = raspberry_off.Source;
-					if (!oggetto.Trusted)
-						res = raspberry_untrusted.Source;
-					if (oggetto.Error)
-						res = raspberry_err.Source;
+					res = loadImage("raspberry");
+					if (!Enabled)
+						res = loadImage("raspberry_off");
+					if (!Trusted)
+						res = loadImage("raspberry_untrusted");
+					if (Error)
+						res = loadImage("raspberry_err");
 					break;
 				case enumComponente.centrale:
-					res = central.Source;
-					if (!oggetto.Enabled)
-						res = central_off.Source;
-					if (!oggetto.Trusted)
-						res = central_untrusted.Source;
-					if (oggetto.Error)
-						res = central_err.Source;
+						res = loadImage("central");
+					if (!Enabled)
+						res = loadImage("central_off");
+					if (!Trusted)
+						res = loadImage("central_untrusted");
+					if (Error)
+						res = loadImage("central_err");
 					break;
 				case enumComponente.webcam_ip:
-					res = webcam.Source;
-					if (!oggetto.Enabled)
-						res = webcam_off.Source;
-					if (!oggetto.Trusted)
-						res = webcam_untrusted.Source;
-					if (oggetto.Error)
-						res = webcam_error.Source;
+					res = loadImage("webcam");
+					if (!Enabled)
+						res = loadImage("webcam_off");
+					if (!Trusted)
+						res = loadImage("webcam_untrusted");
+					if (Error)
+						res = loadImage("webcam_error");
 					break;
 				case enumComponente.webcam_rasp:
-					res = webcam_rasp.Source;
-					if (!oggetto.Enabled)
-						res = webcam_rasp_off.Source;
-					if (!oggetto.Trusted)
-						res = webcam_rasp_untrusted.Source;
-					if (oggetto.Error)
-						res = webcam_rasp_error.Source;
+					res = loadImage("webcam_rasp");
+					if (!Enabled)
+						res = loadImage("webcam_rasp_off");
+					if (!Trusted)
+						res = loadImage("webcam_rasp_untrusted");
+					if (Error)
+						res = loadImage("webcam_rasp_error");
 					break;
 
 			}
@@ -1696,9 +1841,11 @@ namespace RaspaCentral
 						gpio.drawGPIO_PIR(item.Node_Pin);
 						ToolbarShow(enumShowToolbar.schema);
 						break;
-					case enumComponente.temperature:
 					case enumComponente.umidity:
-					case enumComponente.temperatureAndumidity:
+						gpio.drawGPIO_UMIDITY(item.Node_Pin);
+						ToolbarShow(enumShowToolbar.schema);
+						break;
+					case enumComponente.temperature:
 						gpio.drawGPIO_TEMP(item.Node_Pin);
 						ToolbarShow(enumShowToolbar.schema);
 						break;
@@ -1755,6 +1902,28 @@ namespace RaspaCentral
 			{
 				messaggio.Text = "Errore Eliminazione : " + ex.Message;
                 if (Debugger.IsAttached) Debugger.Break();
+			}
+			return res;
+		}
+		private Image GetComponentByTag(string Tag)
+		{
+			Image res = null;
+			try
+			{
+				foreach (var control in GridMappa.Children)
+				{
+					var img = control as Image;
+					if (img != null && img.Tag != null && img.Tag.ToString() == Tag)
+					{
+						res = img;
+						break;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore Eliminazione : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
 			}
 			return res;
 		}
@@ -2084,14 +2253,12 @@ namespace RaspaCentral
 			componenti = 0,
 			property = 1,
 			regole = 2,
-			info = 3,
 			schema = 4,
 			help = 5,
 		}
 		public void ToolbarShow(enumShowToolbar show)
 		{
 			ToolbarComponenti.Visibility = Visibility.Collapsed;
-			ToolbarInfo.Visibility = Visibility.Collapsed;
 			ToolBarProperty.Visibility = Visibility.Collapsed;
 			ToolBarSchema.Visibility = Visibility.Collapsed;
 			ToolBarHelp.Visibility = Visibility.Collapsed;
@@ -2106,9 +2273,6 @@ namespace RaspaCentral
 
 				case enumShowToolbar.componenti:
 					ToolbarComponenti.Visibility = Visibility.Visible;
-					break;
-				case enumShowToolbar.info:
-					ToolbarInfo.Visibility = Visibility.Visible;
 					break;
 				case enumShowToolbar.property:
 					ToolBarProperty.Visibility = Visibility.Visible;

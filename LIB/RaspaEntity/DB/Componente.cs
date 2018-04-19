@@ -134,7 +134,7 @@ namespace RaspaEntity
 		{
 			Decimal? res = null;
 			if ((Value != null && Value.Count > 1))
-				res = GetValueDecimal(1);
+				res = GetValueDecimal(0);
 			return res;
 		}
 		#endregion

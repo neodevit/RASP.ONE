@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RaspaNode")]
-[assembly: AssemblyDescription("NODE SW for Project RASP.ONE")]
+[assembly: AssemblyDescription("NODEV SW for Project RASP.ONE")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("NEODEV")]
 [assembly: AssemblyProduct("RASP.ONE")]

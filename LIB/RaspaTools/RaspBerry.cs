@@ -134,8 +134,10 @@ namespace RaspaTools
 
 		public string GetHostName()
 		{
+			string hostName = "NA";
 			var hostNames = NetworkInformation.GetHostNames();
-			var hostName = hostNames.FirstOrDefault(name => name.Type == HostNameType.DomainName)?.DisplayName ?? "???";
+			if (hostNames != null)
+				hostName = hostNames.FirstOrDefault(name => name.Type == HostNameType.DomainName)?.DisplayName ?? "???";
 			return hostName;
 		}
 

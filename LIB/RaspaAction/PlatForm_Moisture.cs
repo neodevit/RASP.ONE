@@ -56,15 +56,15 @@ namespace RaspaAction
 				//-------------------
 				switch (Protocol.Azione)
 				{
-					case enumAzione.off:
+					case enumStato.off:
 						// spegni input
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
 						// dispose sensor
-						notify.ActionNotify(Protocol, true, "Read Moisture", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.off, PinNum, new List<string>());
+						notify.ActionNotify(Protocol, true, "Read Moisture", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.off, PinNum, new List<string>());
 
 						break;
-					case enumAzione.on:
+					case enumStato.on:
 						var r = gpioPIN.Read();
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
 						Drive = gpioPIN.GetDriveMode();
@@ -104,7 +104,7 @@ namespace RaspaAction
 			if (gpioPIN.Read() == valoreON)
 			{
 				// need h2o
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signal, sender.PinNumber);
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signal, sender.PinNumber);
 
 				// SPEEK
 				if (Protocol != null)
@@ -115,7 +115,7 @@ namespace RaspaAction
 			}
 			else
 				// plat is ok
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumAzione.signalOFF, sender.PinNumber);
+				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
 
 		}
 

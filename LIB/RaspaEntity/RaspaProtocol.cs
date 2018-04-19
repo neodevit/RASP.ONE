@@ -17,7 +17,7 @@ namespace RaspaEntity
 		{
 		}
 
-		public RaspaProtocol(bool esito,string message, enumComando comando, enumAzione azione, Componente mittente, Componente destinatario,List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
+		public RaspaProtocol(bool esito,string message, enumComando comando, enumStato azione, Componente mittente, Componente destinatario,List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
 		{
 			Esito = esito;
 			Message = message;
@@ -30,7 +30,7 @@ namespace RaspaEntity
 			SubcribeDestination = subcribeDestination;
 			SubcribeResponse = subcribeResponse;
 		}
-		public RaspaProtocol(enumComando comando, Componente mittente, enumAzione azione, Componente destinatario, List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
+		public RaspaProtocol(enumComando comando, Componente mittente, enumStato azione, Componente destinatario, List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
 		{
 			Esito = true;
 			Message = "";
@@ -71,7 +71,7 @@ namespace RaspaEntity
 		public string Message { get; set; }
 
 		public enumComando Comando { get; set; }
-		public enumAzione Azione { get; set; }
+		public enumStato Azione { get; set; }
 		public Componente Mittente { get; set; }
 		public Componente Destinatario { get; set; }
 
@@ -112,7 +112,7 @@ namespace RaspaEntity
 		{
 			Decimal? res = null;
 			if ((Value != null && Value.Count > 1))
-				res = GetValueDecimal(1);
+				res = GetValueDecimal(0);
 			return res;
 		}
 		#endregion

@@ -1,5 +1,6 @@
 ﻿using RaspaEntity;
 using RaspaTools;
+using Sensors;
 using Sensors.Dht;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Gpio;
+using Windows.Devices.SerialCommunication;
 using Windows.UI.Xaml;
 
 namespace RaspaAction
@@ -20,12 +22,16 @@ namespace RaspaAction
 		MQTT mqTT = null;
 		RaspaProtocol Protocol;
 		private IDht _dht = null;
+
 		private Timer _timer = null;
 		private int PinNumber=0;
 		private PlatformNotify notify;
+		enumTEMPOption hardware;
+		bool Umidity;
 
-		public PlatForm_Temperature()
+		public PlatForm_Temperature(bool umidity)
 		{
+			Umidity = umidity;
 		}
 
 		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
@@ -56,11 +62,16 @@ namespace RaspaAction
 				PinNumber = gpioPIN.PinNumber;
 
 				#region Options
-				enumTEMPOption tipo = (enumTEMPOption)Convert.ToInt32(Protocol.Destinatario.Options);
-				if (tipo == enumTEMPOption.dht11)
-					_dht = new Dht11(gpioPIN, GpioPinDriveMode.Input);
-				else
-					_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
+				hardware = (enumTEMPOption)Convert.ToInt32(Protocol.Destinatario.Options);
+				switch (hardware)
+				{
+					case enumTEMPOption.dht11:
+						_dht = new Dht11(gpioPIN, GpioPinDriveMode.Input);
+						break;
+					case enumTEMPOption.dht22:
+						_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
+						break;
+				}
 				#endregion
 
 				//-------------------
@@ -68,40 +79,32 @@ namespace RaspaAction
 				//-------------------
 				switch (Protocol.Azione)
 				{
-					case enumAzione.off:
+					case enumStato.off:
 						// stop timer
 						_timer?.Change(Timeout.Infinite, Timeout.Infinite);
 
 						// dispose sensor
 						_dht = null;
-						notify.ActionNotify(Protocol,true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.off, PinNumber, new List<string>());
+
+						// notify OFF
+						if (Umidity)
+							notify.ActionNotify(Protocol,true, "Read ", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumStato.off, PinNumber, new List<string>());
+						else
+							notify.ActionNotify(Protocol,true, "Read ", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.off, PinNumber, new List<string>());
 
 						break;
-					case enumAzione.value:
-					case enumAzione.read:
-						// Istanzia sensor
-						if (tipo == enumTEMPOption.dht11)
-							_dht = new Dht11(gpioPIN, GpioPinDriveMode.Input);
-						else
-							_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
-
+					case enumStato.value:
+					case enumStato.read:
 						// read value
 						Timer_Tick();
 
 						break;
-					case enumAzione.on:
-					case enumAzione.readRepetitive:
+					case enumStato.on:
+					case enumStato.readRepetitive:
 						// ------------------------------------------------------------
 						// se value è un numero >0 allora indica ogni quanti secondi 
 						// bisogna ripetere la lettura
 						// ------------------------------------------------------------
-						// Istanzia sensor
-						if (tipo == enumTEMPOption.dht11)
-							_dht = new Dht11(gpioPIN, GpioPinDriveMode.Input);
-						else
-							_dht = new Dht22(gpioPIN, GpioPinDriveMode.Input);
-
-
 						// start timer
 						if (Protocol.RepetiteTime != null)
 						{ 
@@ -128,39 +131,58 @@ namespace RaspaAction
 		{
 			double Temperature = 0;
 			double Humidity = 0;
-
-			//if (Monitor.TryEnter(_dht))
-			//{
-				try
+			bool isValid = false;
+			try
+			{
+				switch(hardware)
 				{
-					DhtReading reading = readSensorAsync().Result;
+					case enumTEMPOption.dht11:
+					case enumTEMPOption.dht22:
+						DhtReading reading = read_BHT_SensorAsync().Result;
+						if (reading.IsValid)
+						{
+							Temperature = reading.Temperature;
+							Humidity = reading.Humidity;
+							isValid = true;
+						}
+						break;
+				}
 
-					if (reading.IsValid)
+				// COMUNICA ESITO
+				if (isValid)
+				{
+
+					if (Umidity)
 					{
-						Temperature = reading.Temperature;
-						Humidity = reading.Humidity;
-
-						List<string> result = new List<string>();
-						result.Add(Temperature.ToString());
-						result.Add(Humidity.ToString());
-
-						notify.ActionNotify(Protocol, true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumAzione.value, PinNumber, result);
-
+						List<string> resultU = new List<string>();
+						resultU.Add(Humidity.ToString());
+						notify.ActionNotify(Protocol, true, "Read Umiditi", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumStato.value, PinNumber, resultU);
 					}
+					else
+					{
+						List<string> resultT = new List<string>();
+						resultT.Add(Temperature.ToString());
+						notify.ActionNotify(Protocol, true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.value, PinNumber, resultT);
+					}
+
 				}
-				catch (Exception ex)
+				else
 				{
-					if (Debugger.IsAttached) Debugger.Break();
-					System.Diagnostics.Debug.WriteLine("SASSO API TEST - SET : " + ex.Message);
+					if (Umidity)
+						notify.ActionNotify(Protocol, true, "Read Umidity", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumStato.value, PinNumber, null);
+					else
+						notify.ActionNotify(Protocol, true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.value, PinNumber, null);
 				}
-			//	finally
-			//	{
-			//		Monitor.Exit(_dht);
-			//	}
-			//}
+
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("SASSO API TEST - SET : " + ex.Message);
+			}
 		}
 
-		private async Task<DhtReading> readSensorAsync()
+		private async Task<DhtReading> read_BHT_SensorAsync()
 		{
 			DhtReading reading = new DhtReading();
 			int attemp = 0;

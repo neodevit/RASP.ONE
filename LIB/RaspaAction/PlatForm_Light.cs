@@ -82,7 +82,7 @@ namespace RaspaAction
 				//-------------------
 				switch (Protocol.Azione)
 				{
-					case enumAzione.on:
+					case enumStato.on:
 						valore = valoreON;
 						if (valore != gpioPIN.Read())
 						{
@@ -94,10 +94,10 @@ namespace RaspaAction
 
 						}
 						else
-							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber);
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumStato.on, PinNumber);
 
 						break;
-					case enumAzione.off:
+					case enumStato.off:
 						valore = valoreOFF;
 						if (valore != gpioPIN.Read())
 						{
@@ -109,15 +109,15 @@ namespace RaspaAction
 
 						}
 						else
-							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber);
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumStato.off, PinNumber);
 
 						break;
-					case enumAzione.read:
+					case enumStato.read:
 						valore = gpioPIN.Read();
 						if (valore == valoreON)
-							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, PinNumber);
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumStato.on, PinNumber);
 						else
-							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, PinNumber);
+							notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumStato.off, PinNumber);
 
 						break;
 
@@ -153,7 +153,7 @@ namespace RaspaAction
 				if (valore_impostato == valoreON)
 				{
 					// NOTIFY ON
-					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.on, sender.PinNumber);
+					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumStato.on, sender.PinNumber);
 					// SPEEK
 					if (Protocol != null)
 						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : ON ");
@@ -161,7 +161,7 @@ namespace RaspaAction
 				else
 				{
 					// NOTIFY OFF
-					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumAzione.off, sender.PinNumber);
+					notify.ActionNotify(Protocol, true, "Nuovo valore impostato ", enumSubribe.central, enumComponente.light, enumComando.notify, enumStato.off, sender.PinNumber);
 					// SPEEK
 					if (Protocol != null)
 						speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " Azione : OFF ");

@@ -133,6 +133,26 @@ namespace RaspaDB
 			}
 			return res;
 		}
+		public bool existAltroComponenteConStessoNodeNumAndPinEccettoTipo(int? IDCorrente, int nodeNum, int Pin, enumComponente Tipo)
+		{
+			bool res = false;
+			try
+			{
+				Componenti nodeNums = GetComponenteByNodeNumAndNode_PinEccettoTipo(nodeNum, Pin,Tipo);
+				if (nodeNums.Count == 0 ||
+				   (IDCorrente.HasValue && nodeNums.Count == 1 && nodeNums[0].ID == IDCorrente.Value) ||
+				   (IDCorrente.HasValue == false && nodeNums.Count == 1))
+					res = false;
+				else
+					res = true;
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
 
 		public Componenti GetComponenti()
 		{
@@ -610,6 +630,41 @@ namespace RaspaDB
 			}
 			return res;
 		}
+
+		public Componenti GetComponenteByNodeNumAndNode_PinEccettoTipo(int Node_Num, int Node_Pin, enumComponente Tipo)
+		{
+			Componenti res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE Node_Num = @Node_Num";
+				sql += " AND Node_Pin = @Node_Pin";
+				sql += " AND IDComponenteTipo <> @IDComponenteTipo";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@Node_Num", Node_Num);
+						mySqlCommand.Parameters.AddWithValue("@Node_Pin", Node_Pin);
+						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)Tipo);
+						mySqlCommand.Connection.Open();
+
+						res = GetRecComponenti(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+
 		public Componenti GetComponenteByNodeNumAndNode_Pin(int Node_Num, int Node_Pin,string Value)
 		{
 			Componenti res = null;

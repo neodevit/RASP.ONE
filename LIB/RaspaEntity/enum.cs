@@ -29,14 +29,7 @@ namespace RaspaEntity
 
 
 
-	public enum enumStato
-	{
-		nessuno=0,
-		off = 1,
-		on = 2,
-		signal=3,
-		error=4,
-	}
+
 	public enum enumComando
 	{
 		nessuno = 0,
@@ -45,7 +38,7 @@ namespace RaspaEntity
 		nodeInit=5,
 		nodeReload = 6,
 	}
-	public enum enumAzione
+	public enum enumStato
 	{
 		nessuno = 0,
 		on = 1,
@@ -70,10 +63,9 @@ namespace RaspaEntity
 		centrale = 4,
 		webcam_ip=5,
 		webcam_rasp=6,
-		temperatureAndumidity = 7,
-		temperature = 8,
-		umidity=9,
-		push=10,
+		temperature = 7,
+		umidity=8,
+		push=9,
 	}
 
 

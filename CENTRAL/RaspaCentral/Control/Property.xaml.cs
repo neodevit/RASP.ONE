@@ -150,10 +150,38 @@ namespace RaspaCentral
 						PUSH_PIN.SelectedValue = componente.Node_Pin;
 
 						break;
-
-					case enumComponente.temperatureAndumidity:
-					case enumComponente.temperature:
 					case enumComponente.umidity:
+						ToolbarPropertyShow(componente.Tipo);
+
+						UMIDITY_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
+						UMIDITY_ENABLED.IsChecked = componente.Enabled;
+
+						UMIDITY_REPEAT.IsOn = componente.repeat;
+						TEMP_REPEAT_MINUTS.IsEnabled = componente.repeat;
+						if (componente.repeat)
+							TEMP_REPEAT_MINUTS.Value = componente.repeatTime.mm;
+						else
+							UMIDITY_REPEAT_MINUTS.Value = null;
+
+						UMIDITY_NOME.Text = componente.Nome ?? "";
+						UMIDITY_IP.Text = componente.IPv4 ?? "";
+						UMIDITY_DESCRIZIONE.Text = componente.Descrizione ?? "";
+
+						// LOAD COMBO
+						initPropertyComboNodes(UMIDITY_NODO);
+						initPropertyComboPIN(UMIDITY_PIN);
+
+						// NODE NUM
+						UMIDITY_NODO.SelectedValue = componente.Node_Num;
+						UMIDITY_PIN.SelectedValue = componente.Node_Pin;
+
+						// OPTIONS
+						UMIDITY_DHT11.IsChecked = (componente.Options == ((int)enumTEMPOption.dht11).ToString()) ? true : false;
+						UMIDITY_DHT22.IsChecked = (componente.Options == ((int)enumTEMPOption.dht22).ToString()) ? true : false;
+
+						break;
+
+					case enumComponente.temperature:
 						ToolbarPropertyShow(componente.Tipo);
 
 						TEMP_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
@@ -221,6 +249,7 @@ namespace RaspaCentral
 			PIR_Property.Visibility = Visibility.Collapsed;
 			WEBCAM_Property.Visibility = Visibility.Collapsed;
 			TEMP_Property.Visibility = Visibility.Collapsed;
+			UMIDITY_Property.Visibility = Visibility.Collapsed;
 			PUSH_Property.Visibility = Visibility.Collapsed;
 			switch (show)
 			{
@@ -244,10 +273,11 @@ namespace RaspaCentral
 					break;
 				case enumComponente.webcam_rasp:
 					break;
-				case enumComponente.temperatureAndumidity:
 				case enumComponente.temperature:
-				case enumComponente.umidity:
 					TEMP_Property.Visibility = Visibility.Visible;
+					break;
+				case enumComponente.umidity:
+					UMIDITY_Property.Visibility = Visibility.Visible;
 					break;
 
 			}
@@ -394,9 +424,31 @@ namespace RaspaCentral
 
 						break;
 
-					case enumComponente.temperature:
 					case enumComponente.umidity:
-					case enumComponente.temperatureAndumidity:
+						componente.Enabled = (UMIDITY_ENABLED.IsChecked.HasValue) ? UMIDITY_ENABLED.IsChecked.Value : false;
+						componente.Stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+						componente.Nome = UMIDITY_NOME.Text;
+						componente.IPv4 = UMIDITY_IP.Text;
+						componente.Descrizione = UMIDITY_DESCRIZIONE.Text;
+						componente.Node_Num = Convert.ToInt32(UMIDITY_NODO.SelectedValue);
+						componente.Node_Pin = Convert.ToInt32(UMIDITY_PIN.SelectedValue);
+
+						// REPEAT
+						componente.repeat = UMIDITY_REPEAT.IsOn;
+						if (UMIDITY_REPEAT.IsOn)
+							componente.repeatTime.totaleMM = (UMIDITY_REPEAT_MINUTS.Value.HasValue) ? Convert.ToInt32(UMIDITY_REPEAT_MINUTS.Value) : 0;
+
+						// OPTION
+						enumTEMPOption valueUMIDITY = enumTEMPOption.dht22;
+						if (UMIDITY_DHT11.IsChecked.HasValue && UMIDITY_DHT11.IsChecked.Value)
+							valueUMIDITY = enumTEMPOption.dht11;
+						if (UMIDITY_DHT22.IsChecked.HasValue && UMIDITY_DHT22.IsChecked.Value)
+							valueUMIDITY = enumTEMPOption.dht22;
+
+						componente.Options = ((int)valueUMIDITY).ToString();
+
+						break;
+					case enumComponente.temperature:
 						componente.Enabled = (TEMP_ENABLED.IsChecked.HasValue) ? TEMP_ENABLED.IsChecked.Value : false;
 						componente.Stato = (componente.Enabled) ? enumStato.on : enumStato.off;
 						componente.Nome = TEMP_NOME.Text;
@@ -512,7 +564,7 @@ namespace RaspaCentral
 							return new RaspaResult(false, "Errore : Specificare un NODE NUM > 0");
 
 						// PIN NUM OBBLIGATORIO
-						int numP = Convert.ToInt32(componente.Node_Num);
+						int numP = Convert.ToInt32(componente.Node_Pin);
 						if (numP == 0)
 							return new RaspaResult(false, "Errore : Specificare un NODE PIN");
 
@@ -521,21 +573,40 @@ namespace RaspaCentral
 						if (ExistAltroNodePin)
 							return new RaspaResult(false, "Errore : Esiste già il Componente con NODO : " + componente.Node_Num + " e PIN " + componente.Node_Pin);
 						break;
-					case enumComponente.temperature:
 					case enumComponente.umidity:
-					case enumComponente.temperatureAndumidity:
+						// NODE NUM OBBLIGATORIO
+						int numU = Convert.ToInt32(componente.Node_Num);
+						if (numU == 0)
+							return new RaspaResult(false, "Errore : Specificare un NODE NUM > 0");
+
+						// PIN NUM OBBLIGATORIO
+						int numUP = Convert.ToInt32(componente.Node_Pin);
+						if (numUP == 0)
+							return new RaspaResult(false, "Errore : Specificare un NODE PIN");
+
+						// NoDE & PIN DOPPIO
+						bool ExistAltroNodePinU = DB.existAltroComponenteConStessoNodeNumAndPinEccettoTipo(componente.ID, componente.Node_Num, componente.Node_Pin, enumComponente.temperature);
+						if (ExistAltroNodePinU)
+							return new RaspaResult(false, "Errore : Esiste già il Componente con NODO : " + componente.Node_Num + " e PIN " + componente.Node_Pin);
+
+						// REPEAT deve specificare i minuti
+						if (UMIDITY_REPEAT.IsOn && (!UMIDITY_REPEAT_MINUTS.Value.HasValue || UMIDITY_REPEAT_MINUTS.Value.Value == 0))
+							return new RaspaResult(false, "Errore : Se specifichi un controllo ripetitivo devi specificare i minuti ogni quanto interrogare il rilevatore umidità ");
+
+						break;
+					case enumComponente.temperature:
 						// NODE NUM OBBLIGATORIO
 						int numT = Convert.ToInt32(componente.Node_Num);
 						if (numT == 0)
 							return new RaspaResult(false, "Errore : Specificare un NODE NUM > 0");
 
 						// PIN NUM OBBLIGATORIO
-						int numTP = Convert.ToInt32(componente.Node_Num);
+						int numTP = Convert.ToInt32(componente.Node_Pin);
 						if (numTP == 0)
 							return new RaspaResult(false, "Errore : Specificare un NODE PIN");
 
 						// NoDE & PIN DOPPIO
-						bool ExistAltroNodePinT = DB.existAltroComponenteConStessoNodeNumAndPin(componente.ID, componente.Node_Num, componente.Node_Pin);
+						bool ExistAltroNodePinT = DB.existAltroComponenteConStessoNodeNumAndPinEccettoTipo(componente.ID, componente.Node_Num, componente.Node_Pin, enumComponente.umidity);
 						if (ExistAltroNodePinT)
 							return new RaspaResult(false, "Errore : Esiste già il Componente con NODO : " + componente.Node_Num + " e PIN " + componente.Node_Pin);
 
@@ -711,9 +782,10 @@ namespace RaspaCentral
 							case enumComponente.push:
 								PUSH_IP.Text = recs[0].IPv4;
 								break;
-							case enumComponente.temperature:
 							case enumComponente.umidity:
-							case enumComponente.temperatureAndumidity:
+								UMIDITY_IP.Text = recs[0].IPv4;
+								break;
+							case enumComponente.temperature:
 								TEMP_IP.Text = recs[0].IPv4;
 								break;
 

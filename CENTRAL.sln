@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaCentral", ".\CENTRAL\RaspaCentral\RaspaCentral.csproj", "{E97E1300-5172-4779-86F6-700454A484C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaCentral", "CENTRAL\RaspaCentral\RaspaCentral.csproj", "{E97E1300-5172-4779-86F6-700454A484C1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LIB", "LIB", "{394FE13D-14D1-4CAC-B6DC-A54400910D7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaDB", ".\LIB\RaspaDB\RaspaDB.csproj", "{202EADEB-B7B8-41CA-B76A-154BEBAFCD98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaDB", "LIB\RaspaDB\RaspaDB.csproj", "{202EADEB-B7B8-41CA-B76A-154BEBAFCD98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaEntity", ".\LIB\RaspaEntity\RaspaEntity.csproj", "{F35CDA4B-2117-4A4F-B56E-297E5CD0B3FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaEntity", "LIB\RaspaEntity\RaspaEntity.csproj", "{F35CDA4B-2117-4A4F-B56E-297E5CD0B3FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaTools", ".\LIB\RaspaTools\RaspaTools.csproj", "{B47FB5DB-8814-4A24-90FB-4616D2BD824D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspaTools", "LIB\RaspaTools\RaspaTools.csproj", "{B47FB5DB-8814-4A24-90FB-4616D2BD824D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
