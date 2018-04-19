@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `SassoSec` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `SassoSec`;
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
 -- Host: 192.168.1.69    Database: SassoSec
@@ -26,14 +24,8 @@ DROP TABLE IF EXISTS `50_RULES`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `50_RULES` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `IDSubscription` int(11) NOT NULL,
-  `ValueSubscription` varchar(50) NOT NULL,
-  `NODE` int(11) NOT NULL,
-  `PIN` int(11) NOT NULL,
-  `COMANDO` int(11) NOT NULL,
-  `COMPONENTE` int(11) NOT NULL,
-  `Edge` int(11) NOT NULL,
-  `VALUE` varchar(50) NOT NULL,
+  `NOME` varchar(50) NOT NULL,
+  `DESCRIZIONE` varchar(255) NOT NULL,
   `UserIns` varchar(100) NOT NULL,
   `DataIns` datetime NOT NULL,
   `UserMod` varchar(100) NOT NULL,
@@ -48,8 +40,38 @@ CREATE TABLE `50_RULES` (
 
 LOCK TABLES `50_RULES` WRITE;
 /*!40000 ALTER TABLE `50_RULES` DISABLE KEYS */;
-INSERT INTO `50_RULES` VALUES (1,2,'2',1,26,4,1,0,'1','','0000-00-00 00:00:00','','0000-00-00 00:00:00');
+INSERT INTO `50_RULES` VALUES (1,'prova','bla bla','','0000-00-00 00:00:00','','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `50_RULES` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `51_RULES_ITEM`
+--
+
+DROP TABLE IF EXISTS `51_RULES_ITEM`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `51_RULES_ITEM` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `ID_RULE` int(11) NOT NULL,
+  `Tipo` int(11) NOT NULL,
+  `ID_Componente` int(11) NOT NULL,
+  `POS` int(11) NOT NULL,
+  `NOME` varchar(50) NOT NULL,
+  `Condizione` int(11) NOT NULL,
+  `Valore` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `51_RULES_ITEM`
+--
+
+LOCK TABLES `51_RULES_ITEM` WRITE;
+/*!40000 ALTER TABLE `51_RULES_ITEM` DISABLE KEYS */;
+INSERT INTO `51_RULES_ITEM` VALUES (1,1,0,5,1,'LUCE CANCELLO',1,NULL),(2,1,0,6,2,'PIR CANCELLO',4,'15000'),(3,1,1,5,3,'LUCE CANCELLO',0,NULL),(4,1,2,0,4,'',0,'5'),(5,1,1,5,5,'LUCE CANCELLO',1,NULL);
+/*!40000 ALTER TABLE `51_RULES_ITEM` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -96,6 +118,7 @@ CREATE TABLE `70_COMPONENTE` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Enabled` tinyint(4) NOT NULL,
   `Trusted` tinyint(1) NOT NULL,
+  `Stato` int(11) DEFAULT NULL,
   `IDComponenteTipo` int(11) NOT NULL,
   `Nome` varchar(50) NOT NULL,
   `HostName` varchar(100) DEFAULT NULL,
@@ -106,7 +129,9 @@ CREATE TABLE `70_COMPONENTE` (
   `PositionRight` double NOT NULL,
   `Node_Num` int(11) NOT NULL,
   `Node_Pin` int(11) NOT NULL,
-  `Value` varchar(255) NOT NULL,
+  `Value` varchar(255) DEFAULT NULL,
+  `repeat` tinyint(4) DEFAULT NULL,
+  `repeatTime_sec` int(11) DEFAULT NULL,
   `IPv4` varchar(20) DEFAULT NULL,
   `IPv6` varchar(50) DEFAULT NULL,
   `BlueTooth` varchar(45) DEFAULT NULL,
@@ -121,7 +146,7 @@ CREATE TABLE `70_COMPONENTE` (
   `UserMod` varchar(100) NOT NULL,
   `DataMod` datetime NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -130,7 +155,7 @@ CREATE TABLE `70_COMPONENTE` (
 
 LOCK TABLES `70_COMPONENTE` WRITE;
 /*!40000 ALTER TABLE `70_COMPONENTE` DISABLE KEYS */;
-INSERT INTO `70_COMPONENTE` VALUES (1,1,1,3,'NODO 2',NULL,'',385.0205078125,196.00863647460938,0,0,2,0,'','192.168.1.102','',NULL,'',NULL,NULL,NULL,NULL,'','Fabio','2018-03-16 23:25:18','Fabio','2018-03-25 16:42:43'),(2,1,1,3,'NODO 1','sasso_nodo_1','',324.00146484375,451.0157470703125,0,0,1,0,'','192.168.1.101','','','\0?u\0?8\0?\0f0\0?D\0/^\08?	\0','10.0.16299.309','1.0.0.0','Raspberry Pi 3','22745ab9-2f91-48f7-0201-cde4504d2038','','Fabio','2018-03-16 23:29:28','sasso_nodo_1','2018-03-27 14:17:58'),(3,1,1,4,'CENTRALE ','LAPTOP-6M48D644','',319.03466796875,229.0015869140625,0,0,1,0,'','192.168.1.10',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'','Fabio','2018-03-17 02:49:53','Fabio','2018-03-27 03:22:39'),(5,1,1,1,'LUCE CANCELLO','','',252.0283203125,467.9952392578125,0,0,1,26,'0','192.168.1.101','','','',NULL,NULL,NULL,NULL,'0','Fabio','2018-03-17 15:32:10','Fabio','2018-03-25 22:24:04'),(6,1,1,2,'PIR CANCELLO',NULL,'',293.02685546875,469.0177001953125,0,0,1,6,'1','192.168.1.101','','','',NULL,NULL,NULL,NULL,'0','Fabio','2018-03-17 15:39:19','Fabio','2018-03-26 22:42:23'),(7,1,1,1,'Luce Corridoio 1',NULL,'',410.00634765625,203.99581909179688,0,0,2,5,'0','192.168.1.102','',NULL,'',NULL,NULL,NULL,NULL,'0','Fabio','2018-03-17 17:56:12','Fabio','2018-03-25 16:17:45'),(18,1,1,2,'PIR ',NULL,'',333.02685546875,390.00787353515625,0,0,4,6,'0','192.168.1.104','',NULL,'',NULL,NULL,NULL,NULL,'0','Fabio','2018-03-19 13:50:27','Fabio','2018-03-25 15:59:55'),(19,1,1,5,'Ingresso Locale',NULL,'',376.01416015625,326.9992980957031,0,0,0,0,'http://192.168.1.2:88/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=admin&pwd=','192.168.1.2','',NULL,'',NULL,NULL,NULL,NULL,NULL,'Fabio','2018-03-24 03:57:39','Fabio','2018-03-24 18:52:08'),(20,1,1,5,'PORTA CASA',NULL,'',233.010986328125,200.00250244140625,0,0,0,0,'http://192.168.1.3:88/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=admin&pwd=','192.168.1.3','',NULL,'',NULL,NULL,NULL,NULL,'','Fabio','2018-03-24 04:21:15','Fabio','2018-03-25 16:00:15'),(26,1,1,3,'NODO 4',NULL,'',353.00634765625,338.01226806640625,0,0,4,0,'','192.168.1.104','',NULL,'',NULL,NULL,NULL,NULL,'','Fabio','2018-03-25 15:58:36','Fabio','2018-03-25 16:00:49'),(27,1,1,3,'NODE 5',NULL,'',97.0126953125,309.00543212890625,0,0,5,0,'','192.168.1.105','',NULL,'',NULL,NULL,NULL,NULL,'','Fabio','2018-03-25 16:10:55','Fabio','2018-03-25 16:42:23'),(28,1,1,1,'Luce Corridoio 2',NULL,'',446.0361328125,206.99331665039062,0,0,2,6,'0','192.168.1.102','',NULL,'',NULL,NULL,NULL,NULL,'0','Fabio','2018-03-25 16:14:39','Fabio','2018-03-25 16:17:38'),(29,1,1,1,'Luce Corridoio 3',NULL,'',480.02197265625,202.99456787109375,0,0,2,26,'0','192.168.1.102','',NULL,'',NULL,NULL,NULL,NULL,'0','Fabio','2018-03-25 16:20:29','Fabio','2018-03-25 16:20:38'),(30,1,1,1,'Luce ingresso Locale',NULL,'',313.010986328125,336,0,0,4,12,'0','192.168.1.104',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','Fabio','2018-03-25 16:43:36','Fabio','2018-03-25 16:43:36');
+INSERT INTO `70_COMPONENTE` VALUES (1,1,1,0,3,'NODO 2','','',356.03466796875,196.00473022460938,0,0,3,0,'',0,0,'192.168.1.102','','','','','','','','','Fabio','2018-03-16 23:25:18','Fabio','2018-04-14 02:01:30'),(2,1,1,NULL,3,'NODO 1','sasso_nodo_1','',400.030029296875,442.00628662109375,0,0,1,0,'',NULL,NULL,'192.168.1.101','','','\0R;\0L(\0w\0??\0o?\0Z&\0??	\0','10.0.16299.309','1.0.0.0','Raspberry Pi 3','22745ab9-2f91-48f7-0201-cde4504d2038','','Fabio','2018-03-16 23:29:28','sasso_nodo_1','2018-03-29 13:02:19'),(3,1,1,0,4,'CENTRALE ','LAPTOP-6M48D644','',307.032958984375,272.0330810546875,0,0,2,0,'',0,0,'192.168.1.10','','','\0?n\0/ \0f(\0%W\0f\0\0\0B,\0','10.0.16299.371','1.0.0.0','HP Pavilion Notebook','\0?n\0/ \0f(\0%W\0f\0\0\0B,\049\0??\0?\r\06	','','Fabio','2018-03-17 02:49:53','Fabio','2018-04-19 20:45:12'),(5,1,1,2,1,'LUCE CANCELLO','','',370.032958984375,429.0189208984375,0,0,1,26,'1',0,0,'192.168.1.101','','','','','','','','1','Fabio','2018-03-17 15:32:10','Fabio','2018-04-19 20:45:40'),(6,1,1,1,2,'PIR CANCELLO',NULL,'',365.02197265625,456.0189208984375,0,0,1,18,'2',0,0,'192.168.1.101','','','','','','','','1','Fabio','2018-03-17 15:39:19','Fabio','2018-04-19 20:45:44'),(7,1,1,NULL,1,'Luce Corridoio 1','','',383.018798828125,209.0299072265625,0,0,2,5,'1',NULL,NULL,'192.168.1.102','','','','','','','','0','Fabio','2018-03-17 17:56:12','Fabio','2018-03-28 22:49:07'),(18,1,1,0,2,'PIR ',NULL,'',274.0078125,406.00469970703125,0,0,4,6,'2',0,0,'192.168.1.104','','','','','','','','0','Fabio','2018-03-19 13:50:27','Fabio','2018-04-14 02:13:46'),(19,1,1,0,5,'Ingresso Locale',NULL,'',352.0125732421875,315.00628662109375,0,0,0,0,'http://192.168.1.2:88/cgi-bin/CGIProxy.fcgi?cmd=snapPicture2&usr=admin&pwd=',0,0,'192.168.1.2','','','','','','','','','Fabio','2018-03-24 03:57:39','Fabio','2018-04-08 21:34:41'),(20,1,1,0,5,'PORTA CASA','','',278.0361328125,202.0330810546875,0,0,0,0,'http://192.168.1.6/cgi-bin/videostream.cgi?user=admin&pwd=',0,0,'192.168.1.3','','','','','','','','','Fabio','2018-03-24 04:21:15','Fabio','2018-04-15 01:01:41'),(26,1,1,NULL,3,'NODO 4','','',131.031494140625,269.0157470703125,0,0,4,0,'',NULL,NULL,'192.168.1.104','','','','','','','','','Fabio','2018-03-25 15:58:36','Fabio','2018-03-28 14:03:45'),(27,1,1,NULL,3,'NODE 5','','',176.0283203125,335.0204772949219,0,0,5,0,'',NULL,NULL,'192.168.1.105','','','','','','','','','Fabio','2018-03-25 16:10:55','Fabio','2018-03-28 13:52:19'),(28,1,1,NULL,1,'Luce Corridoio 2',NULL,'',415.00634765625,207.0330810546875,0,0,2,6,'1',NULL,NULL,'192.168.1.102','','','','','','','','0','Fabio','2018-03-25 16:14:39','Fabio','2018-03-28 22:49:16'),(29,1,1,NULL,1,'Luce Corridoio 3','','',443.010986328125,207.02203369140625,0,0,2,26,'1',NULL,NULL,'192.168.1.102','','','','','','','','0','Fabio','2018-03-25 16:20:29','Fabio','2018-03-28 22:49:23'),(30,1,1,NULL,1,'Luce ingresso Locale',NULL,'',297.025146484375,339.017333984375,0,0,4,12,'1',NULL,NULL,'192.168.1.104','','','','','','','','0','Fabio','2018-03-25 16:43:36','Fabio','2018-03-28 22:48:18'),(31,1,1,1,7,'temperatura sala','','',320.02362060546875,298.00146484375,0,0,1,21,'23',1,300,'192.168.1.101','','','','','','','','1','Fabio','2018-04-06 09:17:51','Fabio','2018-04-19 20:36:24'),(32,1,1,0,3,'nodo 6',NULL,'',335.0078125,404.00946044921875,0,0,6,0,'',0,0,'192.168.1.106','','','','','','','','1','Fabio','2018-04-14 02:13:16','Fabio','2018-04-14 02:13:54'),(33,1,1,2,9,'cancello locale',NULL,'',303.02197265625,402.02520751953125,0,0,1,23,'',0,0,'192.168.1.101','','','','','','','','1','Fabio','2018-04-14 02:17:00','Fabio','2018-04-15 12:15:06'),(34,1,1,1,8,'umidità sala','','',383.17889404296875,289.6075744628906,0,0,1,21,'23,2',0,0,'192.168.1.101','','','','','','','','1','Fabio','2018-04-17 09:54:39','Fabio','2018-04-19 20:53:25');
 /*!40000 ALTER TABLE `70_COMPONENTE` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -201,4 +226,4 @@ ALTER DATABASE `SassoSec` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-27 14:19:33
+-- Dump completed on 2018-04-19 21:14:59
