@@ -189,8 +189,8 @@ namespace RaspaNode
 
 		internal GpioController GPIO;
 		internal Dictionary<int, GpioPin> PIN;
-		internal Dictionary<int, bool> PlatForm_events;
-		internal Dictionary<int, IPlatform> platform_Engine;
+		internal Dictionary<string, bool> PlatForm_events;
+		internal Dictionary<string, IPlatform> platform_Engine;
 
 
 		private RaspaResult INIT_GPIO()
@@ -209,8 +209,8 @@ namespace RaspaNode
 					return new RaspaResult(false, "There is no GPIO controller on this device.", "");
 
 				// INIT PIN_events
-				PlatForm_events = new Dictionary<int, bool>();
-				platform_Engine = new Dictionary<int, IPlatform>();
+				PlatForm_events = new Dictionary<string, bool>();
+				platform_Engine = new Dictionary<string, IPlatform>();
 
 
 				// INIT PIN
@@ -320,19 +320,19 @@ namespace RaspaNode
 			{
 				// Leggi node setting from node
 				RaspBerry client = new RaspBerry();
-				string IPv4 = client.GetLocalIPv4();
+				RaspaInfo info = client.GetRaspInfo();
 
 				nodo = new Componente();
-				nodo.HostName = client.GetHostName();
-				nodo.IPv4 = IPv4;
-				nodo.IPv6 = "";
-				nodo.HWAddress = client.GetHWAddress();
+				nodo.HostName = info.HostName;
+				nodo.IPv4 = info.Network_IPv4;
+				nodo.IPv6 = info.Network_IPv6;
+				nodo.HWAddress = info.Network_Serial;
 				nodo.BlueTooth = "";
-				nodo.OSVersion = client.GetOSVersion();
-				nodo.NodeSWVersion = client.GetRASPANodeVersion();
+				nodo.OSVersion = info.OSVersion;
+				nodo.NodeSWVersion = info.RaspaVersion;
 
-				nodo.SystemProductName = client.SystemProductName();
-				nodo.SystemID = client.GetHardwareID();
+				nodo.SystemProductName = info.Productname;
+				nodo.SystemID = info.HW_ID;
 			}
 			catch (Exception ex)
 			{

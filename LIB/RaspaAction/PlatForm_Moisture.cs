@@ -25,7 +25,7 @@ namespace RaspaAction
 		{
 		}
 
-		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<string, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(false, "NA");
 			try
@@ -50,6 +50,18 @@ namespace RaspaAction
 				// PIN
 				int PinNum = gpioPIN.PinNumber;
 
+				#region EVENTS
+				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
+				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
+				{
+					gpioPIN.ValueChanged -= PinIn_ValueChanged;
+					gpioPIN.ValueChanged += PinIn_ValueChanged;
+
+					// memorizzo che ho già impostato evento
+					EVENTS[chiave] = true;
+				}
+				#endregion
+
 
 				//-------------------
 				// SCEGLI AZIONE
@@ -61,7 +73,7 @@ namespace RaspaAction
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
 
 						// dispose sensor
-						notify.ActionNotify(Protocol, true, "Read Moisture", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.off, PinNum, new List<string>());
+						notify.ActionNotify(Protocol, true, "Read Moisture", enumSubribe.central, enumComponente.moisture, enumComando.notify, enumStato.off, PinNum, new List<string>());
 
 						break;
 					case enumStato.on:
@@ -70,19 +82,6 @@ namespace RaspaAction
 						Drive = gpioPIN.GetDriveMode();
 
 						gpioPIN.DebounceTimeout = TimeSpan.FromMilliseconds(50);
-
-						#region EVENTS
-						if (!EVENTS.ContainsKey(PinNum) || !EVENTS[PinNum])
-						{
-							gpioPIN.ValueChanged -= PinIn_ValueChanged;
-							gpioPIN.ValueChanged += PinIn_ValueChanged;
-
-							// memorizzo che ho già impostato evento
-							EVENTS[PinNum] = true;
-						}
-						#endregion
-
-
 						break;
 
 				}
@@ -104,7 +103,7 @@ namespace RaspaAction
 			if (gpioPIN.Read() == valoreON)
 			{
 				// need h2o
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signal, sender.PinNumber);
+				notify.ActionNotify(Protocol, true, "Moisture Change", enumSubribe.central, enumComponente.moisture, enumComando.notify, enumStato.signal, sender.PinNumber);
 
 				// SPEEK
 				if (Protocol != null)
@@ -115,7 +114,7 @@ namespace RaspaAction
 			}
 			else
 				// plat is ok
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
+				notify.ActionNotify(Protocol, true, "Moisture Change", enumSubribe.central, enumComponente.moisture, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
 
 		}
 

@@ -23,7 +23,7 @@ namespace RaspaAction
 		{
 		}
 
-		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<string, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(false, "NA");
 			try
@@ -49,13 +49,14 @@ namespace RaspaAction
 				int PinNum = gpioPIN.PinNumber;
 
 				#region EVENTS
-				if (!EVENTS.ContainsKey(PinNum) || !EVENTS[PinNum])
+				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
+				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
 				{
 					gpioPIN.ValueChanged -= GpioPIN_ValueChanged;
 					gpioPIN.ValueChanged += GpioPIN_ValueChanged;
 
 					// memorizzo che ho già impostato evento
-					EVENTS[PinNum] = true;
+					EVENTS[chiave] = true;
 				}
 				#endregion
 
@@ -64,6 +65,7 @@ namespace RaspaAction
 				//-------------------
 				switch (Protocol.Azione)
 				{
+					case enumStato.nessuno:
 					case enumStato.on:
 						// Check if input pull-up resistors are supported
 						// are supported if button have resitor embedded

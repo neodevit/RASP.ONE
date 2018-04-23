@@ -111,7 +111,7 @@ namespace RaspaEntity
 		public Decimal? getUmidity()
 		{
 			Decimal? res = null;
-			if ((Value != null && Value.Count > 1))
+			if ((Value != null && Value.Count > 0))
 				res = GetValueDecimal(0);
 			return res;
 		}

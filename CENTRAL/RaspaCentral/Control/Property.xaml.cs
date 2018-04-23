@@ -150,6 +150,40 @@ namespace RaspaCentral
 						PUSH_PIN.SelectedValue = componente.Node_Pin;
 
 						break;
+					case enumComponente.bell:
+						ToolbarPropertyShow(componente.Tipo);
+
+						BELL_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
+						BELL_ENABLED.IsChecked = componente.Enabled;
+						BELL_NOME.Text = componente.Nome ?? "";
+						BELL_IP.Text = componente.IPv4 ?? "";
+						BELL_DESCRIZIONE.Text = componente.Descrizione ?? "";
+
+						// LOAD COMBO
+						initPropertyComboNodes(BELL_NODO);
+						initPropertyComboPIN(BELL_PIN);
+
+						// NODE NUM
+						BELL_NODO.SelectedValue = componente.Node_Num;
+						BELL_PIN.SelectedValue = componente.Node_Pin;
+						break;
+					case enumComponente.moisture:
+						ToolbarPropertyShow(componente.Tipo);
+
+						MOISTURE_ID.Text = (componente.ID.HasValue) ? componente.ID.Value.ToString() : "-";
+						MOISTURE_ENABLED.IsChecked = componente.Enabled;
+						MOISTURE_NOME.Text = componente.Nome ?? "";
+						MOISTURE_IP.Text = componente.IPv4 ?? "";
+						MOISTURE_DESCRIZIONE.Text = componente.Descrizione ?? "";
+
+						// LOAD COMBO
+						initPropertyComboNodes(MOISTURE_NODO);
+						initPropertyComboPIN(MOISTURE_PIN);
+
+						// NODE NUM
+						MOISTURE_NODO.SelectedValue = componente.Node_Num;
+						MOISTURE_PIN.SelectedValue = componente.Node_Pin;
+						break;
 					case enumComponente.umidity:
 						ToolbarPropertyShow(componente.Tipo);
 
@@ -251,6 +285,8 @@ namespace RaspaCentral
 			TEMP_Property.Visibility = Visibility.Collapsed;
 			UMIDITY_Property.Visibility = Visibility.Collapsed;
 			PUSH_Property.Visibility = Visibility.Collapsed;
+			BELL_Property.Visibility = Visibility.Collapsed;
+			MOISTURE_Property.Visibility = Visibility.Collapsed;
 			switch (show)
 			{
 				case enumComponente.nodo:
@@ -267,6 +303,12 @@ namespace RaspaCentral
 					break;
 				case enumComponente.push:
 					PUSH_Property.Visibility = Visibility.Visible;
+					break;
+				case enumComponente.bell:
+					BELL_Property.Visibility = Visibility.Visible;
+					break;
+				case enumComponente.moisture:
+					MOISTURE_Property.Visibility = Visibility.Visible;
 					break;
 				case enumComponente.webcam_ip:
 					WEBCAM_Property.Visibility = Visibility.Visible;
@@ -423,7 +465,22 @@ namespace RaspaCentral
 						componente.Node_Pin = Convert.ToInt32(PUSH_PIN.SelectedValue);
 
 						break;
-
+					case enumComponente.bell:
+						componente.Enabled = (BELL_ENABLED.IsChecked.HasValue) ? BELL_ENABLED.IsChecked.Value : false;
+						componente.Nome = BELL_NOME.Text;
+						componente.IPv4 = BELL_IP.Text;
+						componente.Descrizione = BELL_DESCRIZIONE.Text;
+						componente.Node_Num = Convert.ToInt32(BELL_NODO.SelectedValue);
+						componente.Node_Pin = Convert.ToInt32(BELL_PIN.SelectedValue);
+						break;
+					case enumComponente.moisture:
+						componente.Enabled = (MOISTURE_ENABLED.IsChecked.HasValue) ? MOISTURE_ENABLED.IsChecked.Value : false;
+						componente.Nome = MOISTURE_NOME.Text;
+						componente.IPv4 = MOISTURE_IP.Text;
+						componente.Descrizione = MOISTURE_DESCRIZIONE.Text;
+						componente.Node_Num = Convert.ToInt32(MOISTURE_NODO.SelectedValue);
+						componente.Node_Pin = Convert.ToInt32(MOISTURE_PIN.SelectedValue);
+						break;
 					case enumComponente.umidity:
 						componente.Enabled = (UMIDITY_ENABLED.IsChecked.HasValue) ? UMIDITY_ENABLED.IsChecked.Value : false;
 						componente.Stato = (componente.Enabled) ? enumStato.on : enumStato.off;
@@ -558,6 +615,8 @@ namespace RaspaCentral
 					case enumComponente.pir:
 					case enumComponente.light:
 					case enumComponente.push:
+					case enumComponente.moisture:
+					case enumComponente.bell:
 						// NODE NUM OBBLIGATORIO
 						int numN = Convert.ToInt32(componente.Node_Num);
 						if (numN == 0)
@@ -781,6 +840,12 @@ namespace RaspaCentral
 								break;
 							case enumComponente.push:
 								PUSH_IP.Text = recs[0].IPv4;
+								break;
+							case enumComponente.bell:
+								BELL_IP.Text = recs[0].IPv4;
+								break;
+							case enumComponente.moisture:
+								MOISTURE_IP.Text = recs[0].IPv4;
 								break;
 							case enumComponente.umidity:
 								UMIDITY_IP.Text = recs[0].IPv4;

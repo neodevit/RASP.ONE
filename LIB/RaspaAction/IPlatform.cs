@@ -11,6 +11,6 @@ namespace RaspaAction
 {
 	public interface IPlatform
 	{
-		RaspaResult RUN(MQTT mqtt, GpioPin gpioPIN, Dictionary<int, bool> EVENTS, RaspaProtocol protocol);
+		RaspaResult RUN(MQTT mqtt, GpioPin gpioPIN, Dictionary<string, bool> EVENTS, RaspaProtocol protocol);
 	}
 }

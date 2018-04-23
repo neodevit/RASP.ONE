@@ -26,7 +26,7 @@ namespace RaspaAction
 		{
 		}
 
-		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<int, bool> EVENTS,RaspaProtocol protocol)
+		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<string, bool> EVENTS,RaspaProtocol protocol)
 		{
 			RaspaResult res = new RaspaResult(true, "");
 			try
@@ -67,13 +67,14 @@ namespace RaspaAction
 				}
 				#endregion
 				#region EVENTS
-				if (!EVENTS.ContainsKey(PinNum) || !EVENTS[PinNum])
+				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
+				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
 				{
 					gpioPIN.ValueChanged -= Light_ValueChanged;
 					gpioPIN.ValueChanged += Light_ValueChanged;
 
 					// memorizzo che ho già impostato evento
-					EVENTS[PinNum] = true;
+					EVENTS[chiave] = true;
 				}
 				#endregion
 

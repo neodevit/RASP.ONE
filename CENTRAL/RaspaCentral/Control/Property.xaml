@@ -142,7 +142,7 @@
             <RadioButton x:Name="UMIDITY_DHT11" Content="DHT 11" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="125,269,-125,-269"/>
             <RadioButton x:Name="UMIDITY_DHT22" Content="DHT 22" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="120" Margin="255,269,-255,-269"/>
         </RelativePanel>
-        <RelativePanel x:Name="PUSH_Property" Visibility="Visible" Margin="0,0,0,50">
+        <RelativePanel x:Name="PUSH_Property" Visibility="Collapsed" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_button_push.png" Opacity="0.5" Margin="185,5,-65,230" />
             <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" Text="PUSH BUTTON" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
             <TextBlock Margin="16,42,0,0" Text="ID" />
@@ -159,6 +159,42 @@
             <TextBlock x:Name="PUSH_IP" Text="..." Margin="240,156,-238,-156" />
             <TextBlock HorizontalAlignment="Left" Margin="15,241,0,-37" Text="DESCRIPTION" VerticalAlignment="Top"/>
             <TextBox x:Name="PUSH_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,265,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="175"/>
+        </RelativePanel>
+        <RelativePanel x:Name="BELL_Property" Visibility="Visible" Margin="0,0,0,50">
+            <Image Source="ms-appx:///Assets/categ_bell.png" Opacity="0.5" Margin="185,5,-65,230" />
+            <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" Text="BELL" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
+            <TextBlock Margin="16,42,0,0" Text="ID" />
+            <TextBox x:Name="BELL_ID" IsEnabled="False" Margin="125,36,0,19" Text="..." />
+            <TextBlock HorizontalAlignment="Left" Margin="16,75,0,-4" Text="ENABLED" VerticalAlignment="Top"/>
+            <CheckBox x:Name="BELL_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
+            <TextBlock HorizontalAlignment="Left" Margin="16,110,0,-4" Text="NAME" VerticalAlignment="Top"/>
+            <TextBox x:Name="BELL_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
+            <TextBlock Text="NODE" Margin="17,156,-17,-158"  />
+            <ComboBox x:Name="BELL_NODO" HorizontalAlignment="Left" Margin="125,151,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,199,-1,0" Text="PIN" VerticalAlignment="Top"/>
+            <ComboBox x:Name="BELL_PIN" HorizontalAlignment="Left" Margin="126,194,-1,0" VerticalAlignment="Top"/>
+            <TextBlock Text="IP" Margin="215,156,-214,-156" />
+            <TextBlock x:Name="BELL_IP" Text="..." Margin="240,156,-238,-156" />
+            <TextBlock HorizontalAlignment="Left" Margin="15,241,0,-37" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="BELL_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,265,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="175"/>
+        </RelativePanel>
+        <RelativePanel x:Name="MOISTURE_Property" Visibility="Collapsed" Margin="0,0,0,50">
+            <Image Source="ms-appx:///Assets/categ_moisture.png" Opacity="0.5" Margin="185,5,-65,230" />
+            <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" Text="MOISTURE" VerticalAlignment="Top" Width="400" TextAlignment="Center" FontWeight="Bold" FontSize="14"/>
+            <TextBlock Margin="16,42,0,0" Text="ID" />
+            <TextBox x:Name="MOISTURE_ID" IsEnabled="False" Margin="125,36,0,19" Text="..." />
+            <TextBlock HorizontalAlignment="Left" Margin="16,75,0,-4" Text="ENABLED" VerticalAlignment="Top"/>
+            <CheckBox x:Name="MOISTURE_ENABLED" HorizontalAlignment="Left" Margin="125,71,0,0" Content=""  VerticalAlignment="Top"/>
+            <TextBlock HorizontalAlignment="Left" Margin="16,110,0,-4" Text="NAME" VerticalAlignment="Top"/>
+            <TextBox x:Name="MOISTURE_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
+            <TextBlock Text="NODE" Margin="17,156,-17,-158"  />
+            <ComboBox x:Name="MOISTURE_NODO" HorizontalAlignment="Left" Margin="125,151,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
+            <TextBlock HorizontalAlignment="Left" Margin="17,199,-1,0" Text="PIN" VerticalAlignment="Top"/>
+            <ComboBox x:Name="MOISTURE_PIN" HorizontalAlignment="Left" Margin="126,194,-1,0" VerticalAlignment="Top"/>
+            <TextBlock Text="IP" Margin="215,156,-214,-156" />
+            <TextBlock x:Name="MOISTURE_IP" Text="..." Margin="240,156,-238,-156" />
+            <TextBlock HorizontalAlignment="Left" Margin="15,241,0,-37" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="MOISTURE_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,265,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="175"/>
         </RelativePanel>
 
         <RelativePanel x:Name="WEBCAM_Property" Visibility="Collapsed"  Margin="0,0,0,50">

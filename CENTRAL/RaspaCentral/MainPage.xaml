@@ -42,23 +42,12 @@
                     <!--TOOLBAR-->
                 <RelativePanel x:Name="ToolBar" Margin="631,1,0,39">
 
-                        <Image Width="32" Height="32" Source="Assets/light_on.png" Margin="20,0,-20,0" />
-                        <Image Width="32" Height="32" Source="Assets/textfield.png" Margin="60,0,-60,0" />
-                        
-                        <Image Width="32" Height="32" Source="Assets/chart_organisation.png" Margin="204,0,-204,0" />
-                        <Image Width="32" Height="32" Source="Assets/respberry_scheda.png" Margin="246,0,-246,0" />
-
-                        <Image Width="32" Height="32" Source="Assets/find.png" Margin="390,0,-390,0" />
-                        <Image Width="32" Height="32" Source="Assets/report.png" Margin="426,0,-426,0" />
-
-                        <Image Width="32" Height="32" Source="Assets/information.png" Margin="552,0,-552,0" />
-                        <Image Width="32" Height="32" Source="Assets/help.png" Margin="590,0,-590,0" />
                     <!--HELP-->
                     <RelativePanel x:Name="ToolBarHelp" Visibility="Collapsed" HorizontalAlignment="Left"  >
                     </RelativePanel>
 
                     <!--COMPONENTI-->
-                    <RelativePanel x:Name="ToolbarComponenti" Visibility="Collapsed" Width="550" Margin="70,88,-70,-88" >
+                    <RelativePanel x:Name="ToolbarComponenti" Visibility="Visible" Width="550" Margin="70,16,-70,-16" >
                         <Grid>
                             <TextBlock HorizontalAlignment="Left" Margin="65,38,0,345" Text="Luce" TextWrapping="Wrap" />
                             <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="47,41,424,387" Source="/Assets/light_off.png" 
@@ -70,27 +59,42 @@
                                     Width="16" Height="16"  />
 
                             <TextBlock HorizontalAlignment="Left"  Text="WEBCAM IP" TextWrapping="Wrap" Margin="203,38,0,330" />
-                            <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam.png" 
+                            <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam_on.png" 
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16" Margin="182,41,287,387"  />
 
                             <TextBlock HorizontalAlignment="Left"  Text="TEMPERATURE" TextWrapping="Wrap" Margin="203,68,0,300" />
-                            <Image x:Name="toolbar_temperature" Tag="RASP.ONE_7"  Source="/Assets/temp3.png" 
+                            <Image x:Name="toolbar_temperature" Tag="RASP.ONE_7"  Source="/Assets/temp_3.png" 
                                 CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                 Width="16" Height="16" Margin="183,71,288,357"  />
 
-                            <TextBlock HorizontalAlignment="Left"  Text="PUSH BUTTON" TextWrapping="Wrap" Margin="203,96,0,272" />
-                            <Image x:Name="toolbar_push_on" Tag="RASP.ONE_10"  Source="/Assets/button_push.png" 
+                            <TextBlock HorizontalAlignment="Left"  Text="UMIDITY" TextWrapping="Wrap" Margin="203,98,0,270" />
+                            <Image x:Name="toolbar_umidity" Tag="RASP.ONE_8"  Source="/Assets/umidity_3.png" 
                             CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                            Width="16" Height="16" Margin="183,97,288,331"  />
+                            Width="16" Height="16" Margin="183,101,288,327"  />
 
-                            <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="349,42,122,386" Source="Assets/raspberry.png" 
+                                <TextBlock HorizontalAlignment="Left"  Text="MOISTURE" TextWrapping="Wrap" Margin="203,124,0,244" />
+                                <Image x:Name="toolbar_moisture" Tag="RASP.ONE_11"  Source="/Assets/moisture_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="16" Height="16" Margin="183,127,288,301"  />
+
+                                <TextBlock HorizontalAlignment="Left"  Text="PUSH BUTTON" TextWrapping="Wrap" Margin="65,124,0,244" />
+                            <Image x:Name="toolbar_push" Tag="RASP.ONE_9"  Source="/Assets/push_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="16" Height="16" Margin="47,127,424,301"  />
+
+                            <TextBlock HorizontalAlignment="Left"  Text="BELL" TextWrapping="Wrap" Margin="65,96,0,272" />
+                            <Image x:Name="toolbar_bell" Tag="RASP.ONE_10"  Source="/Assets/bell_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="16" Height="16" Margin="47,99,424,329"  />
+
+                                <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
+                            <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="349,42,122,386" Source="Assets/raspberry_on.png" 
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16"  />
 
                             <TextBlock HorizontalAlignment="Left" Margin="368,65,0,320" Text="CENTRALE" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="347,68,121,360" Source="Assets/central.png" 
+                            <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="347,68,121,360" Source="Assets/central_on.png" 
                                     CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
                                     Width="16" Height="16"  />
 

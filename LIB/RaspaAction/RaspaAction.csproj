@@ -111,6 +111,7 @@
     <Compile Include="PlatformNotify.cs" />
     <Compile Include="PlatForm_Moisture.cs" />
     <Compile Include="PlatForm_Push.cs" />
+    <Compile Include="PlatForm_Umidity.cs" />
     <Compile Include="PlatForm_Temperature.cs" />
     <Compile Include="PlatForm_PIR.cs" />
     <Compile Include="PlatForm_Light.cs" />

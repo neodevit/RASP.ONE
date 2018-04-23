@@ -935,29 +935,78 @@ namespace RaspaDB
 		{
 			RaspaResult res = new RaspaResult(0);
 			Componente nodo = null;
+			MySqlConnection conn = null;
+			MySqlTransaction trans = null;
 			try
 			{
 				if (value == null)
 					return new RaspaResult(false, "oggetto non impostato");
 
+				// TRANS
+				// TRANSACTION START
+				conn = new MySqlConnection(GetConnectionString());
+				if (conn.State != ConnectionState.Open)
+					conn.Open();
+				trans = conn.BeginTransaction(IsolationLevel.Serializable);
+
+				// SAVE COMPINENTE
 				if (value.ID.HasValue)
 					nodo = GetComponenteByID(value.ID.Value);
 				if (nodo == null)
-					res = InsComponenti(value, Utente);
+					res = InsComponenti(value, Utente,conn,trans);
 				else
-					res = ModComponenti(value, Utente);
+					res = ModComponenti(value, Utente,conn,trans);
+
+				// se fallisce esco
+				if (!res.Esito)
+					return res;
+
+				// se manca ID componente esco
+				if (!res.ID.HasValue)
+				{
+					res.Esito = false;
+					res.Message += "- Non determino ID componente";
+					return res;
+				}
+
+				// aggiorno ip di tutti i componenti legati a quel nodo
+				if (value.Tipo == enumComponente.nodo)
+				{
+					res = ModComponentiChangeNodeIP(res.ID.Value,value.Node_Num, value.IPv4, Utente,conn,trans);
+					if (!res.Esito)
+						return res;
+				}
 			}
 			catch (Exception ex)
 			{
 				res = new RaspaResult(false, enumLevel.error, ex.Message);
 				if (Debugger.IsAttached) Debugger.Break();
 				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+				if (trans != null)
+					trans.Rollback();
+			}
+			finally
+			{
+				if (trans != null)
+				{
+					if (res.Esito)
+						trans.Commit();
+					else
+						trans.Rollback();
+					trans.Dispose();
+				}
+				if (conn != null)
+				{
+					conn.Close();
+					conn.Dispose();
+				}
 			}
 			return res;
 		}
-		public RaspaResult InsComponenti(Componente value, string Utente)
+		public RaspaResult InsComponenti(Componente value, string Utente, MySqlConnection conn = null, MySqlTransaction trans = null)
 		{
 			RaspaResult res = new RaspaResult(false);
+            MySqlConnection mySqlConnection = null;
 			try
 			{
 				string sql = "";
@@ -967,72 +1016,91 @@ namespace RaspaDB
 				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@Stato,@repeat,@repeatTime_sec,@HostName,@OSVersion,@NodeSWVersion,@SystemProductName,@SystemID,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@BlueTooth,@Options,@Utente,NOW(),@Utente,NOW());";
 				sql += " select LAST_INSERT_ID() as ID;";
 
-				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				if (conn != null)
+					mySqlConnection = conn;
+				else
+					mySqlConnection = new MySqlConnection(GetConnectionString());
+
+				using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
 				{
-					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
-					{
-						mySqlCommand.CommandText = sql;
-						mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
-						mySqlCommand.Parameters.AddWithValue("@Trusted", value.Enabled);
-						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
+					mySqlCommand.CommandText = sql;
+					mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
+					mySqlCommand.Parameters.AddWithValue("@Trusted", value.Enabled);
+					mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
 
-						mySqlCommand.Parameters.AddWithValue("@Stato", value.Stato);
-						mySqlCommand.Parameters.AddWithValue("@repeat", value.repeat);
-						mySqlCommand.Parameters.AddWithValue("@repeatTime_sec", value.repeatTime.totaleSS);
+					mySqlCommand.Parameters.AddWithValue("@Stato", value.Stato);
+					mySqlCommand.Parameters.AddWithValue("@repeat", value.repeat);
+					mySqlCommand.Parameters.AddWithValue("@repeatTime_sec", value.repeatTime.totaleSS);
 
-						mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
-						mySqlCommand.Parameters.AddWithValue("@OSVersion", value.OSVersion);
-						mySqlCommand.Parameters.AddWithValue("@NodeSWVersion", value.NodeSWVersion);
-						mySqlCommand.Parameters.AddWithValue("@SystemProductName", value.SystemProductName);
-						mySqlCommand.Parameters.AddWithValue("@SystemID", value.SystemID);
-						
-						mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
-						mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
+					mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
+					mySqlCommand.Parameters.AddWithValue("@OSVersion", value.OSVersion);
+					mySqlCommand.Parameters.AddWithValue("@NodeSWVersion", value.NodeSWVersion);
+					mySqlCommand.Parameters.AddWithValue("@SystemProductName", value.SystemProductName);
+					mySqlCommand.Parameters.AddWithValue("@SystemID", value.SystemID);
 
-						mySqlCommand.Parameters.AddWithValue("@PositionLeft", value.PositionLeft);
-						mySqlCommand.Parameters.AddWithValue("@PositionTop", value.PositionTop);
-						mySqlCommand.Parameters.AddWithValue("@PositionBottom", value.PositionBottom);
-						mySqlCommand.Parameters.AddWithValue("@PositionRight", value.PositionRight);
+					mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
+					mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
 
-						mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
-						mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
-						mySqlCommand.Parameters.AddWithValue("@Value", value.ValueFor_writeDB());
+					mySqlCommand.Parameters.AddWithValue("@PositionLeft", value.PositionLeft);
+					mySqlCommand.Parameters.AddWithValue("@PositionTop", value.PositionTop);
+					mySqlCommand.Parameters.AddWithValue("@PositionBottom", value.PositionBottom);
+					mySqlCommand.Parameters.AddWithValue("@PositionRight", value.PositionRight);
 
-						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
-						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
-						mySqlCommand.Parameters.AddWithValue("@HWAddress", value.IPv6);
-						mySqlCommand.Parameters.AddWithValue("@BlueTooth", value.BlueTooth);
-						
-						mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
+					mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
+					mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
+					mySqlCommand.Parameters.AddWithValue("@Value", value.ValueFor_writeDB());
 
-						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+					mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
+					mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
+					mySqlCommand.Parameters.AddWithValue("@HWAddress", value.IPv6);
+					mySqlCommand.Parameters.AddWithValue("@BlueTooth", value.BlueTooth);
+
+					mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
+
+					mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+
+					if (trans != null)
+						mySqlCommand.Transaction = trans;
+
+					if (conn.State == ConnectionState.Closed)
 						mySqlCommand.Connection.Open();
 
-						using (MySqlDataReader reader = mySqlCommand.ExecuteReader())
+					using (MySqlDataReader reader = mySqlCommand.ExecuteReader())
+					{
+						if (reader.HasRows)
 						{
-							if (reader.HasRows)
-							{
-								reader.Read();
-								int ID = reader.GetInt32("ID");
-								res = new RaspaResult(true, "Inserimento COMPONENTI " + ID + "eseguito con successo");
-								res.ID = ID;
-								value.ID = ID;
-							}
+							reader.Read();
+							int ID = reader.GetInt32("ID");
+							res = new RaspaResult(true, "Inserimento COMPONENTI " + ID + "eseguito con successo");
+							res.ID = ID;
+							value.ID = ID;
 						}
 					}
 				}
+				
 			}
 			catch (Exception ex)
 			{
 				if (Debugger.IsAttached) Debugger.Break();
 				res = new RaspaResult(false, enumLevel.error, ex.Message);
 				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+				if (trans != null)
+					trans.Rollback();
+			}
+			finally
+			{
+				if (trans == null && conn != null)
+				{
+					conn.Close();
+					conn.Dispose();
+				}
 			}
 			return res;
 		}
-		public RaspaResult ModComponenti(Componente value, string Utente)
+		public RaspaResult ModComponenti(Componente value, string Utente, MySqlConnection conn = null, MySqlTransaction trans = null)
 		{
 			RaspaResult res = new RaspaResult(false);
+            MySqlConnection mySqlConnection = null;
 			try
 			{
 				if (!value.ID.HasValue)
@@ -1078,50 +1146,58 @@ namespace RaspaDB
 				sql += "    ,`DataMod` = NOW()";
 				sql += " WHERE `ID` = @ID;";
 
-				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				if (conn != null)
+					mySqlConnection = conn;
+				else
+					mySqlConnection = new MySqlConnection(GetConnectionString());
+
+				using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
 				{
-					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
-					{
-						mySqlCommand.CommandText = sql;
-						mySqlCommand.Parameters.AddWithValue("@ID", value.ID.Value);
-						mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
-						mySqlCommand.Parameters.AddWithValue("@Trusted", value.Trusted);
-						mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
+					mySqlCommand.CommandText = sql;
+					mySqlCommand.Parameters.AddWithValue("@ID", value.ID.Value);
+					mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
+					mySqlCommand.Parameters.AddWithValue("@Trusted", value.Trusted);
+					mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
 
-						mySqlCommand.Parameters.AddWithValue("@Stato", value.Stato);
-						mySqlCommand.Parameters.AddWithValue("@repeat", value.repeat);
-						mySqlCommand.Parameters.AddWithValue("@repeatTime_sec", value.repeatTime.totaleSS);
+					mySqlCommand.Parameters.AddWithValue("@Stato", value.Stato);
+					mySqlCommand.Parameters.AddWithValue("@repeat", value.repeat);
+					mySqlCommand.Parameters.AddWithValue("@repeatTime_sec", value.repeatTime.totaleSS);
 
-						mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
-						mySqlCommand.Parameters.AddWithValue("@OSVersion", value.OSVersion);
-						mySqlCommand.Parameters.AddWithValue("@NodeSWVersion", value.NodeSWVersion);
-						mySqlCommand.Parameters.AddWithValue("@SystemProductName", value.SystemProductName);
-						mySqlCommand.Parameters.AddWithValue("@SystemID", value.SystemID);
-						
-						mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
-						mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
+					mySqlCommand.Parameters.AddWithValue("@HostName", value.HostName);
+					mySqlCommand.Parameters.AddWithValue("@OSVersion", value.OSVersion);
+					mySqlCommand.Parameters.AddWithValue("@NodeSWVersion", value.NodeSWVersion);
+					mySqlCommand.Parameters.AddWithValue("@SystemProductName", value.SystemProductName);
+					mySqlCommand.Parameters.AddWithValue("@SystemID", value.SystemID);
 
-						mySqlCommand.Parameters.AddWithValue("@PositionLeft", value.PositionLeft);
-						mySqlCommand.Parameters.AddWithValue("@PositionTop", value.PositionTop);
-						mySqlCommand.Parameters.AddWithValue("@PositionBottom", value.PositionBottom);
-						mySqlCommand.Parameters.AddWithValue("@PositionRight", value.PositionRight);
+					mySqlCommand.Parameters.AddWithValue("@Nome", value.Nome);
+					mySqlCommand.Parameters.AddWithValue("@Descrizione", value.Descrizione);
 
-						mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
-						mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
-						mySqlCommand.Parameters.AddWithValue("@Value", value.ValueFor_writeDB());
+					mySqlCommand.Parameters.AddWithValue("@PositionLeft", value.PositionLeft);
+					mySqlCommand.Parameters.AddWithValue("@PositionTop", value.PositionTop);
+					mySqlCommand.Parameters.AddWithValue("@PositionBottom", value.PositionBottom);
+					mySqlCommand.Parameters.AddWithValue("@PositionRight", value.PositionRight);
 
-						mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
-						mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
-						mySqlCommand.Parameters.AddWithValue("@HWAddress", value.HWAddress);
-						mySqlCommand.Parameters.AddWithValue("@BlueTooth", value.BlueTooth);
-						
-						mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
+					mySqlCommand.Parameters.AddWithValue("@Node_Num", value.Node_Num);
+					mySqlCommand.Parameters.AddWithValue("@Node_Pin", value.Node_Pin);
+					mySqlCommand.Parameters.AddWithValue("@Value", value.ValueFor_writeDB());
 
-						mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+					mySqlCommand.Parameters.AddWithValue("@IPv4", value.IPv4);
+					mySqlCommand.Parameters.AddWithValue("@IPv6", value.IPv6);
+					mySqlCommand.Parameters.AddWithValue("@HWAddress", value.HWAddress);
+					mySqlCommand.Parameters.AddWithValue("@BlueTooth", value.BlueTooth);
+
+					mySqlCommand.Parameters.AddWithValue("@Options", value.Options);
+
+					mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+
+					if (trans != null)
+						mySqlCommand.Transaction = trans;
+
+					if (conn.State == ConnectionState.Closed)
 						mySqlCommand.Connection.Open();
-						mySqlCommand.ExecuteNonQuery();
-					}
+					mySqlCommand.ExecuteNonQuery();
 				}
+				
 
 				res = new RaspaResult(true, "Update COMPONENTI ID " + value.ID.Value + "Eseguito");
 				res.ID = value.ID;
@@ -1131,9 +1207,78 @@ namespace RaspaDB
 				if (Debugger.IsAttached) Debugger.Break();
 				res = new RaspaResult(false, enumLevel.error, ex.Message);
 				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+				if (trans != null)
+					trans.Rollback();
+			}
+			finally
+			{
+				if (trans == null && conn != null)
+				{
+					conn.Close();
+					conn.Dispose();
+				}
 			}
 			return res;
 		}
+		public RaspaResult ModComponentiChangeNodeIP(int idNodo,int Node_Num, string IPv4, string Utente, MySqlConnection conn = null, MySqlTransaction trans = null)
+		{
+			RaspaResult res = new RaspaResult(false);
+            MySqlConnection mySqlConnection = null;
+			try
+			{
+
+				string sql = "";
+				sql += "UPDATE `70_COMPONENTE`";
+				sql += " SET `IPv4` = @IPv4";
+				sql += "    ,`UserMod` = @Utente";
+				sql += "    ,`DataMod` = NOW()";
+				sql += " WHERE `Node_Num` = @Node_Num";
+				sql += " AND `IDComponenteTipo` <> @IDComponenteTipo";
+
+				if (conn != null)
+					mySqlConnection = conn;
+				else
+					mySqlConnection = new MySqlConnection(GetConnectionString());
+				using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+				{
+					mySqlCommand.CommandText = sql;
+					mySqlCommand.Parameters.AddWithValue("@Node_Num", Node_Num);
+					mySqlCommand.Parameters.AddWithValue("@IPv4", IPv4);
+					mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)enumComponente.nodo);
+					mySqlCommand.Parameters.AddWithValue("@Utente", Utente);
+
+					if (trans != null)
+						mySqlCommand.Transaction = trans;
+
+					if (conn.State == ConnectionState.Closed)
+						mySqlCommand.Connection.Open();
+					mySqlCommand.ExecuteNonQuery();
+				}
+				
+
+				res = new RaspaResult(true, "Update VALUE COMPONENTI nodenum " + Node_Num + "Eseguito");
+				res.ID = idNodo;
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				res = new RaspaResult(false, enumLevel.error, ex.Message);
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+				if (trans != null)
+					trans.Rollback();
+			}
+			finally
+			{
+				if (trans == null && conn != null)
+				{
+					conn.Close();
+					conn.Dispose();
+				}
+			}
+			return res;
+		}
+
+
 		public RaspaResult ModComponentiValue(int ID,string Value, string Utente)
 		{
 			RaspaResult res = new RaspaResult(false);

@@ -24,11 +24,11 @@ namespace RaspaAction
 		MQTT mqTT = null;
 
 		Dictionary<int,GpioPin> PIN = null;
-		Dictionary<int,bool> platform_EVENTS = null;
-		Dictionary<int,IPlatform> platform_Engine = null;
+		Dictionary<string,bool> platform_EVENTS = null;
+		Dictionary<string,IPlatform> platform_Engine = null;
 		IPlatform Platform = null;
 
-		public Azione(MQTT mqtt,GpioController gpio, Dictionary<int, GpioPin> pin, Dictionary<int, IPlatform> platform_engine, Dictionary<int, bool> platform_events)
+		public Azione(MQTT mqtt,GpioController gpio, Dictionary<int, GpioPin> pin, Dictionary<string, IPlatform> platform_engine, Dictionary<string, bool> platform_events)
 		{
 			// ASSIGN
 			GPIO = gpio;
@@ -58,10 +58,16 @@ namespace RaspaAction
 				if (PIN == null || !PIN.ContainsKey(pin))
 					return;
 
+				// calcola chiave dictionery
+				// metto pin + tipo perche come nel caso temperatra
+				// su un pin ci sono diversi sensori
+				int Tipo = (int)Protocol.Destinatario.Tipo;
+				string chiave = pin.ToString() + "|" + Tipo.ToString();
+
 				//-----------------------------------------
 				// PLATFORM
 				//-----------------------------------------
-				if (!platform_Engine.ContainsKey(pin) || platform_Engine[pin] == null)
+				if (!platform_Engine.ContainsKey(chiave) || platform_Engine[chiave] == null)
 				{
 					// CHOSE PLATFORM
 					switch (Protocol.Destinatario.Tipo)
@@ -76,21 +82,24 @@ namespace RaspaAction
 							Platform = new PlatForm_Push();
 							break;
 						case enumComponente.umidity:
-							Platform = new PlatForm_Temperature(true);
+							Platform = new PlatForm_Umidity();
 							break;
 						case enumComponente.temperature:
-							Platform = new PlatForm_Temperature(false);
+							Platform = new PlatForm_Temperature();
+							break;
+						case enumComponente.moisture:
+							Platform = new PlatForm_Moisture();
 							break;
 					}
 
 					// ADD PLATFORM
 					if (Platform != null)
-						platform_Engine.Add(pin, Platform);
+						platform_Engine.Add(chiave, Platform);
 				}
 				else
 				{
 					// REUSE PLATFORM
-					Platform = platform_Engine[pin];
+					Platform = platform_Engine[chiave];
 				}
 
 				//-----------------------------------------

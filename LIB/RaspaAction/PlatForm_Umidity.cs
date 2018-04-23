@@ -16,7 +16,7 @@ using Windows.UI.Xaml;
 
 namespace RaspaAction
 {
-	public class PlatForm_Temperature : IPlatform
+	public class PlatForm_Umidity : IPlatform
 	{
 		GpioPin gpioPIN = null;
 		MQTT mqTT = null;
@@ -28,9 +28,8 @@ namespace RaspaAction
 		private PlatformNotify notify;
 		enumTEMPOption hardware;
 
-		public PlatForm_Temperature()
+		public PlatForm_Umidity()
 		{
-
 		}
 
 		public RaspaResult RUN(MQTT mqtt, GpioPin gpio, Dictionary<string, bool> EVENTS,RaspaProtocol protocol)
@@ -86,7 +85,7 @@ namespace RaspaAction
 						_dht = null;
 
 						// notify OFF
-						notify.ActionNotify(Protocol,true, "Read ", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.off, PinNumber, new List<string>());
+						notify.ActionNotify(Protocol,true, "Read ", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumStato.off, PinNumber, new List<string>());
 
 						break;
 					case enumStato.value:
@@ -125,7 +124,7 @@ namespace RaspaAction
 
 		private void Timer_Tick()
 		{
-			double Temperature = 0;
+			double Humidity = 0;
 			bool isValid = false;
 			try
 			{
@@ -136,7 +135,7 @@ namespace RaspaAction
 						DhtReading reading = read_BHT_SensorAsync().Result;
 						if (reading.IsValid)
 						{
-							Temperature = reading.Temperature;
+							Humidity = reading.Humidity;
 							isValid = true;
 						}
 						break;
@@ -145,13 +144,13 @@ namespace RaspaAction
 				// COMUNICA ESITO
 				if (isValid)
 				{
-					List<string> resultT = new List<string>();
-					resultT.Add(Temperature.ToString());
-					notify.ActionNotify(Protocol, true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.value, PinNumber, resultT);
+					List<string> resultU = new List<string>();
+					resultU.Add(Humidity.ToString());
+					notify.ActionNotify(Protocol, true, "Read Umidity", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumStato.value, PinNumber, resultU);
 				}
 				else
 				{
-					notify.ActionNotify(Protocol, true, "Read Temperature", enumSubribe.central, enumComponente.temperature, enumComando.notify, enumStato.value, PinNumber, null);
+					notify.ActionNotify(Protocol, true, "Read Umidity", enumSubribe.central, enumComponente.umidity, enumComando.notify, enumStato.value, PinNumber, null);
 				}
 
 			}
@@ -183,7 +182,7 @@ namespace RaspaAction
 			catch (Exception ex)
 			{
 				if (Debugger.IsAttached) Debugger.Break();
-				System.Diagnostics.Debug.WriteLine("SASSO API TEST - GET TEMPERATURE : " + ex.Message);
+				System.Diagnostics.Debug.WriteLine("SASSO API TEST - GET UMIDITY : " + ex.Message);
 			}
 
 			return reading;

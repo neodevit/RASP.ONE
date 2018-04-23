@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RaspaEntity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Resources;
 using Windows.Data.Json;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -114,25 +116,72 @@ namespace RaspaTools
 		// ------------
 		// IP
 		// ------------
-		public string GetLocalIPv4()
+		public RaspaInfo GetRaspInfo()
 		{
-			var icp = NetworkInformation.GetInternetConnectionProfile();
+			RaspaInfo res = null;
 
-			if (icp?.NetworkAdapter == null) return null;
-			var hostname =
-				NetworkInformation.GetHostNames()
-					.SingleOrDefault(
-						hn =>
-							hn.IPInformation?.NetworkAdapter != null && hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
 
-			// the ip address
-			return hostname?.CanonicalName;
+			res = new RaspaInfo();
+
+			GetCurrentIpv4Address(res);
+
+			res.HostName = GetCurrentHostName();
+			res.OSVersion = GetOSVersion();
+			res.Productname = SystemProductName();
+			res.RaspaVersion = GetRASPANodeVersion();
+			res.HW_ID = GetHardwareID();
+
+			return res;
+
 		}
 
+		private void GetCurrentIpv4Address(RaspaInfo info)
+		{
+			var icp = NetworkInformation.GetInternetConnectionProfile();
+			if (icp != null
+				  && icp.NetworkAdapter != null
+				  && icp.NetworkAdapter.NetworkAdapterId != null)
+			{
+				var name = icp.ProfileName;
+				info.NetworkType = (IANAtype)icp.NetworkAdapter.IanaInterfaceType;
 
+				var hostnames = NetworkInformation.GetHostNames();
+				foreach (var hn in hostnames)
+				{
+					if (hn.IPInformation != null
+						&& hn.IPInformation.NetworkAdapter != null
+						&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
+																   != null
+						&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
+									== icp.NetworkAdapter.NetworkAdapterId
+						)
+					{
+						if (hn.Type == HostNameType.Ipv4)
+						{
+							info.Network_IPv4 = hn.CanonicalName;
+							info.Network_Serial = icp.NetworkAdapter.NetworkAdapterId.ToString();
+						}
+						if (hn.Type == HostNameType.Ipv6)
+							info.Network_IPv6 = hn.CanonicalName;
 
-		public string GetHostName()
+					}
+				}
+			}
+
+		}
+		private string GetCurrentNetworkName()
+		{
+			var icp = NetworkInformation.GetInternetConnectionProfile();
+			if (icp != null)
+			{
+				return icp.ProfileName;
+			}
+
+			var resourceLoader = ResourceLoader.GetForCurrentView();
+			var msg = resourceLoader.GetString("NoInternetConnection");
+			return msg;
+		}
+		private string GetCurrentHostName()
 		{
 			string hostName = "NA";
 			var hostNames = NetworkInformation.GetHostNames();
@@ -140,39 +189,21 @@ namespace RaspaTools
 				hostName = hostNames.FirstOrDefault(name => name.Type == HostNameType.DomainName)?.DisplayName ?? "???";
 			return hostName;
 		}
-
-
-		public string GetHWAddress()
-		{
-			string res = "";
-			var token = HardwareIdentification.GetPackageSpecificToken(null);
-			using (DataReader reader = DataReader.FromBuffer(token.Id))
-			{
-				byte[] bytes = new byte[token.Id.Length];
-				reader.ReadBytes(bytes);
-				res = Encoding.ASCII.GetString(bytes);
-			}
-			return res;
-		}
-
-		public string GetOSVersion()
+		private string GetOSVersion()
 		{
 			OSVersion ver = SystemInformation.OperatingSystemVersion;
 			return ver.ToString();
 		}
-
-		public string GetRASPANodeVersion()
+		private string GetRASPANodeVersion()
 		{
 			return Package.Current.Id.Version.Major + "." + Package.Current.Id.Version.Minor + "." + Package.Current.Id.Version.Build + "." + Package.Current.Id.Version.Revision;
 		}
-
-
-		public string SystemProductName()
+		private string SystemProductName()
 		{
 			EasClientDeviceInformation sysInfo = new EasClientDeviceInformation();
 			return sysInfo.SystemProductName;
 		}
-		public string GetHardwareID()
+		private string GetHardwareID()
 		{
 			string uniqueCode = "";
 			var token = HardwareIdentification.GetPackageSpecificToken(null);
