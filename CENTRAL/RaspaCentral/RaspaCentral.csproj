@@ -311,7 +311,9 @@
     <Content Include="Assets\lock_edit.png" />
     <Content Include="Assets\lock_go.png" />
     <Content Include="Assets\lock_open.png" />
-    <Content Include="Assets\mappaPT.png" />
+    <Content Include="Assets\mappa0.png" />
+    <Content Include="Assets\mappa1.png" />
+    <Content Include="Assets\mappa2.png" />
     <Content Include="Assets\moisture_active.png" />
     <Content Include="Assets\moisture_disabled.png" />
     <Content Include="Assets\moisture_err.png" />
@@ -386,10 +388,44 @@
     <Content Include="Assets\script_save.png" />
     <Content Include="Assets\sound.png" />
     <Content Include="Assets\sound_add.png" />
+    <Content Include="Assets\sound_alarm_clock.mp3" />
+    <Content Include="Assets\sound_banana_peel_slip.mp3" />
+    <Content Include="Assets\sound_basketball_buzzer.mp3" />
+    <Content Include="Assets\sound_Beep.mp3" />
+    <Content Include="Assets\sound_bells.mp3" />
+    <Content Include="Assets\sound_Bike_Horn.mp3" />
+    <Content Include="Assets\sound_Bleep.mp3" />
+    <Content Include="Assets\sound_Buzz.mp3" />
+    <Content Include="Assets\sound_Buzz2.mp3" />
+    <Content Include="Assets\sound_Buzz_Fade_In.mp3" />
+    <Content Include="Assets\sound_Buzz_Fade_Out.mp3" />
+    <Content Include="Assets\sound_Click_Button.mp3" />
+    <Content Include="Assets\sound_Computer_Error_Alert.mp3" />
+    <Content Include="Assets\sound_Cuckoo_Clock.mp3" />
     <Content Include="Assets\sound_delete.png" />
+    <Content Include="Assets\sound_dixie_horn.mp3" />
+    <Content Include="Assets\sound_Doorbell.mp3" />
+    <Content Include="Assets\sound_Door_Buzzer.mp3" />
+    <Content Include="Assets\sound_Door_Chime.mp3" />
+    <Content Include="Assets\sound_Large_Metal_Pan.mp3" />
     <Content Include="Assets\sound_low.png" />
+    <Content Include="Assets\sound_Metronome.mp3" />
     <Content Include="Assets\sound_mute.png" />
     <Content Include="Assets\sound_none.png" />
+    <Content Include="Assets\sound_old_fashioned_door_bell.mp3" />
+    <Content Include="Assets\sound_old_fashioned_school_bell.mp3" />
+    <Content Include="Assets\sound_Phone_Vibrating.mp3" />
+    <Content Include="Assets\sound_Police.mp3" />
+    <Content Include="Assets\sound_Rooster.mp3" />
+    <Content Include="Assets\sound_Siren.mp3" />
+    <Content Include="Assets\sound_Smoke_Alarm.mp3" />
+    <Content Include="Assets\sound_sms_alert_1.mp3" />
+    <Content Include="Assets\sound_sms_alert_2.mp3" />
+    <Content Include="Assets\sound_Sniff .mp3" />
+    <Content Include="Assets\sound_Time.mp3" />
+    <Content Include="Assets\sound_Torch.mp3" />
+    <Content Include="Assets\sound_Woop.mp3" />
+    <Content Include="Assets\sound_Yahoo.mp3" />
     <Content Include="Assets\switch_disabled.png" />
     <Content Include="Assets\switch_err.png" />
     <Content Include="Assets\switch_off.png" />
@@ -514,7 +550,6 @@
       <Name>RaspaTools</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -128,7 +128,7 @@ namespace RaspaAction
 			}
 			else
 			{
-				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
+				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.signalOFF, gpioPIN.PinNumber);
 			}
 		}
 

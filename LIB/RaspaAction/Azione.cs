@@ -72,6 +72,9 @@ namespace RaspaAction
 					// CHOSE PLATFORM
 					switch (Protocol.Destinatario.Tipo)
 					{
+						case enumComponente.bell:
+							Platform = new PlatForm_Bell();
+							break;
 						case enumComponente.light:
 							Platform = new PlatForm_Light();
 							break;
@@ -117,6 +120,8 @@ namespace RaspaAction
 
 						switch (Protocol.Destinatario.Tipo)
 						{
+							case enumComponente.bell:
+								break;
 							case enumComponente.light:
 							case enumComponente.pir:
 							case enumComponente.push:

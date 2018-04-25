@@ -67,6 +67,7 @@ namespace RaspaCentral
 
 		}
 
+
 		#region CENTRAL
 		private static Componente centrale = null;
 
@@ -450,14 +451,14 @@ namespace RaspaCentral
 							case enumComando.comando:
 								break;
 							case enumComando.notify:
-#region NOTIFY
+								#region NOTIFY
 
 								img.Source = choseImageByComponente(protocol);
 
 								switch (protocol.Mittente.Tipo)
 								{
 									case enumComponente.light:
-#region LIGHT
+										#region LIGHT
 										switch (protocol.Azione)
 										{
 											case enumStato.nessuno:
@@ -473,10 +474,10 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 												break;
 										}
-#endregion
+										#endregion
 										break;
 									case enumComponente.pir:
-#region PIR
+										#region PIR
 										switch (protocol.Azione)
 										{
 											case enumStato.nessuno:
@@ -486,6 +487,7 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 												break;
 											case enumStato.on:
+											case enumStato.signalOFF:
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
 											case enumStato.signal:
@@ -495,10 +497,10 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 												break;
 										}
-#endregion
+										#endregion
 										break;
 									case enumComponente.bell:
-#region BELL
+										#region BELL
 										switch (protocol.Azione)
 										{
 											case enumStato.nessuno:
@@ -508,6 +510,7 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 												break;
 											case enumStato.on:
+											case enumStato.signalOFF:
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
 											case enumStato.signal:
@@ -517,10 +520,10 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 												break;
 										}
-#endregion
+										#endregion
 										break;
 									case enumComponente.moisture:
-#region MOISTURE
+										#region MOISTURE
 										switch (protocol.Azione)
 										{
 											case enumStato.nessuno:
@@ -530,6 +533,7 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 												break;
 											case enumStato.on:
+											case enumStato.signalOFF:
 												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
 												break;
 											case enumStato.signal:
@@ -539,7 +543,7 @@ namespace RaspaCentral
 												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 												break;
 										}
-#endregion
+										#endregion
 										break;
 
 									case enumComponente.umidity:
@@ -547,7 +551,7 @@ namespace RaspaCentral
 										Decimal? umidityVal = protocol.getUmidity();
 										string TooltipUmidity = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Umidity : " + umidity;
 
-#region UMIDITY
+										#region UMIDITY
 										switch (protocol.Azione)
 										{
 											case enumStato.nessuno:
@@ -572,7 +576,7 @@ namespace RaspaCentral
 												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
 												break;
 										}
-#endregion
+										#endregion
 										break;
 									case enumComponente.temperature:
 
@@ -580,7 +584,7 @@ namespace RaspaCentral
 										Decimal? temperaturaVal = protocol.getTemperature();
 										string TooltipTemperature = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Temperature : " + temperatura;
 
-#region TEMPERATURE
+										#region TEMPERATURE
 										switch (protocol.Azione)
 										{
 											case enumStato.nessuno:
@@ -605,7 +609,7 @@ namespace RaspaCentral
 												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
 												break;
 										}
-#endregion
+										#endregion
 										break;
 
 									case enumComponente.push:
@@ -618,10 +622,10 @@ namespace RaspaCentral
 										}
 										break;
 								}
-#endregion
+								#endregion
 								break;
 							case enumComando.nodeInit:
-#region NODE INIT
+								#region NODE INIT
 								// leggo il nodo da iniziare sul DB
 								Componente nodo2INIT = DB.GetComponenteByIPv4(protocol.Mittente.IPv4, enumComponente.nodo);
 								// se il componente è effettivamente un nodo
@@ -641,10 +645,10 @@ namespace RaspaCentral
 									RaspaResult resNodeInit = DB.SetComponenti(nodo2INIT, Utente);
 								}
 
-#endregion
+								#endregion
 								break;
 							case enumComando.nodeReload:
-#region NODE RELOAD
+								#region NODE RELOAD
 								// leggo il nodo da reload sul DB
 								Componenti componenti = DB.GetComponentiByIPv4(protocol.Mittente.IPv4);
 
@@ -678,7 +682,7 @@ namespace RaspaCentral
 									}
 								}
 
-#endregion
+								#endregion
 								break;
 						}
 						
@@ -695,7 +699,7 @@ namespace RaspaCentral
 
 #endregion
 
-#region WORKING
+		#region WORKING
 		private RaspaResult Comando(Image img,int IDComponente)
 		{
 			RaspaProtocol protocol;
@@ -717,7 +721,7 @@ namespace RaspaCentral
 					case enumComponente.nodo:
 						break;
 					case enumComponente.pir:
-#region PIR
+						#region PIR
 						switch(componente.Stato)
 						{
 							case enumStato.nessuno:
@@ -765,6 +769,7 @@ namespace RaspaCentral
 
 								break;
 							case enumStato.signal:
+							case enumStato.signalOFF:
 								img.Source = loadImage("pir_on");
 								DB.ModComponentiStato(componente.ID.Value, enumStato.on, Utente);
 
@@ -954,7 +959,7 @@ namespace RaspaCentral
 						}
 						break;
 					case enumComponente.bell:
-#region BELL
+						#region BELL
 						switch (componente.Stato)
 						{
 							case enumStato.nessuno:
@@ -1009,7 +1014,7 @@ namespace RaspaCentral
 #endregion
 						break;
 					case enumComponente.moisture:
-#region MOISTURE
+						#region MOISTURE
 						switch (componente.Stato)
 						{
 							case enumStato.nessuno:
@@ -1057,6 +1062,7 @@ namespace RaspaCentral
 
 								break;
 							case enumStato.signal:
+							case enumStato.signalOFF:
 								img.Source = loadImage("moisture_on");
 								DB.ModComponentiStato(componente.ID.Value, enumStato.on, Utente);
 								break;
@@ -1079,9 +1085,9 @@ namespace RaspaCentral
 			}
 			return res;
 		}
-#endregion
+		#endregion
 
-#region MAPPA INTERATIVA
+		#region MAPPA INTERATIVA
 		public Componente Actualcomponente;
 		public Image ActualImage;
 		enumComponente ActualTipoComponente;
@@ -1098,8 +1104,11 @@ namespace RaspaCentral
 				working.IsChecked = true;
 				editing.IsChecked = false;
 				changeMode();
+				// carica combo mappa
+				initComboMappa();
+				COMBO_MAPPA.SelectedValue = "0";
 				// popolate componenti
-				popolateComponenti();
+				//popolateComponenti();
 				// Prepara frame CAM
 				GridCAM.Visibility = Visibility.Visible;
 			}
@@ -1109,14 +1118,74 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+		#region MAPPA
+		int mappa_num = 0;
+		int mappa_max = 2;
+		private void initComboMappa()
+		{
+			try
+			{
+				for (int i = 0; i <= mappa_max; i++)
+					COMBO_MAPPA.Items.Add(i.ToString());
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		private void MAPPA_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			try
+			{
+				ComboBox cMappa = sender as ComboBox;
+				if (cMappa == null)
+					return;
+
+				if (cMappa.SelectedValue != null)
+				{
+					// Leggo MAPPA NUM selected
+					mappa_num = Convert.ToInt32(cMappa.SelectedValue.ToString());
+
+					// cambio mappa
+					Mappa.Source = new BitmapImage(new Uri("ms-appx:///Assets/mappa" + mappa_num + ".png"));
+
+					// spegni toolbar
+					ToolbarShow(enumShowToolbar.nessuno);
+
+					// Elimina componenti in sospeso
+					eliminaActualImageSoloSeProvvisioria();
+
+					// toglie evidenziazione
+					evidenzia(false);
+
+					// carica componenti
+					popolateComponenti();
+
+					// inizializza controllo property
+					ComponentProperty.mappa_num = mappa_num;
+				}
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
+		#endregion
+
 		private void popolateComponenti()
 		{
 			messaggio.Text = "";
 			try
 			{
+				// pulisci interfaccia 
+				CleanInterface();
+
 				// Inizializza componenti mappa leggendoli dal DB
 				DBCentral DB = new DBCentral();
-				Componenti recs = DB.GetComponenti();
+				Componenti recs = DB.GetComponenti(mappa_num);
 				foreach (Componente rec in recs)
 					create_object(rec.Tipo, rec);
 			}
@@ -1130,8 +1199,6 @@ namespace RaspaCentral
 		{
 			// Visualizza Mappa
 			TabsShow(enumShowTabs.mappa);
-			// pulisci interfaccia 
-			CleanInterface();
 			// ricarica componenti
 			popolateComponenti();
 			// richiede ai componenti lo stato attuale
@@ -1167,7 +1234,7 @@ namespace RaspaCentral
 				messaggio.Text = "Errore Eliminazione : " + ex.Message;
 			}
 		}
-#region Editing/Working
+		#region Editing/Working
 		public enum enumMode
 		{
 			working,
@@ -1198,12 +1265,12 @@ namespace RaspaCentral
 			{
 				if (editing.IsChecked != null && editing.IsChecked.Value)
 				{
-					ToolbarShow(enumShowToolbar.componenti);
+					ToolbarShow(enumShowToolbar.nessuno);
 					RaspaMode = enumMode.edit;
 				}
 				else
 				{
-					ToolbarShow(enumShowToolbar.help);
+					ToolbarShow(enumShowToolbar.nessuno);
 					RaspaMode = enumMode.working;
 
 					// Elimina componenti in sospeso
@@ -1219,9 +1286,9 @@ namespace RaspaCentral
 			}
 		}
 
+		#endregion
 
-#endregion
-#region CREATE OBJECT
+		#region CREATE OBJECT
 		private string initActualComponente(enumComponente comp,Componente item=null)
 		{
 			string ToolTipCustom = "";
@@ -1605,6 +1672,7 @@ namespace RaspaCentral
 								res = loadImage("pir_off");
 								break;
 							case enumStato.on:
+							case enumStato.signalOFF:
 								res = loadImage("pir_on");
 								break;
 							case enumStato.signal:
@@ -1629,6 +1697,7 @@ namespace RaspaCentral
 								res = loadImage("moisture_off");
 								break;
 							case enumStato.on:
+							case enumStato.signalOFF:
 								res = loadImage("moisture_on");
 								break;
 							case enumStato.signal:
@@ -1653,6 +1722,7 @@ namespace RaspaCentral
 								res = loadImage("bell_off");
 								break;
 							case enumStato.on:
+							case enumStato.signalOFF:
 								res = loadImage("bell_on");
 								break;
 							case enumStato.signal:
@@ -1678,6 +1748,7 @@ namespace RaspaCentral
 								res = loadImage("push_off");
 								break;
 							case enumStato.on:
+							case enumStato.signalOFF:
 								res = loadImage("push_on");
 								break;
 							case enumStato.signal:
@@ -1841,8 +1912,9 @@ namespace RaspaCentral
 							case enumStato.off:
 								res = loadImage("webcam_off");
 								break;
-							case enumStato.signal:
 							case enumStato.on:
+							case enumStato.signal:
+							case enumStato.signalOFF:
 								res = loadImage("webcam_on");
 								break;
 							case enumStato.errore:
@@ -1868,8 +1940,9 @@ namespace RaspaCentral
 							case enumStato.off:
 								res = loadImage("webcam_rasp_off");
 								break;
-							case enumStato.signal:
 							case enumStato.on:
+							case enumStato.signal:
+							case enumStato.signalOFF:
 								res = loadImage("webcam_rasp_on");
 								break;
 							case enumStato.errore:
@@ -1882,9 +1955,9 @@ namespace RaspaCentral
 
 			return res;
 		}
-#endregion
+		#endregion
 
-#region CLICK
+		#region CLICK
 		private void Mappa_Tapped(object sender, TappedRoutedEventArgs e)
 		{
 			messaggio.Text = "";
@@ -1898,9 +1971,7 @@ namespace RaspaCentral
 
 				if (RaspaMode == enumMode.edit)
 				{
-
-					// visualizza toolbar componenti
-					ToolbarShow(enumShowToolbar.componenti);
+					ToolbarShow(enumShowToolbar.nessuno);
 				}
 			}
 			catch (Exception ex)
@@ -1938,8 +2009,8 @@ namespace RaspaCentral
 						{
 							// deseleziono
 							evidenzia(false);
-							// visualizza toolbar componenti
-							ToolbarShow(enumShowToolbar.componenti);
+
+							ToolbarShow(enumShowToolbar.nessuno);
 						}
 						else
 						{
@@ -1996,9 +2067,9 @@ namespace RaspaCentral
 				messaggio.Text = "Errore : " + ex.Message;
 			}
 		}
+		#endregion
 
-#endregion
-#region CONTEXT MENU
+		#region CONTEXT MENU
 		private void Img_PointerPressed(object sender, PointerRoutedEventArgs e)
 		{
 			try
@@ -2114,7 +2185,7 @@ namespace RaspaCentral
 				else
 					messaggio.Text = "Non ho decodificato il componente selezionato";
 
-				ToolbarShow(enumShowToolbar.componenti);
+				ToolbarShow(enumShowToolbar.nessuno);
 
 			}
 			catch (Exception ex)
@@ -2153,8 +2224,7 @@ namespace RaspaCentral
 				// Pulisci schermo
 				eliminaActualImage();
 
-				// Pivot a Toolbar
-				ToolbarShow(enumShowToolbar.componenti);
+				ToolbarShow(enumShowToolbar.nessuno);
 
 				// azzera componente attuale
 				azzeraActualComponent();
@@ -2166,9 +2236,9 @@ namespace RaspaCentral
 			}
 		}
 
-#endregion
+		#endregion
 
-#region SCHEMA COMPONENT
+		#region SCHEMA COMPONENT
 		private void ShowSchema(int ID)
 		{
 			try
@@ -2224,9 +2294,9 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-#endregion
+		#endregion
 	
-#region TAG
+		#region TAG
 		private bool isComponentRaspone(Image image)
 		{
 			bool res = false;
@@ -2332,9 +2402,9 @@ namespace RaspaCentral
 			}
 			return res;
 		}
-#endregion
+		#endregion
 
-#region DRAG DROP
+		#region DRAG DROP
 		private void Button_DragStarting(UIElement sender, DragStartingEventArgs args)
 		{
 			try
@@ -2464,7 +2534,7 @@ namespace RaspaCentral
 
 					//visualizza tabs property solo se nuovo
 					if (ID > 0)
-						ToolbarShow(enumShowToolbar.componenti);
+						ToolbarShow(enumShowToolbar.nessuno);
 					else
 					{
 						// evidenziazione
@@ -2483,9 +2553,9 @@ namespace RaspaCentral
 			}
 
 		}
-#endregion
+		#endregion
 
-#region PROPERTY
+		#region PROPERTY
 		private void showProperty(int ID,enumComponente Tipo, Thickness Position)
 		{
 			RaspaResult res = ComponentProperty.showProperty(ID, Tipo, Position, this);
@@ -2497,10 +2567,9 @@ namespace RaspaCentral
 			// show
 			ToolbarShow(enumShowToolbar.property);
 		}
-#endregion
+		#endregion
 
-
-#region ACTUAL IMAGE/COMPONENT
+		#region ACTUAL IMAGE/COMPONENT
 		public void eliminaActualImage()
 		{
 			try
@@ -2514,7 +2583,7 @@ namespace RaspaCentral
 					ActualImage = null;
 
 					// spegnere tutti i pannelly property
-					ToolbarShow(enumShowToolbar.componenti);
+					ToolbarShow(enumShowToolbar.nessuno);
 
 				}
 
@@ -2583,19 +2652,15 @@ namespace RaspaCentral
 			}
 		}
 
-#endregion
+		#endregion
 
-
-
-
-
-#region SHOW TABS
+		#region SHOW TABS
 		private void InitProperty()
 		{
 			// show tabs mappa
 			TabsShow(enumShowTabs.mappa);
-			// show toolbar componenti
-			ToolbarShow(enumShowToolbar.componenti);
+
+			ToolbarShow(enumShowToolbar.nessuno);
 
 		}
 		public enum enumShowTabs
@@ -2609,29 +2674,21 @@ namespace RaspaCentral
 		}
 		public enum enumShowToolbar
 		{
-			componenti = 0,
+			nessuno=0,
 			property = 1,
 			regole = 2,
 			schema = 4,
-			help = 5,
 		}
 		public void ToolbarShow(enumShowToolbar show)
 		{
-			ToolbarComponenti.Visibility = Visibility.Collapsed;
 			ToolBarProperty.Visibility = Visibility.Collapsed;
 			ToolBarSchema.Visibility = Visibility.Collapsed;
-			ToolBarHelp.Visibility = Visibility.Collapsed;
 			ToolbarRegole.Visibility = Visibility.Collapsed;
 			
 
 			switch (show)
 			{
-				case enumShowToolbar.help:
-					ToolBarHelp.Visibility = Visibility.Visible;
-					break;
-
-				case enumShowToolbar.componenti:
-					ToolbarComponenti.Visibility = Visibility.Visible;
+				case enumShowToolbar.nessuno:
 					break;
 				case enumShowToolbar.property:
 					ToolBarProperty.Visibility = Visibility.Visible;
@@ -2647,14 +2704,9 @@ namespace RaspaCentral
 
 
 
-#endregion
+		#endregion
 
-#endregion
-		private void speek_Click(object sender, RoutedEventArgs e)
-		{
-			SpeechService speek = new SpeechService();
-			speek.parla("Siete diventati vecchi");
-		}
+		#endregion
 
 
 	}

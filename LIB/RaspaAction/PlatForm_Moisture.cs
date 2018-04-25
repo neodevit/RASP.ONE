@@ -77,6 +77,8 @@ namespace RaspaAction
 
 						break;
 					case enumStato.on:
+					case enumStato.signal:
+					case enumStato.signalOFF:
 						var r = gpioPIN.Read();
 						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
 						Drive = gpioPIN.GetDriveMode();
@@ -113,7 +115,7 @@ namespace RaspaAction
 				}
 			}
 			else
-				// plat is ok
+				// plant is ok
 				notify.ActionNotify(Protocol, true, "Moisture Change", enumSubribe.central, enumComponente.moisture, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
 
 		}

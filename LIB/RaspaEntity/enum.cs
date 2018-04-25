@@ -26,6 +26,46 @@ namespace RaspaEntity
 		dht22 = 1,
 	}
 
+	public enum enumBellOption
+	{
+		sound_basketball_buzzer = 0,
+		sound_banana_peel_slip  = 1,
+		sound_Bleep = 2,
+		sound_Beep=3,
+		sound_bells=4,
+		sound_Click_Button=5,
+		sound_sms_alert_1=6,
+		sound_sms_alert_2=7,
+		sound_Sniff=8,
+		sound_Time=9,
+		sound_Woop = 10,
+		sound_Bike_Horn=11,
+		sound_Computer_Error_Alert=12,
+		sound_Cuckoo_Clock=13,
+		sound_Metronome=14,
+		sound_Large_Metal_Pan = 15,
+		sound_Torch=16,
+
+
+		sound_Buzz = 100,
+		sound_Buzz_Fade_In = 101,
+		sound_Buzz_Fade_Out =102,
+		sound_Doorbell=103,
+		sound_Buzz2 =104,
+		sound_Door_Buzzer=105,
+		sound_old_fashioned_door_bell=106,
+		sound_Door_Chime=107,
+		sound_old_fashioned_school_bell=108,
+		sound_Rooster=109,
+		sound_dixie_horn=110,
+		sound_Yahoo=111,
+
+		sound_alarm_clock = 200,
+		sound_Police=201,
+		sound_Smoke_Alarm=202,
+		sound_Phone_Vibrating=203,
+		sound_Siren=204,
+	}
 
 
 

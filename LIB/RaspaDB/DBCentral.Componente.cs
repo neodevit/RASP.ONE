@@ -153,7 +153,6 @@ namespace RaspaDB
 			}
 			return res;
 		}
-
 		public Componenti GetComponenti()
 		{
 			Componenti res = null;
@@ -169,6 +168,37 @@ namespace RaspaDB
 					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
 					{
 						mySqlCommand.CommandText = sql;
+						mySqlCommand.Connection.Open();
+
+						res = GetRecComponenti(mySqlCommand);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
+				System.Diagnostics.Debug.WriteLine("DBCentral - COMPONENTI : " + ex.Message);
+			}
+			return res;
+		}
+
+		public Componenti GetComponenti(int mappa)
+		{
+			Componenti res = null;
+			try
+			{
+				string sql = "";
+				sql += "SELECT *";
+				sql += " FROM `70_COMPONENTE`";
+				sql += " WHERE mappa = @mappa";
+				sql += " ORDER BY Nome";
+
+				using (MySqlConnection mySqlConnection = new MySqlConnection(GetConnectionString()))
+				{
+					using (MySqlCommand mySqlCommand = mySqlConnection.CreateCommand())
+					{
+						mySqlCommand.CommandText = sql;
+						mySqlCommand.Parameters.AddWithValue("@mappa", mappa);
 						mySqlCommand.Connection.Open();
 
 						res = GetRecComponenti(mySqlCommand);
@@ -779,6 +809,11 @@ namespace RaspaDB
 						else
 							item.Trusted = false;
 
+						if (!reader.IsDBNull(reader.GetOrdinal("Mappa")))
+							item.Mappa = reader.GetInt32("Mappa");
+						else
+							item.Mappa = 0;
+
 						if (!reader.IsDBNull(reader.GetOrdinal("IDComponenteTipo")))
 						{
 							item.IDComponenteTipo = reader.GetInt32("IDComponenteTipo");
@@ -1011,9 +1046,9 @@ namespace RaspaDB
 			{
 				string sql = "";
 				sql += "INSERT INTO `70_COMPONENTE`";
-				sql += " (`Enabled`,`Trusted`,`IDComponenteTipo`,`Stato`,`repeat`,repeatTime_sec,`HostName`,`OSVersion`,`NodeSWVersion`,`SystemProductName`,`SystemID`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`BlueTooth`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
+				sql += " (`Enabled`,`Mappa`,`Trusted`,`IDComponenteTipo`,`Stato`,`repeat`,repeatTime_sec,`HostName`,`OSVersion`,`NodeSWVersion`,`SystemProductName`,`SystemID`,`Nome`,`Descrizione`,`PositionLeft`,`PositionTop`,`PositionBottom`,`PositionRight`,`Node_Num`,`Node_Pin`,`Value`,`IPv4`,`IPv6`,`HWAddress`,`BlueTooth`,`Options`,`UserIns`,`DataIns`,`UserMod`,`DataMod`)";
 				sql += " VALUES";
-				sql += " (@Enabled,@Trusted,@IDComponenteTipo,@Stato,@repeat,@repeatTime_sec,@HostName,@OSVersion,@NodeSWVersion,@SystemProductName,@SystemID,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@BlueTooth,@Options,@Utente,NOW(),@Utente,NOW());";
+				sql += " (@Enabled,@Mappa,@Trusted,@IDComponenteTipo,@Stato,@repeat,@repeatTime_sec,@HostName,@OSVersion,@NodeSWVersion,@SystemProductName,@SystemID,@Nome,@Descrizione,@PositionLeft,@PositionTop,@PositionBottom,@PositionRight,@Node_Num,@Node_Pin,@Value,@IPv4,@IPv6,@HWAddress,@BlueTooth,@Options,@Utente,NOW(),@Utente,NOW());";
 				sql += " select LAST_INSERT_ID() as ID;";
 
 				if (conn != null)
@@ -1026,6 +1061,7 @@ namespace RaspaDB
 					mySqlCommand.CommandText = sql;
 					mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
 					mySqlCommand.Parameters.AddWithValue("@Trusted", value.Enabled);
+					mySqlCommand.Parameters.AddWithValue("@Mappa", value.Mappa);
 					mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
 
 					mySqlCommand.Parameters.AddWithValue("@Stato", value.Stato);
@@ -1110,6 +1146,7 @@ namespace RaspaDB
 				sql += "UPDATE `70_COMPONENTE`";
 				sql += " SET `Enabled` = @Enabled";
 				sql += "    ,`Trusted` = @Trusted";
+				sql += "    ,`Mappa` = @Mappa";
 				sql += "    ,`IDComponenteTipo` = @IDComponenteTipo";
 
 				sql += "    ,`Stato` = @Stato";
@@ -1156,6 +1193,7 @@ namespace RaspaDB
 					mySqlCommand.CommandText = sql;
 					mySqlCommand.Parameters.AddWithValue("@ID", value.ID.Value);
 					mySqlCommand.Parameters.AddWithValue("@Enabled", value.Enabled);
+					mySqlCommand.Parameters.AddWithValue("@Mappa", value.Mappa);
 					mySqlCommand.Parameters.AddWithValue("@Trusted", value.Trusted);
 					mySqlCommand.Parameters.AddWithValue("@IDComponenteTipo", (int)value.Tipo);
 

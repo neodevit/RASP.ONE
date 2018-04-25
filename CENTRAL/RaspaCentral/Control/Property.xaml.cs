@@ -23,6 +23,7 @@ namespace RaspaCentral
 {
 	public sealed partial class Property : UserControl
 	{
+		public int mappa_num = 0;
 		public Property()
 		{
 			this.InitializeComponent();
@@ -336,7 +337,7 @@ namespace RaspaCentral
 			chiamante.evidenzia(false);
 
 			// spegnere tutti i pannelly property
-			chiamante.ToolbarShow(enumShowToolbar.componenti);
+			chiamante.ToolbarShow(enumShowToolbar.nessuno);
 
 			// azzera componente attuale
 			chiamante.azzeraActualComponent();
@@ -394,6 +395,9 @@ namespace RaspaCentral
 			{
 				if (componente == null)
 					return new RaspaResult(false, "Componente Not found");
+
+				// salva mappa num
+				componente.Mappa = mappa_num;
 
 				// Salva Posizione
 				componente.PositionTop = Position.Top;
@@ -772,7 +776,7 @@ namespace RaspaCentral
 				chiamante.initComponente(componente);
 
 				// spegnere tutti i pannelly property
-				chiamante.ToolbarShow(enumShowToolbar.componenti);
+				chiamante.ToolbarShow(enumShowToolbar.nessuno);
 			}
 			catch (Exception ex)
 			{

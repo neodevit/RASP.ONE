@@ -38,6 +38,7 @@ namespace RaspaEntity
 		public int? ID { get; set; }
 		public bool Enabled { get; set; }
 		public bool Trusted { get; set; }
+		public int Mappa { get; set; }
 
 		public bool Error { get; set; }
 		public string ErrorMessage { get; set; }

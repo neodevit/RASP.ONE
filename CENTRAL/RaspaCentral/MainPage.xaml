@@ -13,121 +13,115 @@
         <Border BorderThickness="1" BorderBrush="Black" Width="1280" Height="800" />
 
 
-        
-        <Pivot x:Name="Tabs" RenderTransformOrigin="0,0" >
 
-            <PivotItem x:Name="TabsMappa" Header="Mappa" RenderTransformOrigin="0,0" Margin="14,-1,10,1">
+        <Pivot x:Name="Tabs" RenderTransformOrigin="0,0" Width="1275" Height="795" Margin="3,3,-1,-1">
+
+            <PivotItem x:Name="TabsMappa" Header="Mappa" RenderTransformOrigin="0,0" Margin="0,0,0,0">
                 <Grid  RenderTransformOrigin="0,0" >
 
-                    <Grid x:Name="GridMappa"  RenderTransformOrigin="0,0"  Margin="0,0,375,0">
-                        <RelativePanel >
+                    <Grid x:Name="GridMappa"  RenderTransformOrigin="0,0"  Margin="0,0,0,70" >
+                        <RelativePanel Margin="0,0,0,0" >
 
                             <!--MAPPA-->
-                            <Border BorderThickness="3" BorderBrush="Black" Width="631" Height="506">
-                                <Image x:Name="Mappa" Height="500" Width="625" Source="Assets/mappaPT.png" 
-                                DragOver="Mappa_DragOver" Drop="Mappa_Drop" AllowDrop="True" Opacity="1" 
-                                HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="0,0,-56,-18" 
+                            <Image x:Name="Mappa" Source="Assets/mappa0.png" 
+                                    AllowDrop="True"
+                                    CanDrag="True"
+                                    DragOver="Mappa_DragOver" 
+                                    Drop="Mappa_Drop" 
+                                HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="-6,0,0,0" 
                                 Tapped="Mappa_Tapped"  
                                        Stretch="Fill" />
-                            </Border>
+
 
                             <Ellipse x:Name="evidenziazione" 
                                     Height="36" Width="36" 
                                     Fill="Transparent" Visibility="Collapsed"
                                     Stroke="SteelBlue" StrokeThickness="3" />
+                            
                         </RelativePanel>
                     </Grid>
+                    
+                    <TextBlock Text="MAPPA" Margin="17,21,1201,635"  />
+                    <ComboBox x:Name="COMBO_MAPPA" HorizontalAlignment="Left" Margin="79,16,0,0" VerticalAlignment="Top" SelectionChanged="MAPPA_SelectionChanged"/>
 
+                    <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="102,685,1141,30" Source="/Assets/light_off.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32"   />
+                    <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="133,684,1110,31" Source="/Assets/pir_on.png" 
+                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                    Width="32" Height="32"  />
+                    <Image x:Name="toolbar_push" Tag="RASP.ONE_9"  Source="/Assets/push_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32" Margin="166,685,1077,30"  />
+                    
+                    <Image x:Name="toolbar_bell" Tag="RASP.ONE_10"  Source="/Assets/bell_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32" Margin="198,684,1045,31"  />
+                    
+                    <Image x:Name="toolbar_temperature" Tag="RASP.ONE_7"  Source="/Assets/temp_3.png" 
+                                CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                                Width="32" Height="32" Margin="234,687,1009,28"  />
+                    
+                    <Image x:Name="toolbar_umidity" Tag="RASP.ONE_8"  Source="/Assets/umidity_3.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32" Margin="276,684,967,31"  />
+                    
+                    <Image x:Name="toolbar_moisture" Tag="RASP.ONE_11"  Source="/Assets/moisture_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32" Margin="315,684,928,31"  />
+                    
+                    <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32" Margin="351,685,892,30"  />
+                    
+                    <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="1,683,1242,32" Source="Assets/raspberry_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32"  />
+                    
+                    <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="42,684,1201,31" Source="Assets/central_on.png" 
+                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
+                            Width="32" Height="32"  />
 
                     <!--TOOLBAR-->
                 <RelativePanel x:Name="ToolBar" Margin="631,1,0,39">
 
-                    <!--HELP-->
-                    <RelativePanel x:Name="ToolBarHelp" Visibility="Collapsed" HorizontalAlignment="Left"  >
-                    </RelativePanel>
-
-                    <!--COMPONENTI-->
-                    <RelativePanel x:Name="ToolbarComponenti" Visibility="Visible" Width="550" Margin="70,16,-70,-16" >
-                        <Grid>
-                            <TextBlock HorizontalAlignment="Left" Margin="65,38,0,345" Text="Luce" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_light" Tag="RASP.ONE_1" Margin="47,41,424,387" Source="/Assets/light_off.png" 
-                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                    Width="16" Height="16"   />
-                            <TextBlock HorizontalAlignment="Left" Margin="65,68,0,317" Text="PIR" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_pir" Tag="RASP.ONE_2" Margin="43,71,420,357" Source="/Assets/pir_on.png" 
-                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                    Width="16" Height="16"  />
-
-                            <TextBlock HorizontalAlignment="Left"  Text="WEBCAM IP" TextWrapping="Wrap" Margin="203,38,0,330" />
-                            <Image x:Name="toolbar_webcam_ip" Tag="RASP.ONE_5"  Source="/Assets/webcam_on.png" 
-                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                    Width="16" Height="16" Margin="182,41,287,387"  />
-
-                            <TextBlock HorizontalAlignment="Left"  Text="TEMPERATURE" TextWrapping="Wrap" Margin="203,68,0,300" />
-                            <Image x:Name="toolbar_temperature" Tag="RASP.ONE_7"  Source="/Assets/temp_3.png" 
-                                CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                Width="16" Height="16" Margin="183,71,288,357"  />
-
-                            <TextBlock HorizontalAlignment="Left"  Text="UMIDITY" TextWrapping="Wrap" Margin="203,98,0,270" />
-                            <Image x:Name="toolbar_umidity" Tag="RASP.ONE_8"  Source="/Assets/umidity_3.png" 
-                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                            Width="16" Height="16" Margin="183,101,288,327"  />
-
-                                <TextBlock HorizontalAlignment="Left"  Text="MOISTURE" TextWrapping="Wrap" Margin="203,124,0,244" />
-                                <Image x:Name="toolbar_moisture" Tag="RASP.ONE_11"  Source="/Assets/moisture_on.png" 
-                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                            Width="16" Height="16" Margin="183,127,288,301"  />
-
-                                <TextBlock HorizontalAlignment="Left"  Text="PUSH BUTTON" TextWrapping="Wrap" Margin="65,124,0,244" />
-                            <Image x:Name="toolbar_push" Tag="RASP.ONE_9"  Source="/Assets/push_on.png" 
-                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                            Width="16" Height="16" Margin="47,127,424,301"  />
-
-                            <TextBlock HorizontalAlignment="Left"  Text="BELL" TextWrapping="Wrap" Margin="65,96,0,272" />
-                            <Image x:Name="toolbar_bell" Tag="RASP.ONE_10"  Source="/Assets/bell_on.png" 
-                            CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                            Width="16" Height="16" Margin="47,99,424,329"  />
-
-                                <TextBlock HorizontalAlignment="Left" Margin="368,39,0,346" Text="NODO" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_node" Tag="RASP.ONE_3" Margin="349,42,122,386" Source="Assets/raspberry_on.png" 
-                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                    Width="16" Height="16"  />
-
-                            <TextBlock HorizontalAlignment="Left" Margin="368,65,0,320" Text="CENTRALE" TextWrapping="Wrap" />
-                            <Image x:Name="toolbar_central" Tag="RASP.ONE_4" Margin="347,68,121,360" Source="Assets/central_on.png" 
-                                    CanDrag="True" DragStarting="Button_DragStarting" PointerPressed = "Img_PointerPressed"
-                                    Width="16" Height="16"  />
 
 
-                        </Grid>
-                    </RelativePanel>
                     <!--PROPERTY-->
-                    <RelativePanel x:Name="ToolBarProperty" Visibility="Collapsed" HorizontalAlignment="Left" Margin="54,44,-54,-44"  >
-                        <local:Property x:Name="ComponentProperty" Width="500" Height="500" />
+                    <RelativePanel x:Name="ToolBarProperty" Visibility="Collapsed" Background="White"  HorizontalAlignment="Left" Margin="54,44,-54,-44"  >
+                        <Border BorderThickness="1" BorderBrush="Black"  >
+                            <local:Property x:Name="ComponentProperty" Width="500" Height="500" />
+                        </Border>
                     </RelativePanel>
-                    <RelativePanel x:Name="ToolBarSchema" Visibility="Collapsed" >
+                    <RelativePanel x:Name="ToolBarSchema" Visibility="Collapsed" Background="White" >
                         <Grid x:Name="schemaGPIO">
-                            <local:GPIO x:Name="gpio" Width="600" Height="500" Margin="0,32,0,-32" />
+                            <Border BorderThickness="1" BorderBrush="Black"  >
+                                <local:GPIO x:Name="gpio" Width="600" Height="500" Margin="0,32,0,-32" />
+                            </Border>
                         </Grid>
                     </RelativePanel>
 
                     <!--REGOLE-->
-                    <RelativePanel x:Name="ToolbarRegole" Visibility="Collapsed" Margin="5,40,-5,-40" >
+                    <RelativePanel x:Name="ToolbarRegole" Visibility="Collapsed" Background="White" Margin="5,40,-5,-40" >
                         <Grid >
-                            <local:Rules x:Name="Regole" Width="620" Height="700" />
+                           <Border BorderThickness="1" BorderBrush="Black"  >
+                                <local:Rules x:Name="Regole" Width="620" Height="700" />
+                           </Border>
                         </Grid>
                     </RelativePanel>
+                    
                     </RelativePanel>
 
-                    <!--IP CAM-->
-                    <RelativePanel x:Name="GridCAM"  RenderTransformOrigin="0,0" Visibility="Visible" Margin="0,0,375,0">
-                        <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed" Height="500" Width="625" Margin="3,3,-56,-18" />
-                    </RelativePanel>
+                <!--IP CAM-->
+                <RelativePanel x:Name="GridCAM"  RenderTransformOrigin="0,0" Visibility="Collapsed" Margin="0,0,0,0">
+                        <local:IPCam x:Name="ipcam1" CanDrag="True" Visibility="Collapsed"  Margin="0,0,0,0" />
+                </RelativePanel>
 
-                <Border BorderThickness="1" BorderBrush="Black" Margin="-9,683,13,33" Width="1252" Height="36" />
-                <TextBlock x:Name="messaggio" x:FieldModifier="public" HorizontalAlignment="Left" Margin="0,692,0,0" Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="1249" Height="32"/>
+                <Border BorderThickness="1" BorderBrush="Black" Margin="3,715,20,2" Width="1252" Height="30" >
+                <TextBlock x:Name="messaggio" x:FieldModifier="public" HorizontalAlignment="Left"  Text="..." TextWrapping="Wrap" VerticalAlignment="Top" Width="1249" Height="28"/>
+                </Border>
             </Grid>
-        </PivotItem>
+            </PivotItem>
         <PivotItem x:Name="TabsServer" Header="Comunication" >
             <Grid>
                 <ListView x:Name="Trasmission" HorizontalAlignment="Left" Height="720" Margin="8,26,0,0" VerticalAlignment="Top" Width="1250"/>
@@ -162,15 +156,15 @@
             </Grid>
         </PivotItem>
     </Pivot>
-    <TextBlock x:Name="CENTRAL_SWVer" 
-    HorizontalAlignment="Left" Margin="1042,774,0,0" VerticalAlignment="Top" Text="0.0.0" TextAlignment="Right" />
+        
     <ToggleButton  x:Name="working" IsChecked="true"
         HorizontalAlignment="Left" Margin="449,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="working" ></ToggleButton>
     <ToggleButton  x:Name="editing" IsChecked="false"
         HorizontalAlignment="Left" Margin="527,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="Editing" ></ToggleButton>
     <Image x:Name="btnRefresh" Source="Assets/refresh.png" Width="32" Height="32" Margin="608,15,640,753" Tapped="btnRefresh_Tapped" />
 
-        <Button x:Name="speek" Click="speek_Click" Margin="674,12,0,755" Height="33" Width="43" />
+    <TextBlock x:Name="CENTRAL_SWVer" 
+    HorizontalAlignment="Left" Margin="1042,16,0,0" VerticalAlignment="Top" Text="0.0.0" TextAlignment="Right" />
 
     </Grid>
 </Page>
