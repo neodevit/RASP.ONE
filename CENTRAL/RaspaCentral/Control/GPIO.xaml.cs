@@ -55,19 +55,24 @@ namespace RaspaCentral
 
 		private void drawGPIOcomp(enumComponente componente,int GPIO_A,int GPIO_B, int GPIO_C)
 		{
-			// disegna pin gpio
-			drawGPIOPin();
 
 			DBCentral DB = new DBCentral();
 			// disegna collegamenti
 			switch (componente)
 			{
 				case enumComponente.nessuno:
-					break;
 				case enumComponente.nodo:
 				case enumComponente.centrale:
+					clear();
+					break;
+				case enumComponente.bell:
+					// COMPOONENTE PHOTO
+					schemaPhoto("ms-appx:///Assets/component_bell.png", 150, 148, 235, 214);
 					break;
 				case enumComponente.light:
+					// disegna pin gpio
+					drawGPIOPin();
+
 					// COMPOONENTE PHOTO
 					schemaPhoto("ms-appx:///Assets/component_light.png", 17, 280, 190, 190);
 
@@ -79,11 +84,14 @@ namespace RaspaCentral
 					GPIOPin light = DB.GetGPIOPinByGPIOnum(GPIO_A);
 					schemaConnection(BASE, light.NUM, enumTipoPIN.gpio, "S3", 300, 185);
 					// -------------------------------------------------------------------------------------------
-					schemaPhoto("ms-appx:///Assets/component_light2.png", 190, 310, 230, 230);
+					schemaPhoto("ms-appx:///Assets/component_light2.png", 190, 270, 230, 230);
 
 
 					break;
 				case enumComponente.pir:
+					// disegna pin gpio
+					drawGPIOPin();
+
 					// COMPOONENTE PHOTO
 					schemaPhoto("ms-appx:///Assets/component_pir.png", 17, 257, 200, 381);
 
@@ -98,6 +106,9 @@ namespace RaspaCentral
 
 				case enumComponente.temperature:
 				case enumComponente.umidity:
+					// disegna pin gpio
+					drawGPIOPin();
+
 					// COMPOONENTE PHOTO
 					schemaPhoto("ms-appx:///Assets/component_temp.png", 17, 257, 200, 381);
 
@@ -111,6 +122,9 @@ namespace RaspaCentral
 
 					break;
 				case enumComponente.push:
+					// disegna pin gpio
+					drawGPIOPin();
+
 					// COMPOONENTE PHOTO
 					schemaPhoto("ms-appx:///Assets/component_push.png", 17, 257, 200, 381);
 
@@ -125,10 +139,15 @@ namespace RaspaCentral
 					break;
 			}
 		}
+
+		public void clear()
+		{
+			BASE.Children.Clear();
+		}
 		#region draw GPIO PIN
 		private void drawGPIOPin()
 		{
-			BASE.Children.Clear();
+			clear();
 
 			int statTop = 30;
 			int stepTop = 11;

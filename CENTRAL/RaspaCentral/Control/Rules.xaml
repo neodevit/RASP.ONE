@@ -13,14 +13,14 @@
       xmlns:telerikInput="using:Telerik.UI.Xaml.Controls.Input"
 
     mc:Ignorable="d"
-    d:DesignHeight="700"
-    d:DesignWidth="620">
+    d:DesignHeight="500"
+    d:DesignWidth="500">
 
 
-    <Grid Width="620" Height="700">
+    <Grid Width="500" Height="500">
 
-        <RelativePanel x:Name="Panel_rules" Visibility="Visible" RenderTransformOrigin="0,0" >
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="RULES" TextWrapping="Wrap" VerticalAlignment="Top" Width="604" Margin="8,10,-556,-10" TextAlignment="Center" FontWeight="Bold"/>
+        <RelativePanel x:Name="Panel_rules" Visibility="Collapsed" RenderTransformOrigin="0,0" >
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="RULES" TextWrapping="Wrap" VerticalAlignment="Top" Width="482" Margin="8,10,-434,-10" TextAlignment="Center" FontWeight="Bold"/>
 
 
             <grid:RadDataGrid x:Name="grid_roles" ItemsSource="{Binding RECS}"
@@ -36,7 +36,7 @@
                                 UserGroupMode="Disabled"
                                 UserFilterMode="Disabled"
                                 Tapped="grid_roles_Tapped"
-                                Width="600" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="28,47,-35,-447">
+                                Width="482" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,47,-22,-447">
 
 
                 <grid:RadDataGrid.Columns>
@@ -44,8 +44,6 @@
 
                     <grid:DataGridTextColumn x:Name="grid_roles_id" PropertyName="ID" SizeMode="Fixed" Width="0" 
                                              IsVisible="False" CanUserFilter="False" CanUserSort="False" CanUserEdit="False" >
-
-
                         <grid:DataGridTextColumn.HeaderStyle>
                             <Style TargetType="gridPrimitives:DataGridColumnHeader">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -66,18 +64,15 @@
             </grid:RadDataGrid>
 
 
-            <Button x:Name="btnRulesCancel" Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="19,459,-19,-659" />
-            <Button x:Name="btnRulesAdd" Content="ADD" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="522,459,-522,-491" />
+            <Button x:Name="btnRulesAdd" Content="ADD" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="403,459,-403,-491" />
 
         </RelativePanel>
 
 
 
-        <RelativePanel x:Name="Panel_rule" Visibility="Collapsed" RenderTransformOrigin="0,0" >
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="RULES" TextWrapping="Wrap" VerticalAlignment="Top" Width="604" Margin="8,10,-556,-10" TextAlignment="Center" FontWeight="Bold"/>
-            <Button x:Name="btnSaveRule" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="522,9,-522,-9"  Click="btnSaveRule_Click"/>
-
-
+        <RelativePanel x:Name="Panel_rule" Visibility="Visible" RenderTransformOrigin="0,0"  >
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="RULES" TextWrapping="Wrap" VerticalAlignment="Top" Width="486" Margin="8,10,-438,-10" TextAlignment="Center" FontWeight="Bold"/>
+            <Button x:Name="btnSaveRule" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="410,9,-410,-9"  Click="btnSaveRule_Click"/>
 
             <grid:RadDataGrid x:Name="grid_role" 
                                 ColumnDataOperationsMode="Flyout"
@@ -92,7 +87,7 @@
                                 UserGroupMode="Disabled"
                                 UserFilterMode="Disabled"
                                 Tapped="grid_role_Tapped"
-                                Width="600" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="51,47,-58,-447">
+                                Width="482" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,47,-27,-447">
                 <grid:RadDataGrid.Columns>
 
                     <grid:DataGridTextColumn PropertyName="POS" SizeMode="Fixed" Width="50"  >
@@ -138,45 +133,45 @@
             </grid:RadDataGrid>
 
 
-            <Button x:Name="btnAddWait" Content="WAIT" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="271,459,-271,-491" Click="btnAddWait_Click"/>
-            <Button x:Name="btnAddAction" Content="ACTION" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="527,459,-527,-491" Click="btnAddAction_Click"/>
+            <Button x:Name="btnAddWait" Content="WAIT" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="216,459,-216,-491" Click="btnAddWait_Click"/>
+            <Button x:Name="btnAddAction" Content="ACTION" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="408,459,-408,-491" Click="btnAddAction_Click"/>
             <Button x:Name="btnAddIF" Content="IF" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="80" Margin="11,459,-11,-659" Click="btnAddIF_Click"/>
 
         </RelativePanel>
 
-        <RelativePanel x:Name="scheda_SE" Visibility="Visible" RenderTransformOrigin="0,0" Margin="47,193,62,291" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA IF" TextWrapping="Wrap" VerticalAlignment="Top" Width="483" Margin="8,10,-435,-10" TextAlignment="Center" FontWeight="Bold"/>
+        <RelativePanel x:Name="scheda_SE" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="9,193,9,85" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA IF" TextWrapping="Wrap" VerticalAlignment="Top" Width="460" Margin="8,10,-412,-10" TextAlignment="Center" FontWeight="Bold"/>
             <TextBlock HorizontalAlignment="Left" Height="20" Text="IF " TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,67,-56,-67"/>
             <ComboBox x:Name="se_componente" HorizontalAlignment="Left" Margin="90,61,-264,0" VerticalAlignment="Top" Width="363" />
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="VALORE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="VALUE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
             <ComboBox x:Name="se_condizione" HorizontalAlignment="Left" Margin="90,100,-61,-39" VerticalAlignment="Top" Width="160" SelectionChanged="se_condizione_SelectionChanged"/>
             <TextBox x:Name="se_valore" Margin="262,100,-452,-100" />
 
-            <Button x:Name="btnAddse" Content="Add" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="82" Margin="409,171,-426,-171" Tapped="btnAddCondition_Tapped"/>
+            <Button x:Name="btnAddse" Content="Add" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="82" Margin="382,171,-399,-171" Tapped="btnAddCondition_Tapped"/>
             <Button Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="90" Margin="15,170,-40,-170" Click="btnSave_cancel_Click"   />
 
         </RelativePanel>
-        <RelativePanel x:Name="scheda_ALLORA" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="47,193,62,291" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA ACTION" TextWrapping="Wrap" VerticalAlignment="Top" Width="483" Margin="8,10,-435,-10" TextAlignment="Center" FontWeight="Bold"/>
+        <RelativePanel x:Name="scheda_ALLORA" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="11,193,10,89" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA ACTION" TextWrapping="Wrap" VerticalAlignment="Top" Width="452" Margin="12,10,-408,-10" TextAlignment="Center" FontWeight="Bold"/>
             <TextBlock HorizontalAlignment="Left" Height="20" Text="ACTION " TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,67,-56,-67"/>
             <ComboBox x:Name="allora_componente" HorizontalAlignment="Left" Margin="89,61,-263,0" VerticalAlignment="Top" Width="363" />
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="VALORE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="VALUE" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" Margin="19,104,-56,-104"/>
             <ComboBox x:Name="allora_condizione" HorizontalAlignment="Left" Margin="89,100,-60,-39" VerticalAlignment="Top" Width="160" SelectionChanged="allora_condizione_SelectionChanged" />
             <TextBox x:Name="allora_valore" Margin="261,100,-451,-100" />
 
-            <Button x:Name="btnAddallora" Content="Add" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="94" Margin="395,170,-424,-170" Tapped="btnAddallora_Tapped" />
+            <Button x:Name="btnAddallora" Content="Add" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="94" Margin="369,170,-398,-170" Tapped="btnAddallora_Tapped" />
             <Button Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="86" Margin="16,170,-37,-170" Click="btnSave_cancel_Click"   />
 
         </RelativePanel>
 
-        <RelativePanel x:Name="scheda_WAIT" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="47,193,62,291" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
+        <RelativePanel x:Name="scheda_WAIT" Visibility="Collapsed" RenderTransformOrigin="0,0" Margin="13,193,12,81" BorderThickness="2" BorderBrush="Black" Background="WhiteSmoke">
 
-            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA WAIT" TextWrapping="Wrap" VerticalAlignment="Top" Width="483" Margin="8,10,-435,-10" TextAlignment="Center" FontWeight="Bold"/>
+            <TextBlock HorizontalAlignment="Left" Height="20" Text="SCHEDA WAIT" TextWrapping="Wrap" VerticalAlignment="Top" Width="457" Margin="8,10,-409,-10" TextAlignment="Center" FontWeight="Bold"/>
             <telerikInput:RadNumericBox x:Name="wait_Seconds" AllowNullValue="False" Header="Time wait" Maximum="9000" Minimum="0" Margin="114,62,115,-46" ValueFormat="{}{0,0:N0} sec"/>
 
-            <Button x:Name="btnSave_wait" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="84" Margin="403,170,-422,-170" Tapped="btnSave_wait_Tapped"  />
+            <Button x:Name="btnSave_wait" Content="SAVE" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="84" Margin="370,170,-389,-170" Tapped="btnSave_wait_Tapped"  />
             <Button Content="CANCEL" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="90" Margin="15,170,-40,-170" Click="btnSave_cancel_Click"   />
         </RelativePanel>
 

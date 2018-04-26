@@ -1092,7 +1092,6 @@ namespace RaspaCentral
 		public Image ActualImage;
 		enumComponente ActualTipoComponente;
 		Image selectedTool = null;
-		PointerPoint selectedPointer = null;
 		private void initMappa()
 		{
 			messaggio.Text = "";
@@ -1151,7 +1150,7 @@ namespace RaspaCentral
 					Mappa.Source = new BitmapImage(new Uri("ms-appx:///Assets/mappa" + mappa_num + ".png"));
 
 					// spegni toolbar
-					ToolbarShow(enumShowToolbar.nessuno);
+					ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 
 					// Elimina componenti in sospeso
 					eliminaActualImageSoloSeProvvisioria();
@@ -1263,14 +1262,14 @@ namespace RaspaCentral
 			messaggio.Text = "";
 			try
 			{
+				ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
+
 				if (editing.IsChecked != null && editing.IsChecked.Value)
 				{
-					ToolbarShow(enumShowToolbar.nessuno);
 					RaspaMode = enumMode.edit;
 				}
 				else
 				{
-					ToolbarShow(enumShowToolbar.nessuno);
 					RaspaMode = enumMode.working;
 
 					// Elimina componenti in sospeso
@@ -1319,14 +1318,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "192.168.1." : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine + 
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"HOSTNAME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "NODO : " + Actualcomponente.Node_Num + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1336,14 +1328,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "192.168.1." : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine + 
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"HOSTNAME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "CENTRALE : " + Actualcomponente.Node_Num + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>(): item.Value;
 
@@ -1353,16 +1338,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine + 
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Attivo : " + ((Actualcomponente.Stato == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"NODE PIN : " + Actualcomponente.Node_Pin + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "LIGHT : " + Actualcomponente.Node_Num + "/" + Actualcomponente.Node_Pin + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1372,16 +1348,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine + 
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Attivo : " + ((Actualcomponente.Stato == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"NODE PIN : " + Actualcomponente.Node_Pin + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "PIR : " + Actualcomponente.Node_Num + "/" + Actualcomponente.Node_Pin + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1391,16 +1358,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Attivo : " + ((Actualcomponente.Stato == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"NODE PIN : " + Actualcomponente.Node_Pin + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "PUSH : " + Actualcomponente.Node_Num + "/" + Actualcomponente.Node_Pin + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1410,16 +1368,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Attivo : " + ((Actualcomponente.Stato == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"NODE PIN : " + Actualcomponente.Node_Pin + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "MOISTURE : " + Actualcomponente.Node_Num + "/" + Actualcomponente.Node_Pin + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1429,16 +1378,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Attivo : " + ((Actualcomponente.Stato == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
-										"NODE NUM : " + Actualcomponente.Node_Num + Environment.NewLine +
-										"NODE PIN : " + Actualcomponente.Node_Pin + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
+						ToolTipCustom = "BELL : " + Actualcomponente.Node_Num + "/" + Actualcomponente.Node_Pin + " - " + Actualcomponente.IPv4;
 
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
@@ -1450,7 +1390,6 @@ namespace RaspaCentral
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
 						ToolTipCustom = (item == null) ? "---" : "Umidità : " + item.getUmidityValue();
-						;
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 						break;
 					case enumComponente.temperature:
@@ -1459,7 +1398,6 @@ namespace RaspaCentral
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
 						ToolTipCustom = (item == null) ? "---" : "Temperature : " + item.getTemperatureValue();
-						;
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
@@ -1468,14 +1406,7 @@ namespace RaspaCentral
 						Actualcomponente.IPv4 = (item == null) ? "" : item.IPv4;
 						Actualcomponente.IPv6 = (item == null) ? "" : item.IPv6;
 						Actualcomponente.HWAddress = (item == null) ? "" : item.HWAddress;
-						ToolTipCustom = "COMPONENTE " + comp.ToString().ToUpperInvariant() + Environment.NewLine +
-										"ID : " + ((Actualcomponente.ID.HasValue) ? Actualcomponente.ID.Value.ToString() : "-") + Environment.NewLine + "Enabled : " + ((Actualcomponente.Enabled) ? "SI" : "NO") + Environment.NewLine +
-										"Attivo : " + ((Actualcomponente.Stato == enumStato.on) ? "SI" : "NO") + Environment.NewLine +
-										"Trusted : " + ((Actualcomponente.Trusted) ? "SI" : "NO") +
-										"NOME : " + Actualcomponente.Nome + Environment.NewLine +
-										"IP : " + Actualcomponente.IPv4 + Environment.NewLine +
-										"HW Address : " + Actualcomponente.HWAddress + Environment.NewLine;
-
+						ToolTipCustom = "WEBCAM : " + Actualcomponente.Nome + " - " + Actualcomponente.IPv4;
 						Actualcomponente.Value = (item == null) ? new List<string>() : item.Value;
 
 						break;
@@ -1532,6 +1463,7 @@ namespace RaspaCentral
 				immagine.PointerPressed += Img_PointerPressed;
 				immagine.RightTapped += componente_RightTapped;
 
+
 				// Menu
 				MenuFlyout myFlyout = new MenuFlyout();
 				MenuFlyoutItem a1 = new MenuFlyoutItem();
@@ -1539,16 +1471,12 @@ namespace RaspaCentral
 				MenuFlyoutItem a3 = new MenuFlyoutItem();
 				MenuFlyoutItem a4 = new MenuFlyoutItem();
 				MenuFlyoutItem a5 = new MenuFlyoutItem();
-				MenuFlyoutItem a6 = new MenuFlyoutItem();
-				MenuFlyoutItem a7 = new MenuFlyoutItem();
 
 				a1 = new MenuFlyoutItem { Text = "Reset", IsEnabled = Actualcomponente.Action.Reset, Tag = Actualcomponente.ID };
 				a2 = new MenuFlyoutItem { Text = "Enabled", IsEnabled = Actualcomponente.Action.Enabled, Tag = Actualcomponente.ID };
 				a3 = new MenuFlyoutItem { Text = "Disabled", IsEnabled = Actualcomponente.Action.Disabled, Tag = Actualcomponente.ID };
-				a4 = new MenuFlyoutItem { Text = "Schema", IsEnabled = Actualcomponente.Action.Schema, Tag = Actualcomponente.ID };
-				a5 = new MenuFlyoutItem { Text = "Regole", IsEnabled = Actualcomponente.Action.Regole, Tag = Actualcomponente.ID };
-				a6 = new MenuFlyoutItem { Text = "Property", IsEnabled = Actualcomponente.Action.Property, Tag = Actualcomponente.ID };
-				a7 = new MenuFlyoutItem { Text = "Remove", IsEnabled = Actualcomponente.Action.Remove, Tag = Actualcomponente.ID };
+				a4 = new MenuFlyoutItem { Text = "Remove", IsEnabled = Actualcomponente.Action.Remove, Tag = Actualcomponente.ID };
+				a5 = new MenuFlyoutItem { Text = "Property", IsEnabled = Actualcomponente.Action.Property, Tag = Actualcomponente.ID };
 
 
 				a1.Click += MenuFlyoutItem_Click;
@@ -1556,16 +1484,13 @@ namespace RaspaCentral
 				a3.Click += MenuFlyoutItem_Click;
 				a4.Click += MenuFlyoutItem_Click;
 				a5.Click += MenuFlyoutItem_Click;
-				a6.Click += MenuFlyoutItem_Click;
-				a7.Click += MenuFlyoutItem_Click;
 				myFlyout.Items.Add(a1);
 				myFlyout.Items.Add(a2);
 				myFlyout.Items.Add(a3);
 				myFlyout.Items.Add(new MenuFlyoutSeparator());
 				myFlyout.Items.Add(a4);
-				myFlyout.Items.Add(a5);
 				myFlyout.Items.Add(new MenuFlyoutSeparator());
-				myFlyout.Items.Add(a6);
+				myFlyout.Items.Add(a5);
 
 				// aggiungi menu al bottone
 				FlyoutBase.SetAttachedFlyout((FrameworkElement)immagine, myFlyout);
@@ -1971,7 +1896,7 @@ namespace RaspaCentral
 
 				if (RaspaMode == enumMode.edit)
 				{
-					ToolbarShow(enumShowToolbar.nessuno);
+					ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 				}
 			}
 			catch (Exception ex)
@@ -2010,7 +1935,7 @@ namespace RaspaCentral
 							// deseleziono
 							evidenzia(false);
 
-							ToolbarShow(enumShowToolbar.nessuno);
+							ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 						}
 						else
 						{
@@ -2070,20 +1995,6 @@ namespace RaspaCentral
 		#endregion
 
 		#region CONTEXT MENU
-		private void Img_PointerPressed(object sender, PointerRoutedEventArgs e)
-		{
-			try
-			{
-				Image pointerImage = sender as Image;
-				if (pointerImage != null)
-					selectedPointer = e.GetCurrentPoint(pointerImage);
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
 		private void componente_RightTapped(object sender, RightTappedRoutedEventArgs e)
 		{
 			try
@@ -2122,15 +2033,8 @@ namespace RaspaCentral
 					case "Enabled":
 					case "Disabled":
 					case "Reset":
-					case "Schema":
-						ShowSchema(IDComponente);
-						break;
-					case "Regole":
-						Regole.INIT(IDComponente,this);
-						ToolbarShow(enumShowToolbar.regole);
-						break;
 					case "Property":
-						OpenProperty(IDComponente);
+						OpenComponenteInfo(IDComponente);
 						break;
 					case "Remove":
 						remove(IDComponente);
@@ -2143,7 +2047,9 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-		private void OpenProperty(int IDComponente)
+
+		#region PROPERTY
+		private void OpenComponenteInfo(int IDComponente)
 		{
 			messaggio.Text = "";
 			try
@@ -2154,14 +2060,57 @@ namespace RaspaCentral
 					// leggere oggetto da db
 					DBCentral DB = new DBCentral();
 					Actualcomponente = DB.GetComponenteByID(IDComponente);
+					OpenComponenteInfo(Actualcomponente);
 				}
+				else
+					messaggio.Text = "Non rilevato ID Componente";
+
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		private void OpenComponenteInfo(Componente componente)
+		{
+			messaggio.Text = "";
+			try
+			{
+				if (componente == null || componente.ID.HasValue==false)
+					messaggio.Text = "Non rilevato Componente";
+				else
+				{
+					PropertyText.Text = componente.Tipo.ToString().ToUpperInvariant().Replace("_"," ");
+
+					OpenProperty(componente.ID.Value);
+					ShowSchema();
+					OpenRules(componente.ID.Value);
+					ToolbarPropertyShow(enumShowToolbarScheda.Property);
+				}
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
+		private void OpenProperty(int IDComponente)
+		{
+			messaggio.Text = "";
+			try
+			{
 
 				// visualizzare propeerty
-				showProperty(IDComponente, Actualcomponente.Tipo, Actualcomponente.Margin);
+				RaspaResult res = ComponentProperty.showProperty(IDComponente, Actualcomponente.Tipo, Actualcomponente.Margin, this);
+				if (res.Esito)
+					Actualcomponente = ComponentProperty.componente;
+				else
+					messaggio.Text = res.Message;
 
 				// evidenziazione
 				evidenzia(true);
-
 
 			}
 			catch (Exception ex)
@@ -2170,6 +2119,85 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+		private void ShowSchema()
+		{
+			try
+			{
+				// TIPO
+				switch (Actualcomponente.Tipo)
+				{
+					case enumComponente.nessuno:
+					case enumComponente.nodo:
+					case enumComponente.centrale:
+						gpio.clear();
+						break;
+					case enumComponente.light:
+						gpio.drawGPIO_LIGHT(Actualcomponente.Node_Pin);
+						break;
+					case enumComponente.pir:
+						gpio.drawGPIO_PIR(Actualcomponente.Node_Pin);
+						break;
+					case enumComponente.umidity:
+						gpio.drawGPIO_UMIDITY(Actualcomponente.Node_Pin);
+						break;
+					case enumComponente.temperature:
+						gpio.drawGPIO_TEMP(Actualcomponente.Node_Pin);
+						break;
+					case enumComponente.push:
+						gpio.drawGPIO_PUSH(Actualcomponente.Node_Pin);
+						ToolbarPropertyShow(enumShowToolbarScheda.Property);
+						break;
+					case enumComponente.bell:
+						if (Debugger.IsAttached) Debugger.Break();
+						break;
+					case enumComponente.moisture:
+						if (Debugger.IsAttached) Debugger.Break();
+						break;
+					case enumComponente.webcam_ip:
+						break;
+					case enumComponente.webcam_rasp:
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		private void OpenRules(int IDComponente)
+		{
+			try
+			{
+				Regole.INIT(IDComponente, this);
+
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		private void esci_property_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
+
+			// Pulisci schermo
+			eliminaActualImageSoloSeProvvisioria();
+
+			// toglie evidenziazione
+			evidenzia(false);
+
+			// azzera componente attuale
+			azzeraActualComponent();
+
+		}
+
+
+
+		#endregion
+
+
 		private void remove(int IDComponente)
 		{
 			messaggio.Text = "";
@@ -2185,7 +2213,7 @@ namespace RaspaCentral
 				else
 					messaggio.Text = "Non ho decodificato il componente selezionato";
 
-				ToolbarShow(enumShowToolbar.nessuno);
+				ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 
 			}
 			catch (Exception ex)
@@ -2224,7 +2252,7 @@ namespace RaspaCentral
 				// Pulisci schermo
 				eliminaActualImage();
 
-				ToolbarShow(enumShowToolbar.nessuno);
+				ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 
 				// azzera componente attuale
 				azzeraActualComponent();
@@ -2238,63 +2266,7 @@ namespace RaspaCentral
 
 		#endregion
 
-		#region SCHEMA COMPONENT
-		private void ShowSchema(int ID)
-		{
-			try
-			{
-				// rileggo dati dal db
-				DBCentral DB = new DBCentral();
-				Componente item = DB.GetComponenteByID(ID);
 
-				// TIPO
-				switch (item.Tipo)
-				{
-					case enumComponente.nessuno:
-						break;
-					case enumComponente.nodo:
-						break;
-					case enumComponente.centrale:
-						break;
-					case enumComponente.light:
-						gpio.drawGPIO_LIGHT(item.Node_Pin);
-						ToolbarShow(enumShowToolbar.schema);
-						break;
-					case enumComponente.pir:
-						gpio.drawGPIO_PIR(item.Node_Pin);
-						ToolbarShow(enumShowToolbar.schema);
-						break;
-					case enumComponente.umidity:
-						gpio.drawGPIO_UMIDITY(item.Node_Pin);
-						ToolbarShow(enumShowToolbar.schema);
-						break;
-					case enumComponente.temperature:
-						gpio.drawGPIO_TEMP(item.Node_Pin);
-						ToolbarShow(enumShowToolbar.schema);
-						break;
-					case enumComponente.push:
-						gpio.drawGPIO_PUSH(item.Node_Pin);
-						ToolbarShow(enumShowToolbar.schema);
-						break;
-					case enumComponente.bell:
-						if (Debugger.IsAttached) Debugger.Break();
-						break;
-					case enumComponente.moisture:
-						if (Debugger.IsAttached) Debugger.Break();
-						break;
-					case enumComponente.webcam_ip:
-						break;
-					case enumComponente.webcam_rasp:
-						break;
-				}
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
-		#endregion
 	
 		#region TAG
 		private bool isComponentRaspone(Image image)
@@ -2405,12 +2377,28 @@ namespace RaspaCentral
 		#endregion
 
 		#region DRAG DROP
+		enumDrag dragObj = enumDrag.nessuno;
+		public enum enumDrag
+		{
+			nessuno=0,
+			image = 1,
+			property=2,
+		}
+
+		// -----------------------------
+		//  IMAGE
+		// -----------------------------
 		private void Button_DragStarting(UIElement sender, DragStartingEventArgs args)
 		{
 			try
 			{
+				// -----------------------------
+				//  IMAGE
+				// -----------------------------
 				if (RaspaMode == enumMode.working)
 					return;
+
+				dragObj = enumDrag.image;
 
 				evidenzia(false);
 
@@ -2447,12 +2435,71 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+		PointerPoint selectedPointer = null;
+		private void Img_PointerPressed(object sender, PointerRoutedEventArgs e)
+		{
+			try
+			{
+				// -----------------------------
+				//  IMAGE
+				// -----------------------------
+				Image pointerImage = sender as Image;
+				if (pointerImage != null)
+					selectedPointer = e.GetCurrentPoint(pointerImage);
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
+		// -----------------------------
+		//  PROPERTY
+		// -----------------------------
+		private void Toolbar_DragStarting(UIElement sender, DragStartingEventArgs args)
+		{
+			try
+			{
+				// -----------------------------
+				//  PROPERTY
+				// -----------------------------
+				dragObj = enumDrag.property;
+				args.Data.SetText("Muovi");
+				args.Data.RequestedOperation = DataPackageOperation.Move;
+				args.AllowedOperations = DataPackageOperation.Move;
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		PointerPoint toolbardPointer = null;
+		private void Toolbar_PointerPressed(object sender, PointerRoutedEventArgs e)
+		{
+			try
+			{
+				RelativePanel pointer = sender as RelativePanel;
+				if (pointer != null)
+					toolbardPointer = e.GetCurrentPoint(pointer);
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
+		// -----------------------------
+		//  DRAG OVER
+		// -----------------------------
 		private void Mappa_DragOver(object sender, DragEventArgs e)
 		{
 			messaggio.Text = "";
 			try
 			{
-				if (RaspaMode == enumMode.working)
+				if (dragObj == enumDrag.image && RaspaMode == enumMode.working)
 					return;
 
 				e.AcceptedOperation = DataPackageOperation.Move;
@@ -2461,113 +2508,125 @@ namespace RaspaCentral
 			catch (Exception ex)
 			{
 				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
+				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+
+		// -----------------------------
+		//  DROP
+		// -----------------------------
 		private void Mappa_Drop(object sender, DragEventArgs e)
 		{
 			messaggio.Text = "";
 			Componente item = null;
 			try
 			{
-
-				if (RaspaMode == enumMode.working)
-					return;
-
-				DBCentral DB = new DBCentral();
-
-				// azzsera immagine trascinata
-				ActualImage = null;
-
-				// evidenziazione
-				evidenzia(false);
-
-				int ID = getImageID(selectedTool);
-				ActualTipoComponente = getImageComponenteType(selectedTool);
-				// se è un componente sul DB
-				if (ID > 0)
+				// -----------------------------
+				//  PROPERTY
+				// -----------------------------
+				if (dragObj == enumDrag.property)
 				{
-					// rileggo dati dal db
-					item = DB.GetComponenteByID(ID);
+					e.AcceptedOperation = DataPackageOperation.Move;
 
-					// verifico se ha cambiato icona
-					// rispetto ai dati mostrati nelle property
-					if (Actualcomponente == null || Actualcomponente.ID != ID)
-					{
-						// reinizializzo componente attuale
-						initActualComponente(ActualTipoComponente, item);
-					}
+					Grid b = sender as Grid;
+					if (b == null)
+						return;
 
-					// memorizzo come immagine attuale
-					ActualImage = selectedTool;
+					var p = e.GetPosition(main);
+					var X = (toolbardPointer != null && toolbardPointer.Position != null) ? toolbardPointer.Position.X : 0;
+					var Y = (toolbardPointer != null && toolbardPointer.Position != null) ? toolbardPointer.Position.Y : 0;
+					ToolBar.Margin = new Thickness(p.X - X - 4, p.Y - Y - 4, 0, 0);
 				}
 				else
 				{
-					// crea componente nuovo
-					ActualImage = create_object(ActualTipoComponente);
-					ActualImage.Margin = selectedTool.Margin;
-				}
+					// -----------------------------
+					//  IMAGE
+					// -----------------------------
+					if (dragObj == enumDrag.image && RaspaMode == enumMode.working)
+						return;
 
+					DBCentral DB = new DBCentral();
 
-				if (ActualImage != null)
-				{
-					e.AcceptedOperation = DataPackageOperation.Copy;
+					// azzsera immagine trascinata
+					ActualImage = null;
 
+					// evidenziazione
+					evidenzia(false);
 
-					// ADD PAGINA
-					var p = e.GetPosition(Mappa);
-					var X = (selectedPointer != null && selectedPointer.Position != null) ? selectedPointer.Position.X : 0;
-					var Y = (selectedPointer != null && selectedPointer.Position != null) ? selectedPointer.Position.Y : 0;
-					ActualImage.Margin = new Thickness(p.X - X-4, p.Y - Y-4, 0, 0);
-					Actualcomponente.Margin = ActualImage.Margin;
-
-					// SALVO POSIZIONI CAMBIATE
-					if (item != null)
-					{
-						item.PositionLeft = ActualImage.Margin.Left;
-						item.PositionTop = ActualImage.Margin.Top;
-						item.PositionRight = ActualImage.Margin.Right;
-						item.PositionBottom = ActualImage.Margin.Bottom;
-						DB.SetComponenti(item, Utente);
-					}
-
-
-					//visualizza tabs property solo se nuovo
+					int ID = getImageID(selectedTool);
+					ActualTipoComponente = getImageComponenteType(selectedTool);
+					// se è un componente sul DB
 					if (ID > 0)
-						ToolbarShow(enumShowToolbar.nessuno);
+					{
+						// rileggo dati dal db
+						item = DB.GetComponenteByID(ID);
+
+						// verifico se ha cambiato icona
+						// rispetto ai dati mostrati nelle property
+						if (Actualcomponente == null || Actualcomponente.ID != ID)
+						{
+							// reinizializzo componente attuale
+							initActualComponente(ActualTipoComponente, item);
+						}
+
+						// memorizzo come immagine attuale
+						ActualImage = selectedTool;
+					}
 					else
 					{
-						// evidenziazione
-						evidenzia(true);
-
-						// show property
-						showProperty(ID, ActualTipoComponente, Actualcomponente.Margin);
+						// crea componente nuovo
+						ActualImage = create_object(ActualTipoComponente);
+						ActualImage.Margin = selectedTool.Margin;
 					}
 
+
+					if (ActualImage != null)
+					{
+						e.AcceptedOperation = DataPackageOperation.Copy;
+
+
+						// ADD PAGINA
+						var p = e.GetPosition(Mappa);
+						var X = (selectedPointer != null && selectedPointer.Position != null) ? selectedPointer.Position.X : 0;
+						var Y = (selectedPointer != null && selectedPointer.Position != null) ? selectedPointer.Position.Y : 0;
+						ActualImage.Margin = new Thickness(p.X - X - 4, p.Y - Y - 4, 0, 0);
+						Actualcomponente.Margin = ActualImage.Margin;
+
+						// SALVO POSIZIONI CAMBIATE
+						if (item != null)
+						{
+							item.PositionLeft = ActualImage.Margin.Left;
+							item.PositionTop = ActualImage.Margin.Top;
+							item.PositionRight = ActualImage.Margin.Right;
+							item.PositionBottom = ActualImage.Margin.Bottom;
+							DB.SetComponenti(item, Utente);
+						}
+
+
+						//visualizza tabs property solo se nuovo
+						if (ID > 0)
+							ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
+						else
+						{
+							// evidenziazione
+							evidenzia(true);
+
+							// show property
+							OpenComponenteInfo(Actualcomponente);
+						}
+
+					}
 				}
 			}
 			catch (Exception ex)
 			{
 				messaggio.Text = "Errore : " + ex.Message;
-                if (Debugger.IsAttached) Debugger.Break();
+				if (Debugger.IsAttached) Debugger.Break();
 			}
 
 		}
 		#endregion
 
-		#region PROPERTY
-		private void showProperty(int ID,enumComponente Tipo, Thickness Position)
-		{
-			RaspaResult res = ComponentProperty.showProperty(ID, Tipo, Position, this);
-			if (res.Esito)
-				Actualcomponente = ComponentProperty.componente;
-			else
-				messaggio.Text = res.Message;
-
-			// show
-			ToolbarShow(enumShowToolbar.property);
-		}
-		#endregion
 
 		#region ACTUAL IMAGE/COMPONENT
 		public void eliminaActualImage()
@@ -2583,7 +2642,7 @@ namespace RaspaCentral
 					ActualImage = null;
 
 					// spegnere tutti i pannelly property
-					ToolbarShow(enumShowToolbar.nessuno);
+					ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 
 				}
 
@@ -2660,7 +2719,7 @@ namespace RaspaCentral
 			// show tabs mappa
 			TabsShow(enumShowTabs.mappa);
 
-			ToolbarShow(enumShowToolbar.nessuno);
+			ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 
 		}
 		public enum enumShowTabs
@@ -2672,33 +2731,37 @@ namespace RaspaCentral
 		{
 			Tabs.SelectedIndex = (int)show;
 		}
-		public enum enumShowToolbar
+		public enum enumShowToolbarScheda
 		{
-			nessuno=0,
-			property = 1,
-			regole = 2,
-			schema = 4,
+			Nessuno=0,
+			Property = 1,
+			Schema = 2,
+			Rules = 3,
 		}
-		public void ToolbarShow(enumShowToolbar show)
+		public void ToolbarPropertyShow(enumShowToolbarScheda show)
 		{
-			ToolBarProperty.Visibility = Visibility.Collapsed;
-			ToolBarSchema.Visibility = Visibility.Collapsed;
-			ToolbarRegole.Visibility = Visibility.Collapsed;
-			
-
-			switch (show)
+			switch(show)
 			{
-				case enumShowToolbar.nessuno:
+				case enumShowToolbarScheda.Nessuno:
+					ToolBar.Visibility = Visibility.Collapsed;
+					TabComponent.Visibility = Visibility.Collapsed;
 					break;
-				case enumShowToolbar.property:
-					ToolBarProperty.Visibility = Visibility.Visible;
+				case enumShowToolbarScheda.Property:
+					TabComponent.SelectedIndex = 0;
+					TabComponent.Visibility = Visibility.Visible;
+					ToolBar.Visibility = Visibility.Visible;
 					break;
-				case enumShowToolbar.regole:
-					ToolbarRegole.Visibility = Visibility.Visible;
+				case enumShowToolbarScheda.Schema:
+					TabComponent.SelectedIndex = 1;
+					TabComponent.Visibility = Visibility.Visible;
+					ToolBar.Visibility = Visibility.Visible;
 					break;
-				case enumShowToolbar.schema:
-					ToolBarSchema.Visibility = Visibility.Visible;
+				case enumShowToolbarScheda.Rules:
+					TabComponent.SelectedIndex = 2;
+					TabComponent.Visibility = Visibility.Visible;
+					ToolBar.Visibility = Visibility.Visible;
 					break;
+
 			}
 		}
 

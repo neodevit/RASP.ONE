@@ -168,6 +168,7 @@
     <Content Include="Assets\central_untrusted.png" />
     <Content Include="Assets\chart_organisation.png" />
     <Content Include="Assets\chart_organisation_add.png" />
+    <Content Include="Assets\component_bell.png" />
     <Content Include="Assets\component_light.png" />
     <Content Include="Assets\component_light2.png" />
     <Content Include="Assets\component_pir.png" />

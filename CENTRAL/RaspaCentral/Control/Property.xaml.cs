@@ -262,7 +262,6 @@ namespace RaspaCentral
 				}
 
 				// Action
-				btnPropertyAnnulla.Visibility = Visibility.Visible;
 				btnPropertySalva.Visibility = Visibility.Visible;
 			}
 			catch (Exception ex)
@@ -328,20 +327,6 @@ namespace RaspaCentral
 
 
 
-		private void btnPropertyAnnulla_Click(object sender, RoutedEventArgs e)
-		{
-			// Pulisci schermo
-			chiamante.eliminaActualImageSoloSeProvvisioria();
-
-			// toglie evidenziazione
-			chiamante.evidenzia(false);
-
-			// spegnere tutti i pannelly property
-			chiamante.ToolbarShow(enumShowToolbar.nessuno);
-
-			// azzera componente attuale
-			chiamante.azzeraActualComponent();
-		}
 
 		private void btnPropertySalva_Click(object sender, RoutedEventArgs e)
 		{
@@ -776,7 +761,7 @@ namespace RaspaCentral
 				chiamante.initComponente(componente);
 
 				// spegnere tutti i pannelly property
-				chiamante.ToolbarShow(enumShowToolbar.nessuno);
+				chiamante.ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);
 			}
 			catch (Exception ex)
 			{
