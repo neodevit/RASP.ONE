@@ -28,43 +28,53 @@ namespace RaspaEntity
 
 	public enum enumBellOption
 	{
-		sound_basketball_buzzer = 0,
-		sound_banana_peel_slip  = 1,
-		sound_Bleep = 2,
-		sound_Beep=3,
-		sound_bells=4,
-		sound_Click_Button=5,
-		sound_sms_alert_1=6,
-		sound_sms_alert_2=7,
-		sound_Sniff=8,
-		sound_Time=9,
-		sound_Woop = 10,
-		sound_Bike_Horn=11,
-		sound_Computer_Error_Alert=12,
-		sound_Cuckoo_Clock=13,
-		sound_Metronome=14,
-		sound_Large_Metal_Pan = 15,
-		sound_Torch=16,
+		signal_basketball = 0,
+		signal_peel = 1,
+		signal_Bleep = 2,
+		signal_Beep = 3,
+		signal_bells = 4,
+		signal_Click_Button = 5,
+		signal_sms_alert_1 = 6,
+		signal_sms_alert_2 = 7,
+		signal_Sniff = 8,
+		signal_Time = 9,
+		signal_Computer_Error_Alert = 10,
+		signal_Cuckoo_Clock = 11,
+		signal_Metronome = 12,
+		signal_Large_Metal_Pan = 13,
+		signal_Yahoo = 14,
+		signal_Vibrating = 15,
 
 
-		sound_Buzz = 100,
-		sound_Buzz_Fade_In = 101,
-		sound_Buzz_Fade_Out =102,
-		sound_Doorbell=103,
-		sound_Buzz2 =104,
-		sound_Door_Buzzer=105,
-		sound_old_fashioned_door_bell=106,
-		sound_Door_Chime=107,
-		sound_old_fashioned_school_bell=108,
-		sound_Rooster=109,
-		sound_dixie_horn=110,
-		sound_Yahoo=111,
+		bell_Bike_Horn = 50,
+		bell_Buzz = 51,
+		bell_Buzz_Fade_In = 52,
+		bell_Buzz_Fade_Out = 53,
+		bell_Doorbell = 54,
+		bell_Door_Buzzer = 55,
+		bell_old_fashioned_door_bell = 56,
+		bell_Door_Chime = 57,
+		bell_old_fashioned_school_bell = 58,
+		bell_dixie_horn = 59,
 
-		sound_alarm_clock = 200,
-		sound_Police=201,
-		sound_Smoke_Alarm=202,
-		sound_Phone_Vibrating=203,
-		sound_Siren=204,
+		alarm_Woop = 100,
+		alarm_Buzz2 = 101,
+		alarm_clock = 102,
+		alarm_Police = 103,
+		alarm_Smoke = 104,
+		alarm_Siren = 105,
+		alarm_Torch = 106,
+		alarm_Rooster = 107,
+	}
+	public class ChiaveValore
+	{
+		public ChiaveValore(string chiave,string valore)
+		{
+			Chiave = chiave;
+			Valore = valore;
+		}
+		public string Chiave { get; set; }
+		public string Valore { get; set; }
 	}
 
 
@@ -142,7 +152,7 @@ namespace RaspaEntity
 		IPv4=0,
 		central=1,
 		rules=2,            // only one in network
-		hearbit =3,         
+		heartbit =3,         
 		reload =4,			// only one in network
 	}
 }

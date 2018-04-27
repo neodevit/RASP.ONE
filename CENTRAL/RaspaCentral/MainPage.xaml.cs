@@ -100,7 +100,7 @@ namespace RaspaCentral
 			if (flgSubscription_rules)                                      // solo un centrale può eseguire i rules
 				ConnectedSubscription.Add(enumSubribe.rules.ToString()); 
 			if (flgSubscription_hearbit)
-				ConnectedSubscription.Add(enumSubribe.hearbit.ToString()); 
+				ConnectedSubscription.Add(enumSubribe.heartbit.ToString()); 
 			if (flgSubscription_reload)                                     // solo un centrale può richiedere il reload dei nodi
 				ConnectedSubscription.Add(enumSubribe.reload.ToString());
 
@@ -267,7 +267,7 @@ namespace RaspaCentral
 			{
 				// Inizializza componenti mappa leggendoli dal DB
 				DBCentral DB = new DBCentral();
-				Componenti recs = DB.GetComponenti();
+				Componenti recs = DB.GetComponenti(mappa_num);
 				foreach (Componente rec in recs)
 					initComponente(rec);
 			}
@@ -302,17 +302,22 @@ namespace RaspaCentral
 
 						break;
 					case enumComponente.pir:
-						protocol = new RaspaProtocol();
-						protocol.Mittente = centrale;
-						protocol.Destinatario = rec;
-						protocol.Comando = enumComando.comando;
-						protocol.Azione = enumStato.read;
-						protocol.SubcribeDestination = enumSubribe.IPv4;
-						protocol.SubcribeResponse = enumSubribe.central;
+						if (rec.Enabled)
+						{
+							protocol = new RaspaProtocol();
+							protocol.Mittente = centrale;
+							protocol.Destinatario = rec;
+							protocol.Comando = enumComando.comando;
 
-						writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-						MQTTRSend(protocol);
+							// attivo pir
+							protocol.Azione = enumStato.on;
 
+							protocol.SubcribeDestination = enumSubribe.IPv4;
+							protocol.SubcribeResponse = enumSubribe.central;
+
+							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
+							MQTTRSend(protocol);
+						}
 						break;
 
 					case enumComponente.push:
@@ -323,11 +328,8 @@ namespace RaspaCentral
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
 
-							// attivo bottone solo se necessario
-							if (rec.Enabled)
-								protocol.Azione = enumStato.on;
-							else
-								protocol.Azione = enumStato.off;
+							// attivo bottone 
+							protocol.Azione = enumStato.on;
 
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
@@ -344,7 +346,10 @@ namespace RaspaCentral
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
-							protocol.Azione = enumStato.read;
+
+							// attivo moisture
+							protocol.Azione = enumStato.on;
+
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
@@ -360,7 +365,10 @@ namespace RaspaCentral
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
+
+							// attivo moisture
 							protocol.Azione = enumStato.read;
+
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
@@ -377,8 +385,10 @@ namespace RaspaCentral
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
+
 							protocol.Azione = (rec.repeat) ? enumStato.readRepetitive : enumStato.read;
 							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
+
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
@@ -393,8 +403,10 @@ namespace RaspaCentral
 							protocol.Mittente = centrale;
 							protocol.Destinatario = rec;
 							protocol.Comando = enumComando.comando;
+
 							protocol.Azione = (rec.repeat) ? enumStato.readRepetitive : enumStato.read;
 							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
+
 							protocol.SubcribeDestination = enumSubribe.IPv4;
 							protocol.SubcribeResponse = enumSubribe.central;
 
@@ -432,260 +444,221 @@ namespace RaspaCentral
 			try
 			{
 				DBCentral DB = new DBCentral();
-				// Modifica interfaccia a fronte della notifica
-				foreach (var control in GridMappa.Children)
+
+				if (protocol.Comando == enumComando.nodeInit)
 				{
-					var img = control as Image;
-					if (img == null)
-						continue;
-
-					if (img.Tag == null)
-						continue;
-
-					RaspaTag tag = new RaspaTag(img.Tag.ToString());
-					if (tag.CompareMittente(protocol))
+					// leggo il nodo da iniziare sul DB
+					Componente nodo2INIT = DB.GetComponenteByIPv4(protocol.Mittente.IPv4, enumComponente.nodo);
+					// se il componente è effettivamente un nodo
+					if (nodo2INIT.Tipo == enumComponente.nodo && protocol.Mittente != null)
 					{
-						// COMANDO
-						switch (protocol.Comando)
+						// Aggiorno i dati del nodo
+						nodo2INIT.HostName = protocol.Mittente.HostName;
+						nodo2INIT.HWAddress = protocol.Mittente.HWAddress;
+						nodo2INIT.IPv4 = protocol.Mittente.IPv4;
+						nodo2INIT.IPv6 = protocol.Mittente.IPv6;
+						nodo2INIT.NodeSWVersion = protocol.Mittente.NodeSWVersion;
+						nodo2INIT.OSVersion = protocol.Mittente.OSVersion;
+						nodo2INIT.SystemID = protocol.Mittente.SystemID;
+						nodo2INIT.SystemProductName = protocol.Mittente.SystemProductName;
+
+						// salvo i dati aggiornati sul database
+						RaspaResult resNodeInit = DB.SetComponenti(nodo2INIT, Utente);
+					}
+				}
+				else if (protocol.Comando == enumComando.nodeReload)
+				{
+					NodeReload(protocol.Mittente.IPv4);
+				}
+				else if (protocol.Comando == enumComando.notify)
+				{
+					// Modifica interfaccia a fronte della notifica
+					foreach (var control in GridMappa.Children)
+					{
+						var img = control as Image;
+						if (img == null)
+							continue;
+
+						if (img.Tag == null)
+							continue;
+
+						RaspaTag tag = new RaspaTag(img.Tag.ToString());
+						if (tag.CompareMittente(protocol))
 						{
-							case enumComando.comando:
-								break;
-							case enumComando.notify:
-								#region NOTIFY
+							// NOTIFY
+							#region NOTIFY
 
-								img.Source = choseImageByComponente(protocol);
+							img.Source = choseImageByComponente(protocol);
 
-								switch (protocol.Mittente.Tipo)
-								{
-									case enumComponente.light:
-										#region LIGHT
-										switch (protocol.Azione)
-										{
-											case enumStato.nessuno:
-												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
-												break;
-											case enumStato.off:
-												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
-												break;
-											case enumStato.on:
-												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
-												break;
-											case enumStato.errore:
-												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
-												break;
-										}
-										#endregion
-										break;
-									case enumComponente.pir:
-										#region PIR
-										switch (protocol.Azione)
-										{
-											case enumStato.nessuno:
-												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
-												break;
-											case enumStato.off:
-												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
-												break;
-											case enumStato.on:
-											case enumStato.signalOFF:
-												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
-												break;
-											case enumStato.signal:
-												DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
-												break;
-											case enumStato.errore:
-												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
-												break;
-										}
-										#endregion
-										break;
-									case enumComponente.bell:
-										#region BELL
-										switch (protocol.Azione)
-										{
-											case enumStato.nessuno:
-												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
-												break;
-											case enumStato.off:
-												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
-												break;
-											case enumStato.on:
-											case enumStato.signalOFF:
-												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
-												break;
-											case enumStato.signal:
-												DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
-												break;
-											case enumStato.errore:
-												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
-												break;
-										}
-										#endregion
-										break;
-									case enumComponente.moisture:
-										#region MOISTURE
-										switch (protocol.Azione)
-										{
-											case enumStato.nessuno:
-												DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
-												break;
-											case enumStato.off:
-												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
-												break;
-											case enumStato.on:
-											case enumStato.signalOFF:
-												DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
-												break;
-											case enumStato.signal:
-												DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
-												break;
-											case enumStato.errore:
-												DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
-												break;
-										}
-										#endregion
-										break;
-
-									case enumComponente.umidity:
-										string umidity = protocol.getUmidityValue();
-										Decimal? umidityVal = protocol.getUmidity();
-										string TooltipUmidity = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Umidity : " + umidity;
-
-										#region UMIDITY
-										switch (protocol.Azione)
-										{
-											case enumStato.nessuno:
-												ToolTipService.SetToolTip(img, "---");
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
-												break;
-											case enumStato.off:
-												ToolTipService.SetToolTip(img, "OFF");
-												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
-												break;
-											case enumStato.on:
-												ToolTipService.SetToolTip(img, TooltipUmidity);
-												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
-												break;
-											case enumStato.value:
-												ToolTipService.SetToolTip(img, TooltipUmidity);
-												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
-												break;
-											case enumStato.errore:
-												ToolTipService.SetToolTip(img, "Error");
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
-												break;
-										}
-										#endregion
-										break;
-									case enumComponente.temperature:
-
-										string temperatura = protocol.getTemperatureValue();
-										Decimal? temperaturaVal = protocol.getTemperature();
-										string TooltipTemperature = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Temperature : " + temperatura;
-
-										#region TEMPERATURE
-										switch (protocol.Azione)
-										{
-											case enumStato.nessuno:
-												ToolTipService.SetToolTip(img, "---");
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
-												break;
-											case enumStato.off:
-												ToolTipService.SetToolTip(img, "OFF");
-												DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
-												break;
-											case enumStato.on:
-												ToolTipService.SetToolTip(img, TooltipTemperature);
-												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
-												break;
-											case enumStato.value:
-												ToolTipService.SetToolTip(img, TooltipTemperature);
-												DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
-												break;
-											case enumStato.errore:
-												ToolTipService.SetToolTip(img, "Error");
-												DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
-												break;
-										}
-										#endregion
-										break;
-
-									case enumComponente.push:
-										switch (protocol.Azione)
-										{
-											case enumStato.signal:
-												SpeechService speek = new SpeechService();
-												speek.parla("CHI CAZZO ROMPE A QUEST'ORA");
-												break;
-										}
-										break;
-								}
-								#endregion
-								break;
-							case enumComando.nodeInit:
-								#region NODE INIT
-								// leggo il nodo da iniziare sul DB
-								Componente nodo2INIT = DB.GetComponenteByIPv4(protocol.Mittente.IPv4, enumComponente.nodo);
-								// se il componente è effettivamente un nodo
-								if (nodo2INIT.Tipo == enumComponente.nodo && protocol.Mittente != null)
-								{
-									// Aggiorno i dati del nodo
-									nodo2INIT.HostName = protocol.Mittente.HostName;
-									nodo2INIT.HWAddress = protocol.Mittente.HWAddress;
-									nodo2INIT.IPv4 = protocol.Mittente.IPv4;
-									nodo2INIT.IPv6 = protocol.Mittente.IPv6;
-									nodo2INIT.NodeSWVersion = protocol.Mittente.NodeSWVersion;
-									nodo2INIT.OSVersion = protocol.Mittente.OSVersion;
-									nodo2INIT.SystemID = protocol.Mittente.SystemID;
-									nodo2INIT.SystemProductName = protocol.Mittente.SystemProductName;
-
-									// salvo i dati aggiornati sul database
-									RaspaResult resNodeInit = DB.SetComponenti(nodo2INIT, Utente);
-								}
-
-								#endregion
-								break;
-							case enumComando.nodeReload:
-								#region NODE RELOAD
-								// leggo il nodo da reload sul DB
-								Componenti componenti = DB.GetComponentiByIPv4(protocol.Mittente.IPv4);
-
-								// analizza i componenti
-								foreach (Componente componente in componenti)
-								{
-									switch (componente.Tipo)
+							switch (protocol.Mittente.Tipo)
+							{
+								case enumComponente.light:
+									#region LIGHT
+									switch (protocol.Azione)
 									{
-										case enumComponente.nessuno:
-										case enumComponente.centrale:
-										case enumComponente.nodo:
+										case enumStato.nessuno:
+											DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
 											break;
-										case enumComponente.pir:
-											// manda messaggio al nodo per inizializzare questo PIR
-											// con i dati presenti nel DB
-
+										case enumStato.off:
+											DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
 											break;
-										case enumComponente.light:
-											// manda messaggio al nodo per inizializzare questa LIGHT
-											// con i dati presenti nel DB
-											RaspaProtocol initLight = new RaspaProtocol();
-											protocol.Comando = enumComando.comando;
-											protocol.Mittente = centrale;
-											protocol.Destinatario = componente;
-											protocol.Value = componente.Value;
-											protocol.SubcribeDestination = enumSubribe.IPv4;
-											protocol.SubcribeResponse = enumSubribe.central;
-
-											MQTTRSend(protocol);
+										case enumStato.on:
+											DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
+											break;
+										case enumStato.errore:
+											DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
 											break;
 									}
-								}
+									#endregion
+									break;
+								case enumComponente.pir:
+									#region PIR
+									switch (protocol.Azione)
+									{
+										case enumStato.nessuno:
+											DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
+											break;
+										case enumStato.off:
+											DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+											break;
+										case enumStato.on:
+										case enumStato.signalOFF:
+											DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
+											break;
+										case enumStato.signal:
+											DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
+											break;
+										case enumStato.errore:
+											DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
+											break;
+									}
+									#endregion
+									break;
+								case enumComponente.bell:
+									#region BELL
+									switch (protocol.Azione)
+									{
+										case enumStato.nessuno:
+											DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
+											break;
+										case enumStato.off:
+											DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+											break;
+										case enumStato.on:
+										case enumStato.signalOFF:
+											DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
+											break;
+										case enumStato.signal:
+											DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
+											break;
+										case enumStato.errore:
+											DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
+											break;
+									}
+									#endregion
+									break;
+								case enumComponente.moisture:
+									#region MOISTURE
+									switch (protocol.Azione)
+									{
+										case enumStato.nessuno:
+											DB.ModComponentiStato(tag.ID, enumStato.nessuno, Utente);
+											break;
+										case enumStato.off:
+											DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+											break;
+										case enumStato.on:
+										case enumStato.signalOFF:
+											DB.ModComponentiStato(tag.ID, enumStato.on, Utente);
+											break;
+										case enumStato.signal:
+											DB.ModComponentiStato(tag.ID, enumStato.signal, Utente);
+											break;
+										case enumStato.errore:
+											DB.ModComponentiStato(tag.ID, enumStato.errore, Utente);
+											break;
+									}
+									#endregion
+									break;
 
-								#endregion
-								break;
+								case enumComponente.umidity:
+									string umidity = protocol.getUmidityValue();
+									Decimal? umidityVal = protocol.getUmidity();
+									string TooltipUmidity = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Umidity : " + umidity;
+
+									#region UMIDITY
+									switch (protocol.Azione)
+									{
+										case enumStato.nessuno:
+											ToolTipService.SetToolTip(img, "---");
+											DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
+											break;
+										case enumStato.off:
+											ToolTipService.SetToolTip(img, "OFF");
+											DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+											DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
+											break;
+										case enumStato.on:
+											ToolTipService.SetToolTip(img, TooltipUmidity);
+											DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
+											break;
+										case enumStato.value:
+											ToolTipService.SetToolTip(img, TooltipUmidity);
+											DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
+											break;
+										case enumStato.errore:
+											ToolTipService.SetToolTip(img, "Error");
+											DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
+											break;
+									}
+									#endregion
+									break;
+								case enumComponente.temperature:
+
+									string temperatura = protocol.getTemperatureValue();
+									Decimal? temperaturaVal = protocol.getTemperature();
+									string TooltipTemperature = "Last : " + DateTime.Now.ToString("HH:mm:ss.f") + Environment.NewLine + "Temperature : " + temperatura;
+
+									#region TEMPERATURE
+									switch (protocol.Azione)
+									{
+										case enumStato.nessuno:
+											ToolTipService.SetToolTip(img, "---");
+											DB.ModComponentiValueAndStato(tag.ID, "", enumStato.nessuno, Utente);
+											break;
+										case enumStato.off:
+											ToolTipService.SetToolTip(img, "OFF");
+											DB.ModComponentiStato(tag.ID, enumStato.off, Utente);
+											DB.ModComponentiValueAndStato(tag.ID, "", enumStato.off, Utente);
+											break;
+										case enumStato.on:
+											ToolTipService.SetToolTip(img, TooltipTemperature);
+											DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
+											break;
+										case enumStato.value:
+											ToolTipService.SetToolTip(img, TooltipTemperature);
+											DB.ModComponentiValueAndStato(tag.ID, protocol.ValueFor_writeDB(), enumStato.on, Utente);
+											break;
+										case enumStato.errore:
+											ToolTipService.SetToolTip(img, "Error");
+											DB.ModComponentiValueAndStato(tag.ID, "", enumStato.errore, Utente);
+											break;
+									}
+									#endregion
+									break;
+
+								case enumComponente.push:
+									switch (protocol.Azione)
+									{
+										case enumStato.signal:
+											SpeechService speek = new SpeechService();
+											speek.parla("CHI CAZZO ROMPE A QUEST'ORA");
+											break;
+									}
+									break;
+							}
+							#endregion
 						}
-						
 					}
 				}
 			}
@@ -695,9 +668,80 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-#endregion
 
-#endregion
+		private void NodeReload(string IPv4)
+		{
+			DBCentral DB = new DBCentral();
+			RaspaProtocol protocol = new RaspaProtocol();
+			try
+			{
+				#region NODE RELOAD
+				// leggo il nodo da reload sul DB
+				Componenti componenti = DB.GetComponentiByIPv4(IPv4);
+
+				// analizza i componenti
+				foreach (Componente componente in componenti)
+				{
+					if (componente.Enabled)
+					{
+						enumStato stato = enumStato.nessuno;
+
+						switch (componente.Tipo)
+						{
+							case enumComponente.nessuno:
+							case enumComponente.centrale:
+							case enumComponente.nodo:
+								break;
+							case enumComponente.pir:
+								stato = enumStato.on;
+								break;
+							case enumComponente.light:
+								stato = componente.Stato;
+								break;
+							case enumComponente.bell:
+								break;
+							case enumComponente.moisture:
+								stato = enumStato.on;
+								break;
+							case enumComponente.push:
+								stato = enumStato.on;
+								break;
+							case enumComponente.temperature:
+								stato = enumStato.read;
+								break;
+							case enumComponente.umidity:
+								stato = enumStato.read;
+								break;
+							case enumComponente.webcam_rasp:
+								stato = componente.Stato;
+								break;
+						}
+
+						RaspaProtocol initBell = new RaspaProtocol();
+						protocol.Comando = enumComando.comando;
+						protocol.Mittente = centrale;
+						protocol.Destinatario = componente;
+						protocol.Azione = enumStato.read;
+						protocol.SubcribeDestination = enumSubribe.IPv4;
+						protocol.SubcribeResponse = enumSubribe.central;
+
+						MQTTRSend(protocol);
+
+					}
+				}
+
+				#endregion
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
+		#endregion
+
+		#endregion
 
 		#region WORKING
 		private RaspaResult Comando(Image img,int IDComponente)
@@ -1161,6 +1205,9 @@ namespace RaspaCentral
 					// carica componenti
 					popolateComponenti();
 
+					// richiede ai componenti lo stato attuale
+					initComponentiFromNode();
+
 					// inizializza controllo property
 					ComponentProperty.mappa_num = mappa_num;
 				}
@@ -1186,7 +1233,13 @@ namespace RaspaCentral
 				DBCentral DB = new DBCentral();
 				Componenti recs = DB.GetComponenti(mappa_num);
 				foreach (Componente rec in recs)
+				{
+					// resetto i dati per forzare la prima lettura
+					rec.Stato = enumStato.nessuno;
+					rec.Value = null;
+					// disegno
 					create_object(rec.Tipo, rec);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -1512,7 +1565,7 @@ namespace RaspaCentral
 			BitmapImage res = new BitmapImage(new Uri("ms-appx:///Assets/cross.png"));
 			try
 			{
-				// ACQUA
+				// LOAD
 				res = new BitmapImage(new Uri("ms-appx:///Assets/"+ name + ".png"));
 			}
 			catch (Exception ex)
@@ -1950,8 +2003,8 @@ namespace RaspaCentral
 							{
 								// --> seleziona
 								evidenzia(true);
-								// --> property
-								OpenProperty(ID);
+								// --> toolbar info property
+								OpenComponenteInfo(ID);
 							}
 						}
 					}
@@ -1971,8 +2024,8 @@ namespace RaspaCentral
 						ID = getImageID(ActualImage);
 						if (ID > 0)
 						{
-							// show property
-							OpenProperty(ID);
+							// --> toolbar info property
+							OpenComponenteInfo(ID);
 						}
 					}
 #endregion
@@ -2145,13 +2198,12 @@ namespace RaspaCentral
 						break;
 					case enumComponente.push:
 						gpio.drawGPIO_PUSH(Actualcomponente.Node_Pin);
-						ToolbarPropertyShow(enumShowToolbarScheda.Property);
 						break;
 					case enumComponente.bell:
-						if (Debugger.IsAttached) Debugger.Break();
+						gpio.drawGPIO_BELL(Actualcomponente.Node_Pin);
 						break;
 					case enumComponente.moisture:
-						if (Debugger.IsAttached) Debugger.Break();
+						gpio.drawGPIO_MOISTURE(Actualcomponente.Node_Pin);
 						break;
 					case enumComponente.webcam_ip:
 						break;

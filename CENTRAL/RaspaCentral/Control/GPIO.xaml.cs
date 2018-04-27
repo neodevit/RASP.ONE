@@ -53,6 +53,16 @@ namespace RaspaCentral
 			drawGPIOcomp(enumComponente.push, GPIOpin, 0, 0);
 		}
 
+		public void drawGPIO_MOISTURE(int GPIOpin)
+		{
+			drawGPIOcomp(enumComponente.moisture, GPIOpin, 0, 0);
+		}
+		public void drawGPIO_BELL(int GPIOpin)
+		{
+			drawGPIOcomp(enumComponente.bell, GPIOpin, 0, 0);
+		}
+
+
 		private void drawGPIOcomp(enumComponente componente,int GPIO_A,int GPIO_B, int GPIO_C)
 		{
 
@@ -68,6 +78,22 @@ namespace RaspaCentral
 				case enumComponente.bell:
 					// COMPOONENTE PHOTO
 					schemaPhoto("ms-appx:///Assets/component_bell.png", 150, 148, 235, 214);
+					break;
+				case enumComponente.moisture:
+					// disegna pin gpio
+					drawGPIOPin();
+
+					// COMPOONENTE PHOTO
+					schemaPhoto("ms-appx:///Assets/component_moisture.png", 17, 257, 200, 381);
+
+					// GND
+					schemaConnection(BASE, 6, enumTipoPIN.ground, "S1", 320, 275);
+					// SIGNAL
+					GPIOPin moist = DB.GetGPIOPinByGPIOnum(GPIO_A);
+					schemaConnection(BASE, moist.NUM, enumTipoPIN.gpio, "S2", 320, 255);
+					// POWER
+					schemaConnection(BASE, 2, enumTipoPIN.power, "S3", 320, 290);
+
 					break;
 				case enumComponente.light:
 					// disegna pin gpio

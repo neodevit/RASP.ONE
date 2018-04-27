@@ -31,6 +31,9 @@
     <iot:Capability Name="systemManagement" />
     <uap:Capability Name="userAccountInformation" />
     <uap:Capability Name="videosLibrary" />
+    <uap3:Capability Name="backgroundMediaPlayback" />
+    <uap:Capability Name="musicLibrary" />
     <DeviceCapability Name="webcam" />
+    <DeviceCapability Name="microphone" />
   </Capabilities>
 </Package>

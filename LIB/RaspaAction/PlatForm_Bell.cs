@@ -50,6 +50,11 @@ namespace RaspaAction
 				switch (Protocol.Azione)
 				{
 					case enumStato.nessuno:
+						break;
+					case enumStato.read:
+						// restiutuisci esito
+						notify.ActionNotify(Protocol, true, "Bell Read", enumSubribe.central, enumComponente.bell, enumComando.notify, enumStato.on, 0);
+						break;
 					case enumStato.signal:
 
 						var mediaElement = new MediaElement();
@@ -57,7 +62,7 @@ namespace RaspaAction
 						mediaElement.Play();
 
 						// restiutuisci esito
-						notify.ActionNotify(Protocol, true, "Push Button Read", enumSubribe.central, enumComponente.bell, enumComando.notify, enumStato.signalOFF, 0);
+						notify.ActionNotify(Protocol, true, "Bell", enumSubribe.central, enumComponente.bell, enumComando.notify, enumStato.signalOFF, 0);
 						break;
 				}
 

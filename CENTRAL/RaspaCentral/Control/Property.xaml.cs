@@ -1,7 +1,9 @@
 ﻿using RaspaDB;
 using RaspaEntity;
+using RaspaTools;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -162,11 +164,13 @@ namespace RaspaCentral
 
 						// LOAD COMBO
 						initPropertyComboNodes(BELL_NODO);
-						initPropertyComboPIN(BELL_PIN);
+						initComboBellSound(BELL_SOUND);
 
 						// NODE NUM
 						BELL_NODO.SelectedValue = componente.Node_Num;
-						BELL_PIN.SelectedValue = componente.Node_Pin;
+						// SOUND
+						BELL_SOUND.SelectedValue = componente.Options;
+
 						break;
 					case enumComponente.moisture:
 						ToolbarPropertyShow(componente.Tipo);
@@ -460,7 +464,10 @@ namespace RaspaCentral
 						componente.IPv4 = BELL_IP.Text;
 						componente.Descrizione = BELL_DESCRIZIONE.Text;
 						componente.Node_Num = Convert.ToInt32(BELL_NODO.SelectedValue);
-						componente.Node_Pin = Convert.ToInt32(BELL_PIN.SelectedValue);
+
+						ChiaveValore val = (ChiaveValore)BELL_SOUND.SelectedItem;
+						componente.Options = val.Chiave;
+
 						break;
 					case enumComponente.moisture:
 						componente.Enabled = (MOISTURE_ENABLED.IsChecked.HasValue) ? MOISTURE_ENABLED.IsChecked.Value : false;
@@ -883,6 +890,53 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+
+		#endregion
+
+		#region BELL
+		public void initComboBellSound(ComboBox comboSound)
+		{
+			ObservableCollection<ChiaveValore> data = new ObservableCollection<ChiaveValore>();  
+			try
+			{
+				comboSound.ItemsSource=null;
+
+				foreach (int i in Enum.GetValues(typeof(enumBellOption)))
+				{
+					String name = Enum.GetName(typeof(enumBellOption), i);
+					data.Add(new ChiaveValore(i.ToString(), name));
+				}
+				comboSound.DisplayMemberPath = "Valore";
+				comboSound.SelectedValuePath = "Chiave";
+				comboSound.ItemsSource = data;
+			}
+			catch (Exception ex)
+			{
+				chiamante.messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		private void BELL_PLAY_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			try
+			{
+				// Suono Selezionato
+				ChiaveValore val = (ChiaveValore)BELL_SOUND.SelectedItem;
+
+				// Play
+				Uri sourceUri = new Uri(String.Format("ms-appx:///Assets/Sound/" + val.Valore + ".mp3", UriKind.Absolute));
+				BELL_SAMPLE.Stop();
+				BELL_SAMPLE.Source = sourceUri;
+				BELL_SAMPLE.Volume = 100;
+				//BELL_SAMPLE.Play();
+			}
+			catch (Exception ex)
+			{
+				chiamante.messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+
 		#endregion
 
 		#region TEMPERATURE
@@ -891,5 +945,6 @@ namespace RaspaCentral
 			TEMP_REPEAT_MINUTS.IsEnabled = (TEMP_REPEAT.IsOn);
 		}
 		#endregion
+
 	}
 }

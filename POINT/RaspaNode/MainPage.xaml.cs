@@ -76,7 +76,7 @@ namespace RaspaNode
 				INIT_MQTT();
 
 			// --------------------------------------
-			// NODO UPDATE with sysstem info
+			// NODO UPDATE with system info
 			// --------------------------------------
 			if (flgNodoUpdate)
 				NODE_UPDATE();
@@ -386,7 +386,7 @@ namespace RaspaNode
 				protocol.Comando = enumComando.nodeReload;
 				protocol.Mittente = nodo;
 				protocol.Destinatario = new Componente();
-				protocol.Destinatario.Tipo = enumComponente.nessuno;
+				protocol.Destinatario.Tipo = enumComponente.centrale;
 				protocol.SubcribeResponse = enumSubribe.IPv4;
 				protocol.SubcribeDestination = enumSubribe.reload;
 				mqTT.Publish(protocol);

@@ -34,6 +34,8 @@ namespace RaspaAction
 				// controlli formali
 				if (protocol.Comando != enumComando.comando)
 					return new RaspaResult(false, "Platform deve eseguire solo comandi");
+				if (gpio==null)
+					return new RaspaResult(false, "Platform deve avere valorizzato GPIO Pin");
 
 				// GPIO
 				gpioPIN = gpio;

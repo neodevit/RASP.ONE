@@ -163,12 +163,14 @@
             <TextBox x:Name="BELL_NOME" HorizontalAlignment="Left" Margin="125,106,0,0" Text="..." VerticalAlignment="Top" Width="210"/>
             <TextBlock Text="NODE" Margin="17,156,-17,-158"  />
             <ComboBox x:Name="BELL_NODO" HorizontalAlignment="Left" Margin="125,151,0,0" VerticalAlignment="Top" SelectionChanged="NODO_SelectionChanged"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,199,-1,0" Text="PIN" VerticalAlignment="Top"/>
-            <ComboBox x:Name="BELL_PIN" HorizontalAlignment="Left" Margin="126,194,-1,0" VerticalAlignment="Top"/>
             <TextBlock Text="IP" Margin="215,156,-214,-156" />
             <TextBlock x:Name="BELL_IP" Text="..." Margin="240,156,-238,-156" />
-            <TextBlock HorizontalAlignment="Left" Margin="15,241,0,-37" Text="DESCRIPTION" VerticalAlignment="Top"/>
-            <TextBox x:Name="BELL_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,265,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="175"/>
+            <TextBlock HorizontalAlignment="Left" Margin="15,223,0,-19" Text="SOUND" VerticalAlignment="Top"/>
+            <ComboBox x:Name="BELL_SOUND" HorizontalAlignment="Left" Margin="126,217,-155,-23" VerticalAlignment="Top" Width="218"/>
+            <Image x:Name="BELL_PLAY" Source="/Assets/sound.png"  Width="32" Height="32" Tapped="BELL_PLAY_Tapped" Margin="352,218,-352,-218"   />
+            <MediaElement x:Name="BELL_SAMPLE" Width="0" AutoPlay="True"/>
+            <TextBlock HorizontalAlignment="Left" Margin="15,269,0,-65" Text="DESCRIPTION" VerticalAlignment="Top"/>
+            <TextBox x:Name="BELL_DESCRIZIONE" HorizontalAlignment="Left" Margin="15,290,-109,-104" Text="" AcceptsReturn="True" TextWrapping="Wrap"  VerticalAlignment="Top" Width="371" Height="150"/>
         </RelativePanel>
         <RelativePanel x:Name="MOISTURE_Property" Visibility="Collapsed" Margin="0,0,0,50">
             <Image Source="ms-appx:///Assets/categ_moisture.png" Opacity="0.5" Margin="185,5,-65,230" />

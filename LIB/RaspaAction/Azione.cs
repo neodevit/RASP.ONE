@@ -157,13 +157,7 @@ namespace RaspaAction
 				//-----------------------------------------
 				// EXECUTE
 				//-----------------------------------------
-				if (gpioPIN != null)
-					res = Platform.RUN(mqTT, gpioPIN, platform_EVENTS, Protocol);
-				else
-				{
-					if (Debugger.IsAttached) Debugger.Break();
-					return;
-				}
+				res = Platform.RUN(mqTT, gpioPIN, platform_EVENTS, Protocol);
 
 			}
 			catch (Exception ex)
