@@ -16,15 +16,21 @@ namespace RaspaTools
 		private readonly MediaPlayer speechPlayer;
 		public SpeechService()
 		{
-			speechSynthesizer = CreateSpeechSynthesizer();
-			speechPlayer = new MediaPlayer();
+			try
+			{
+				speechSynthesizer = CreateSpeechSynthesizer();
+				speechPlayer = new MediaPlayer();
+			}catch{ }
 		}
 
 		private static SpeechSynthesizer CreateSpeechSynthesizer()
 		{
 			var synthesizer = new SpeechSynthesizer();
-			synthesizer.Voice = getVoce("it-IT"); 
-			return synthesizer;
+			try
+			{
+				synthesizer.Voice = getVoce("it-IT"); 
+			}catch{ }
+				return synthesizer;
 		}
 
 		private static VoiceInformation getVoce(string Lingua)
@@ -34,16 +40,24 @@ namespace RaspaTools
 
 		private async Task SayAsync(string text)
 		{
-			using (var stream = await speechSynthesizer.SynthesizeTextToStreamAsync(text))
+			try
 			{
-				speechPlayer.Source = MediaSource.CreateFromStream(stream, stream.ContentType);
+				using (var stream = await speechSynthesizer.SynthesizeTextToStreamAsync(text))
+				{
+					speechPlayer.Source = MediaSource.CreateFromStream(stream, stream.ContentType);
+				}
+				speechPlayer.Play();
 			}
-			speechPlayer.Play();
+			catch { }
 		}
 
 		public async void parla(string testo)
 		{
-			await SayAsync(testo);
+			try
+			{
+				await SayAsync(testo);
+			}
+			catch { }
 		}
 
 	}

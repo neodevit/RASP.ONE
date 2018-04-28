@@ -50,17 +50,6 @@ namespace RaspaAction
 				// PIN
 				int PinNum = gpioPIN.PinNumber;
 
-				#region EVENTS
-				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
-				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
-				{
-					gpioPIN.ValueChanged -= GpioPIN_ValueChanged;
-					gpioPIN.ValueChanged += GpioPIN_ValueChanged;
-
-					// memorizzo che ho già impostato evento
-					EVENTS[chiave] = true;
-				}
-				#endregion
 
 				//-------------------
 				// SCEGLI AZIONE
@@ -90,7 +79,8 @@ namespace RaspaAction
 						break;
 					case enumStato.read:
 						Drive = gpioPIN.GetDriveMode();
-						if (Drive == GpioPinDriveMode.InputPullUp)
+						if (Drive == GpioPinDriveMode.Input ||
+							Drive == GpioPinDriveMode.InputPullDown)
 						{
 							valore = gpioPIN.Read();
 							if (valore == GpioPinValue.High)
@@ -104,6 +94,18 @@ namespace RaspaAction
 						break;
 
 				}
+
+				#region EVENTS
+				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
+				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
+				{
+					gpioPIN.ValueChanged -= GpioPIN_ValueChanged;
+					gpioPIN.ValueChanged += GpioPIN_ValueChanged;
+
+					// memorizzo che ho già impostato evento
+					EVENTS[chiave] = true;
+				}
+				#endregion
 
 
 			}
@@ -127,10 +129,6 @@ namespace RaspaAction
 					SpeechService speek = new SpeechService();
 					speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " SUONA IL CAMPANELLO");
 				}
-			}
-			else
-			{
-				notify.ActionNotify(Protocol, true, "Push Button", enumSubribe.central, enumComponente.push, enumComando.notify, enumStato.signalOFF, gpioPIN.PinNumber);
 			}
 		}
 

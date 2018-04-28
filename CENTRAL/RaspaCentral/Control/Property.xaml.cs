@@ -765,7 +765,7 @@ namespace RaspaCentral
 				// se non lo si fa le configurazioni inserite
 				// avranno solo effetto alla prossima riesecuzione
 				// o al refresh di tutti i componenti disegnati
-				chiamante.initComponente(componente);
+				chiamante.CentraleInitNode(componente);
 
 				// spegnere tutti i pannelly property
 				chiamante.ToolbarPropertyShow(enumShowToolbarScheda.Nessuno);

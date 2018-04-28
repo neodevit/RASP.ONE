@@ -55,7 +55,7 @@ namespace RaspaNode
 		private bool flgGPIO = true;
 		private bool flgNodoUpdate = true;
 		private bool flgMQTT = true;
-		bool flgNodoSync = true;
+		bool flgNodoInitComponent = true;
 
 		public async void Start()
 		{
@@ -67,7 +67,7 @@ namespace RaspaNode
 			// --------------------------------------
 			// NODE INIT
 			// --------------------------------------
-			NODE_INIT();
+			NODE_CONFIG();
 
 			// --------------------------------------
 			// INIT MQTT
@@ -79,13 +79,13 @@ namespace RaspaNode
 			// NODO UPDATE with system info
 			// --------------------------------------
 			if (flgNodoUpdate)
-				NODE_UPDATE();
+				NODE_SAVE();
 
 			// --------------------------------------
 			// SYNC COMPONENT from CENTRALE
 			//---------------------------------------
-			if (flgNodoSync)
-				NODE_SYNC_COMPONENT();
+			if (flgNodoInitComponent)
+				NODE_INIT_COMPONENT();
 
 			// --------------------------------------
 			// GPIO
@@ -174,8 +174,13 @@ namespace RaspaNode
 		#region COMANDI
 		private void MessageUDPInput(string message)
 		{
+			
 			// leggi protocollo
-			OriginalMessage  = new RaspaProtocol(message);
+			OriginalMessage = new RaspaProtocol(message);
+
+			// se il messaggio più vecchio di 5 minuti lo salto
+			if (OriginalMessage.MessaggeMQTT_IsExpired())
+				return;
 
 			// esegue
 			action?.Execute(OriginalMessage);
@@ -310,10 +315,10 @@ namespace RaspaNode
 
 		private void nodeUPDATE_Click(object sender, RoutedEventArgs e)
 		{
-			NODE_INIT();
-			NODE_UPDATE();
+			NODE_CONFIG();
+			NODE_SAVE();
 		}
-		private RaspaResult NODE_INIT()
+		private RaspaResult NODE_CONFIG()
 		{
 			RaspaResult res = new RaspaResult(true);
 			try
@@ -342,20 +347,19 @@ namespace RaspaNode
 			}
 			return res;
 		}
-
-		private RaspaResult NODE_UPDATE()
+		private RaspaResult NODE_SAVE()
 		{
 			RaspaResult res = new RaspaResult(true);
 			try
 			{
 				// richiedi al centrale di salvarsi la configurazione del nodo
 				RaspaProtocol protocol = new RaspaProtocol();
-				protocol.Comando = enumComando.nodeInit;
+				protocol.Comando = enumComando.nodeSaveConfig;
 				protocol.Mittente = nodo;
 				protocol.Destinatario = new Componente();
 				protocol.Destinatario.Tipo = enumComponente.nessuno;
 				protocol.SubcribeResponse = enumSubribe.IPv4;
-				protocol.SubcribeDestination = enumSubribe.reload;
+				protocol.SubcribeDestination = enumSubribe.nodeINIT;
 				mqTT.Publish(protocol);
 			}
 			catch (Exception ex)
@@ -372,11 +376,11 @@ namespace RaspaNode
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void nodeSYNC_Click(object sender, RoutedEventArgs e)
+		private void nodeINIT_Click(object sender, RoutedEventArgs e)
 		{
-			NODE_SYNC_COMPONENT();
+			NODE_INIT_COMPONENT();
 		}
-		private RaspaResult NODE_SYNC_COMPONENT()
+		private RaspaResult NODE_INIT_COMPONENT()
 		{
 			RaspaResult res = new RaspaResult(true);
 			try
@@ -388,7 +392,7 @@ namespace RaspaNode
 				protocol.Destinatario = new Componente();
 				protocol.Destinatario.Tipo = enumComponente.centrale;
 				protocol.SubcribeResponse = enumSubribe.IPv4;
-				protocol.SubcribeDestination = enumSubribe.reload;
+				protocol.SubcribeDestination = enumSubribe.nodeINIT;
 				mqTT.Publish(protocol);
 			}
 			catch (Exception ex)

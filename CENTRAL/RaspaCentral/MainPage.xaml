@@ -73,7 +73,7 @@
 
                     <!--TOOLBAR-->
 
-                    <RelativePanel x:Name="ToolBar" Visibility="Visible" Background="AliceBlue" Margin="620,1,11,39"  Width="500" Height="600"
+                    <RelativePanel x:Name="ToolBar" Visibility="Collapsed" Background="AliceBlue" Margin="620,1,11,39"  Width="500" Height="600"
                                 AllowDrop="True"
                                 CanDrag="True"
                                 PointerPressed = "Toolbar_PointerPressed"
@@ -159,6 +159,7 @@
         <ToggleButton  x:Name="editing" IsChecked="false"
         HorizontalAlignment="Left" Margin="527,13,0,0" VerticalAlignment="Top"  Tapped="mode_Tapped" Content="Editing" ></ToggleButton>
         <Image x:Name="btnRefresh" Source="Assets/refresh.png" Width="32" Height="32" Margin="608,15,640,753" Tapped="btnRefresh_Tapped" />
+        <Image x:Name="btnReinit" Source="Assets/mosquitto.png" Width="32" Height="32" Margin="645,15,603,753" Tapped="btnReinit_Tapped" />
 
         <TextBlock x:Name="CENTRAL_SWVer" HorizontalAlignment="Left" Margin="1042,16,0,0" VerticalAlignment="Top" Text="0.0.0" TextAlignment="Right" />
 

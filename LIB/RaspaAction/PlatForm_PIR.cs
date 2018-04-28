@@ -53,6 +53,34 @@ namespace RaspaAction
 				enumPIROption option = (enumPIROption)Convert.ToInt32(Protocol.Destinatario.Options);
 				GpioPinEdge edge = (option == enumPIROption.FallingEdge) ? GpioPinEdge.FallingEdge : GpioPinEdge.RisingEdge;
 				#endregion
+
+				//-------------------
+				// SCEGLI AZIONE
+				//-------------------
+				switch (Protocol.Azione)
+				{
+					case enumStato.on:
+					case enumStato.signal:
+					case enumStato.signalOFF:
+						gpioPIN.DebounceTimeout = TimeSpan.FromMilliseconds(500);
+						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
+						notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
+						break;
+					case enumStato.off:
+						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
+						notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
+						break;
+					case enumStato.read:
+						Drive = gpioPIN.GetDriveMode();
+						if (Drive == GpioPinDriveMode.Input)
+							notify.ActionNotify(Protocol, true, "Pir read", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
+						else
+							notify.ActionNotify(Protocol, true, "Pir read", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
+
+						break;
+
+				}
+
 				#region EVENTS
 				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
 				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
@@ -68,30 +96,6 @@ namespace RaspaAction
 					EVENTS[chiave] = true;
 				}
 				#endregion
-
-				//-------------------
-				// SCEGLI AZIONE
-				//-------------------
-				switch (Protocol.Azione)
-				{
-					case enumStato.on:
-					case enumStato.signal:
-					case enumStato.signalOFF:
-						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
-						break;
-					case enumStato.off:
-						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
-						break;
-					case enumStato.read:
-						Drive = gpioPIN.GetDriveMode();
-						if (Drive == GpioPinDriveMode.Input)
-							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
-						else
-							notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
-
-						break;
-
-				}
 
 
 			}
@@ -118,8 +122,8 @@ namespace RaspaAction
 					speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " PRESENZA RILEVATA");
 				}
 			}
-			else
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
+			//else
+			//	notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
 		}
 		private void Pir_RisingEdge_ValueChanged(GpioPin sender, GpioPinValueChangedEventArgs e)
 		{
@@ -136,8 +140,8 @@ namespace RaspaAction
 					speek.parla(" NODO " + Protocol.Destinatario.Node_Num + " PIN " + Protocol.Destinatario.Node_Pin + " componente " + Protocol.Mittente.Nome + " PRESENZA RILEVATA");
 				}
 			}
-			else
-				notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
+			//else
+			//	notify.ActionNotify(Protocol, true, "Pir Change", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.signalOFF, sender.PinNumber);
 		}
 
 	}

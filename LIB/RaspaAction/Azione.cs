@@ -47,6 +47,10 @@ namespace RaspaAction
 			{
 				Protocol = protocol;
 
+				// se il messaggio più vecchio di 5 minuti lo salto
+				if (Protocol.MessaggeMQTT_IsExpired())
+					return;
+
 				//-----------------------------------------
 				// PREPARA INPUT
 				//-----------------------------------------
@@ -72,6 +76,10 @@ namespace RaspaAction
 					// CHOSE PLATFORM
 					switch (Protocol.Destinatario.Tipo)
 					{
+						case enumComponente.nodo:
+						case enumComponente.centrale:
+							Platform = null;
+							break;
 						case enumComponente.bell:
 							Platform = new PlatForm_Bell();
 							break;
@@ -110,7 +118,7 @@ namespace RaspaAction
 				//-----------------------------------------
 				switch (Protocol.Comando)
 				{
-					case enumComando.nodeInit:
+					case enumComando.nodeSaveConfig:
 						break;
 					case enumComando.nodeReload:
 						break;
@@ -120,6 +128,10 @@ namespace RaspaAction
 
 						switch (Protocol.Destinatario.Tipo)
 						{
+							case enumComponente.nodo:
+							case enumComponente.centrale:
+								gpioPIN = null;
+								break;
 							case enumComponente.bell:
 								break;
 							case enumComponente.light:
@@ -157,7 +169,8 @@ namespace RaspaAction
 				//-----------------------------------------
 				// EXECUTE
 				//-----------------------------------------
-				res = Platform.RUN(mqTT, gpioPIN, platform_EVENTS, Protocol);
+				if (Platform!=null && gpioPIN!= null)
+					res = Platform.RUN(mqTT, gpioPIN, platform_EVENTS, Protocol);
 
 			}
 			catch (Exception ex)

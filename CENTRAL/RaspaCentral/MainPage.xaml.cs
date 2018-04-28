@@ -53,7 +53,6 @@ namespace RaspaCentral
 
 		}
 
-		bool flgINIT_NODO_Component = true;
 		protected override async void OnNavigatedTo(NavigationEventArgs e)
 		{
 			// CENTRAL
@@ -61,9 +60,7 @@ namespace RaspaCentral
 			// MAPPA
 			InitProperty();
 			initMappa();
-			// Init from node
-			if (flgINIT_NODO_Component)
-				initComponentiFromNode();
+
 
 		}
 
@@ -76,13 +73,19 @@ namespace RaspaCentral
 		bool flgSubscription_rules = true;
 		bool flgSubscription_hearbit = true;
 		bool flgSubscription_reload = true;
+		bool flgINIT_NODO_Component = true;
 		public async void StartCentral()
 		{
 
 			// --------------------------------------
-			// NODO
+			// SYNC NODE TIME
 			// --------------------------------------
-			// Inizializza nodo
+			SyncDateTime();
+
+			// --------------------------------------
+			// CENTRALE
+			// --------------------------------------
+			// Inizializza centrale
 			RaspaResult resNode = INIT_CENTRALE();
 			if (!resNode.Esito)
 				messaggio.Text = resNode.Message;
@@ -102,7 +105,7 @@ namespace RaspaCentral
 			if (flgSubscription_hearbit)
 				ConnectedSubscription.Add(enumSubribe.heartbit.ToString()); 
 			if (flgSubscription_reload)                                     // solo un centrale può richiedere il reload dei nodi
-				ConnectedSubscription.Add(enumSubribe.reload.ToString());
+				ConnectedSubscription.Add(enumSubribe.nodeINIT.ToString());
 
 			// --------------------------------------
 			// MTMQ
@@ -110,8 +113,22 @@ namespace RaspaCentral
 			if (flgMQTT)
 				INIT_MQTT(ConnectedSubscription);
 
+			// --------------------------------------
+			// INIT NODI
+			// --------------------------------------
+			// quando parte il centrale richiede i dati al nodo
+			if (flgINIT_NODO_Component)
+				CentraleInitNode();
 
 		}
+		#region SYNC DATE TIME
+		public void SyncDateTime()
+		{
+			RaspBerry RB = new RaspBerry();
+			RB.SyncDateTime();
+		}
+		#endregion
+
 		private RaspaResult INIT_CENTRALE()
 		{
 			RaspaResult res = new RaspaResult(true);
@@ -256,11 +273,12 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-#endregion
+		#endregion
 
 
-#region INIT
-		private void initComponentiFromNode()
+		// QUANDO IL CENTRALE PARTE RICHIEDE LO STATO ATTUALE AI NODI
+		#region CENTRALE INIT
+		private void CentraleInitNode()
 		{
 			messaggio.Text = "";
 			try
@@ -269,7 +287,7 @@ namespace RaspaCentral
 				DBCentral DB = new DBCentral();
 				Componenti recs = DB.GetComponenti(mappa_num);
 				foreach (Componente rec in recs)
-					initComponente(rec);
+					CentraleInitNode(rec);
 			}
 			catch (Exception ex)
 			{
@@ -277,148 +295,64 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-		public void initComponente(Componente rec)
+		public void CentraleInitNode(Componente componente)
 		{
-			RaspaProtocol protocol;
 			try
 			{
-				switch (rec.Tipo)
+				if (componente.Enabled)
 				{
-					case enumComponente.centrale:
-						break;
-					case enumComponente.nodo:
-						break;
-					case enumComponente.light:
-						protocol = new RaspaProtocol();
-						protocol.Mittente = centrale;
-						protocol.Destinatario = rec;
+					enumStato stato = enumStato.nessuno;
+
+					switch (componente.Tipo)
+					{
+						case enumComponente.nessuno:
+						case enumComponente.centrale:
+						case enumComponente.nodo:
+							stato = enumStato.nessuno;
+							break;
+						case enumComponente.pir:
+							stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.light:
+							stato = (componente.Enabled) ? enumStato.read : enumStato.off;
+							break;
+						case enumComponente.bell:
+							stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.moisture:
+							stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.push:
+							stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.temperature:
+							stato = (componente.Enabled) ? ((componente.repeat) ? enumStato.readRepetitive : enumStato.read) : enumStato.off;
+							break;
+						case enumComponente.umidity:
+							stato = (componente.Enabled) ? ((componente.repeat) ? enumStato.readRepetitive : enumStato.read) : enumStato.off;
+							break;
+						case enumComponente.webcam_ip:
+							stato = enumStato.nessuno;
+							break;
+						case enumComponente.webcam_rasp:
+							stato = enumStato.nessuno;
+							//stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+					}
+
+
+					if (stato != enumStato.nessuno)
+					{
+						RaspaProtocol protocol = new RaspaProtocol();
 						protocol.Comando = enumComando.comando;
+						protocol.Mittente = centrale;
+						protocol.Destinatario = componente;
 						protocol.Azione = enumStato.read;
 						protocol.SubcribeDestination = enumSubribe.IPv4;
 						protocol.SubcribeResponse = enumSubribe.central;
 
-						writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
 						MQTTRSend(protocol);
-
-						break;
-					case enumComponente.pir:
-						if (rec.Enabled)
-						{
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = rec;
-							protocol.Comando = enumComando.comando;
-
-							// attivo pir
-							protocol.Azione = enumStato.on;
-
-							protocol.SubcribeDestination = enumSubribe.IPv4;
-							protocol.SubcribeResponse = enumSubribe.central;
-
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-							MQTTRSend(protocol);
-						}
-						break;
-
-					case enumComponente.push:
-						if (rec.Enabled)
-						{
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = rec;
-							protocol.Comando = enumComando.comando;
-
-							// attivo bottone 
-							protocol.Azione = enumStato.on;
-
-							protocol.SubcribeDestination = enumSubribe.IPv4;
-							protocol.SubcribeResponse = enumSubribe.central;
-
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-							MQTTRSend(protocol);
-						}
-
-						break;
-					case enumComponente.moisture:
-						if (rec.Enabled)
-						{
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = rec;
-							protocol.Comando = enumComando.comando;
-
-							// attivo moisture
-							protocol.Azione = enumStato.on;
-
-							protocol.SubcribeDestination = enumSubribe.IPv4;
-							protocol.SubcribeResponse = enumSubribe.central;
-
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-							MQTTRSend(protocol);
-						}
-
-						break;
-					case enumComponente.bell:
-						if (rec.Enabled)
-						{
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = rec;
-							protocol.Comando = enumComando.comando;
-
-							// attivo moisture
-							protocol.Azione = enumStato.read;
-
-							protocol.SubcribeDestination = enumSubribe.IPv4;
-							protocol.SubcribeResponse = enumSubribe.central;
-
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-							MQTTRSend(protocol);
-						}
-
-						break;
-
-					case enumComponente.umidity:
-						if (rec.Enabled)
-						{
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = rec;
-							protocol.Comando = enumComando.comando;
-
-							protocol.Azione = (rec.repeat) ? enumStato.readRepetitive : enumStato.read;
-							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
-
-							protocol.SubcribeDestination = enumSubribe.IPv4;
-							protocol.SubcribeResponse = enumSubribe.central;
-
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-							MQTTRSend(protocol);
-						}
-						break;
-					case enumComponente.temperature:
-						if (rec.Enabled)
-						{
-							protocol = new RaspaProtocol();
-							protocol.Mittente = centrale;
-							protocol.Destinatario = rec;
-							protocol.Comando = enumComando.comando;
-
-							protocol.Azione = (rec.repeat) ? enumStato.readRepetitive : enumStato.read;
-							protocol.RepetiteTime = (rec.repeat) ? rec.repeatTime : null;
-
-							protocol.SubcribeDestination = enumSubribe.IPv4;
-							protocol.SubcribeResponse = enumSubribe.central;
-
-							writeLogVideo("ASK READ <-- " + protocol.Destinatario.IPv4 + " - " + protocol.Destinatario.Tipo.ToString());
-							MQTTRSend(protocol);
-						}
-						break;
-					case enumComponente.webcam_ip:
-						break;
-					case enumComponente.webcam_rasp:
-						break;
-
+					}
 				}
 			}
 			catch (Exception ex)
@@ -427,10 +361,170 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+		#endregion
 
-#endregion
+		// QUANDO IL CENTRALE FA REFRESH DELLA PAGINA DEE RILEGGERE I NODI
+		// NON USATO 
+		#region CENTRALE READ
+		public void CentraleReadNodeComponent(Componente componente)
+		{
+			try
+			{
+				if (componente.Enabled)
+				{
+					enumStato azione = enumStato.nessuno;
 
-#region RECEVICE
+					switch (componente.Tipo)
+					{
+						case enumComponente.nessuno:
+						case enumComponente.centrale:
+						case enumComponente.nodo:
+							azione = enumStato.nessuno;
+							break;
+						case enumComponente.pir:
+							azione = (componente.Enabled) ? enumStato.read : enumStato.off;
+							break;
+						case enumComponente.light:
+							azione = (componente.Enabled) ? enumStato.read : enumStato.off;
+							break;
+						case enumComponente.bell:
+							azione = (componente.Enabled) ? enumStato.read : enumStato.off;
+							break;
+						case enumComponente.moisture:
+							azione = (componente.Enabled) ? enumStato.read : enumStato.off;
+							break;
+						case enumComponente.push:
+							azione = (componente.Enabled) ? enumStato.read : enumStato.off;
+							break;
+						case enumComponente.temperature:
+							azione = (componente.Enabled) ? ((componente.repeat) ? enumStato.readRepetitive : enumStato.read) : enumStato.off;
+							break;
+						case enumComponente.umidity:
+							azione = (componente.Enabled) ? ((componente.repeat) ? enumStato.readRepetitive : enumStato.read) : enumStato.off;
+							break;
+						case enumComponente.webcam_ip:
+							azione = enumStato.nessuno;
+							break;
+						case enumComponente.webcam_rasp:
+							azione = enumStato.nessuno;
+							//stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+					}
+
+
+					if (azione != enumStato.nessuno)
+					{
+						RaspaProtocol protocol = new RaspaProtocol();
+						protocol.Comando = enumComando.comando;
+						protocol.Mittente = centrale;
+						protocol.Destinatario = componente;
+						protocol.Azione = azione;
+						protocol.SubcribeDestination = enumSubribe.IPv4;
+						protocol.SubcribeResponse = enumSubribe.central;
+
+						MQTTRSend(protocol);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		#endregion
+
+		// QUANDO IL NODO PARTE RICHIEDE L'INIZIALIZZAZIONE
+		#region NODE INIT
+		private void NodeInit(string IPv4)
+		{
+			DBCentral DB = new DBCentral();
+			try
+			{
+				// leggo il nodo da reload sul DB
+				Componenti componenti = DB.GetComponentiByIPv4(IPv4);
+
+				// analizza i componenti
+				foreach (Componente componente in componenti)
+					NodeInit(componente);
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		private void NodeInit(Componente componente)
+		{
+			try
+			{
+				if (componente.Enabled)
+				{
+					enumStato azione = enumStato.nessuno;
+
+					switch (componente.Tipo)
+					{
+						case enumComponente.nessuno:
+						case enumComponente.centrale:
+						case enumComponente.nodo:
+							azione = enumStato.nessuno;
+							break;
+						case enumComponente.pir:
+							azione = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.light:
+							azione = (componente.Enabled) ? componente.Stato : enumStato.off;
+							break;
+						case enumComponente.bell:
+							azione = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.moisture:
+							azione = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.push:
+							azione = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+						case enumComponente.temperature:
+							azione = (componente.Enabled) ? ((componente.repeat)?enumStato.readRepetitive: enumStato.read) : enumStato.off;
+							break;
+						case enumComponente.umidity:
+							azione = (componente.Enabled) ? ((componente.repeat) ? enumStato.readRepetitive : enumStato.read) : enumStato.off;
+							break;
+						case enumComponente.webcam_ip:
+							azione = enumStato.nessuno;
+							break;
+						case enumComponente.webcam_rasp:
+							azione = enumStato.nessuno;
+							//stato = (componente.Enabled) ? enumStato.on : enumStato.off;
+							break;
+					}
+
+
+					if (azione != enumStato.nessuno)
+					{
+						RaspaProtocol protocol = new RaspaProtocol();
+						protocol.Comando = enumComando.comando;
+						protocol.Mittente = centrale;
+						protocol.Destinatario = componente;
+						protocol.Azione = azione;
+						protocol.RepetiteTime = (azione == enumStato.readRepetitive) ? componente.repeatTime : null;
+						protocol.SubcribeDestination = enumSubribe.IPv4;
+						protocol.SubcribeResponse = enumSubribe.central;
+
+						MQTTRSend(protocol);
+					}
+				}
+
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		#endregion
+
+		#region RECEVICE
 		private void MQTTReceive(string Topic, string Payload, MqttQualityOfServiceLevel QoS, bool Retain)
 		{
 			var ignore = this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -445,12 +539,17 @@ namespace RaspaCentral
 			{
 				DBCentral DB = new DBCentral();
 
-				if (protocol.Comando == enumComando.nodeInit)
+				// se il messaggio più vecchio di 5 minuti lo salto
+				if (protocol.MessaggeMQTT_IsExpired())
+					return;
+
+				if (protocol.Comando == enumComando.nodeSaveConfig)
 				{
 					// leggo il nodo da iniziare sul DB
 					Componente nodo2INIT = DB.GetComponenteByIPv4(protocol.Mittente.IPv4, enumComponente.nodo);
 					// se il componente è effettivamente un nodo
-					if (nodo2INIT.Tipo == enumComponente.nodo && protocol.Mittente != null)
+					if (nodo2INIT.Tipo == enumComponente.nodo && 
+						protocol.Mittente != null)
 					{
 						// Aggiorno i dati del nodo
 						nodo2INIT.HostName = protocol.Mittente.HostName;
@@ -468,7 +567,7 @@ namespace RaspaCentral
 				}
 				else if (protocol.Comando == enumComando.nodeReload)
 				{
-					NodeReload(protocol.Mittente.IPv4);
+					NodeInit(protocol.Mittente.IPv4);
 				}
 				else if (protocol.Comando == enumComando.notify)
 				{
@@ -652,7 +751,7 @@ namespace RaspaCentral
 									{
 										case enumStato.signal:
 											SpeechService speek = new SpeechService();
-											speek.parla("CHI CAZZO ROMPE A QUEST'ORA");
+											speek.parla("disse la vacca al mulo come ti puzza il culo");
 											break;
 									}
 									break;
@@ -669,75 +768,6 @@ namespace RaspaCentral
 			}
 		}
 
-		private void NodeReload(string IPv4)
-		{
-			DBCentral DB = new DBCentral();
-			RaspaProtocol protocol = new RaspaProtocol();
-			try
-			{
-				#region NODE RELOAD
-				// leggo il nodo da reload sul DB
-				Componenti componenti = DB.GetComponentiByIPv4(IPv4);
-
-				// analizza i componenti
-				foreach (Componente componente in componenti)
-				{
-					if (componente.Enabled)
-					{
-						enumStato stato = enumStato.nessuno;
-
-						switch (componente.Tipo)
-						{
-							case enumComponente.nessuno:
-							case enumComponente.centrale:
-							case enumComponente.nodo:
-								break;
-							case enumComponente.pir:
-								stato = enumStato.on;
-								break;
-							case enumComponente.light:
-								stato = componente.Stato;
-								break;
-							case enumComponente.bell:
-								break;
-							case enumComponente.moisture:
-								stato = enumStato.on;
-								break;
-							case enumComponente.push:
-								stato = enumStato.on;
-								break;
-							case enumComponente.temperature:
-								stato = enumStato.read;
-								break;
-							case enumComponente.umidity:
-								stato = enumStato.read;
-								break;
-							case enumComponente.webcam_rasp:
-								stato = componente.Stato;
-								break;
-						}
-
-						RaspaProtocol initBell = new RaspaProtocol();
-						protocol.Comando = enumComando.comando;
-						protocol.Mittente = centrale;
-						protocol.Destinatario = componente;
-						protocol.Azione = enumStato.read;
-						protocol.SubcribeDestination = enumSubribe.IPv4;
-						protocol.SubcribeResponse = enumSubribe.central;
-
-						MQTTRSend(protocol);
-
-					}
-				}
-
-				#endregion
-			}
-			catch (Exception ex)
-			{
-				messaggio.Text = ex.Message;
-				if (Debugger.IsAttached) Debugger.Break();
-			}
-		}
 
 		#endregion
 
@@ -1111,7 +1141,7 @@ namespace RaspaCentral
 								DB.ModComponentiStato(componente.ID.Value, enumStato.on, Utente);
 								break;
 						}
-#endregion
+						#endregion
 						break;
 					case enumComponente.webcam_ip:
 						ipcam1.playIPCam(componente.Nome, componente.getIPCAMAddress());
@@ -1143,15 +1173,16 @@ namespace RaspaCentral
 			{
 				// Visualizza Mappa
 				TabsShow(enumShowTabs.mappa);
+
 				// mode
 				working.IsChecked = true;
 				editing.IsChecked = false;
 				changeMode();
+
 				// carica combo mappa
 				initComboMappa();
 				COMBO_MAPPA.SelectedValue = "0";
-				// popolate componenti
-				//popolateComponenti();
+
 				// Prepara frame CAM
 				GridCAM.Visibility = Visibility.Visible;
 			}
@@ -1161,6 +1192,8 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
+
+		// DRAW MAPS and POPOLATE GRAPHICS FROM DB and NODE
 		#region MAPPA
 		int mappa_num = 0;
 		int mappa_max = 2;
@@ -1205,8 +1238,8 @@ namespace RaspaCentral
 					// carica componenti
 					popolateComponenti();
 
-					// richiede ai componenti lo stato attuale
-					initComponentiFromNode();
+					// reinizializza componenti dal nodo
+					reINITMapsComponentFromNode();
 
 					// inizializza controllo property
 					ComponentProperty.mappa_num = mappa_num;
@@ -1218,9 +1251,17 @@ namespace RaspaCentral
 				if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-
 		#endregion
 
+		// POPOLATE GRAPHICS FROM DB
+		#region reinit from DB
+		private void btnRefresh_Tapped(object sender, TappedRoutedEventArgs e)
+		{
+			// Visualizza Mappa
+			TabsShow(enumShowTabs.mappa);
+			// rilegge dal nodo i componenti
+			popolateComponenti();
+		}
 		private void popolateComponenti()
 		{
 			messaggio.Text = "";
@@ -1234,9 +1275,9 @@ namespace RaspaCentral
 				Componenti recs = DB.GetComponenti(mappa_num);
 				foreach (Componente rec in recs)
 				{
-					// resetto i dati per forzare la prima lettura
 					rec.Stato = enumStato.nessuno;
 					rec.Value = null;
+
 					// disegno
 					create_object(rec.Tipo, rec);
 				}
@@ -1247,16 +1288,39 @@ namespace RaspaCentral
                 if (Debugger.IsAttached) Debugger.Break();
 			}
 		}
-		private void btnRefresh_Tapped(object sender, TappedRoutedEventArgs e)
+		#endregion
+
+		// POPOLATE GRAPHICS FROM NODE
+		#region reinit from node
+		private void btnReinit_Tapped(object sender, TappedRoutedEventArgs e)
 		{
 			// Visualizza Mappa
 			TabsShow(enumShowTabs.mappa);
-			// ricarica componenti
-			popolateComponenti();
-			// richiede ai componenti lo stato attuale
-			initComponentiFromNode();
+			// rilegge dal nodo i componenti
+			reINITMapsComponentFromNode();
 		}
+		private void reINITMapsComponentFromNode()
+		{
+			messaggio.Text = "";
+			try
+			{
+				// pulisci interfaccia 
+				CleanInterface();
 
+				// Inizializza componenti mappa leggendoli dal DB
+				DBCentral DB = new DBCentral();
+				Componenti recs = DB.GetComponenti(mappa_num);
+				foreach (Componente rec in recs)
+					CentraleInitNode(rec);
+			}
+			catch (Exception ex)
+			{
+				messaggio.Text = "Errore : " + ex.Message;
+				if (Debugger.IsAttached) Debugger.Break();
+			}
+		}
+		#endregion
+		
 		private void CleanInterface()
 		{
 			RaspaResult esito = new RaspaResult(true);

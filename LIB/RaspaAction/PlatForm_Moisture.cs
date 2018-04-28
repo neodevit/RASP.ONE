@@ -52,6 +52,43 @@ namespace RaspaAction
 				// PIN
 				int PinNum = gpioPIN.PinNumber;
 
+
+
+				//-------------------
+				// SCEGLI AZIONE
+				//-------------------
+				switch (Protocol.Azione)
+				{
+					case enumStato.off:
+						// spegni input
+						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
+
+						notify.ActionNotify(Protocol, true, "Moisture off", enumSubribe.central, enumComponente.moisture, enumComando.notify, enumStato.off, PinNum, new List<string>());
+
+						break;
+					case enumStato.on:
+					case enumStato.signal:
+					case enumStato.signalOFF:
+						var r = gpioPIN.Read();
+						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
+						Drive = gpioPIN.GetDriveMode();
+
+						gpioPIN.DebounceTimeout = TimeSpan.FromMilliseconds(50);
+
+						notify.ActionNotify(Protocol, true, "Moisture on", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
+
+						break;
+					case enumStato.read:
+						Drive = gpioPIN.GetDriveMode();
+						if (Drive == GpioPinDriveMode.Input)
+							notify.ActionNotify(Protocol, true, "Moisture read", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.on, gpioPIN.PinNumber);
+						else
+							notify.ActionNotify(Protocol, true, "Moisture read", enumSubribe.central, enumComponente.pir, enumComando.notify, enumStato.off, gpioPIN.PinNumber);
+
+						break;
+
+				}
+
 				#region EVENTS
 				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
 				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
@@ -64,31 +101,6 @@ namespace RaspaAction
 				}
 				#endregion
 
-
-				//-------------------
-				// SCEGLI AZIONE
-				//-------------------
-				switch (Protocol.Azione)
-				{
-					case enumStato.off:
-						// spegni input
-						gpioPIN.SetDriveMode(GpioPinDriveMode.Output);
-
-						// dispose sensor
-						notify.ActionNotify(Protocol, true, "Read Moisture", enumSubribe.central, enumComponente.moisture, enumComando.notify, enumStato.off, PinNum, new List<string>());
-
-						break;
-					case enumStato.on:
-					case enumStato.signal:
-					case enumStato.signalOFF:
-						var r = gpioPIN.Read();
-						gpioPIN.SetDriveMode(GpioPinDriveMode.Input);
-						Drive = gpioPIN.GetDriveMode();
-
-						gpioPIN.DebounceTimeout = TimeSpan.FromMilliseconds(50);
-						break;
-
-				}
 			}
 			catch (Exception ex)
 			{

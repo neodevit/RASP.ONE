@@ -15,10 +15,18 @@ namespace RaspaEntity
 
 		public RaspaProtocol()
 		{
+			Data = DateTime.Now;
 		}
+		public bool MessaggeMQTT_IsExpired(int? minuti=5)
+		{
+			TimeSpan span = DateTime.Now - Data;
+			double totalMinutes = span.TotalMinutes;
+			return (totalMinutes > minuti);
 
+		}
 		public RaspaProtocol(bool esito,string message, enumComando comando, enumStato azione, Componente mittente, Componente destinatario,List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
 		{
+			Data = DateTime.Now;
 			Esito = esito;
 			Message = message;
 			Comando = comando;
@@ -32,6 +40,7 @@ namespace RaspaEntity
 		}
 		public RaspaProtocol(enumComando comando, Componente mittente, enumStato azione, Componente destinatario, List<string> value, Tempo repetiteTime, enumSubribe subcribeDestination, enumSubribe subcribeResponse)
 		{
+			Data = DateTime.Now;
 			Esito = true;
 			Message = "";
 			Comando = comando;
@@ -48,6 +57,7 @@ namespace RaspaEntity
 			RaspaProtocol ele = JsonConvert.DeserializeObject<RaspaProtocol>(message);
 			if (ele != null)
 			{
+				Data = ele.Data;
 				Esito = ele.Esito;
 				Message = ele.Message;
 				Comando = ele.Comando;
@@ -67,6 +77,7 @@ namespace RaspaEntity
 			return json;
 		}
 
+		public DateTime Data { get; set; }
 		public bool Esito { get; set; }
 		public string Message { get; set; }
 

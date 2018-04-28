@@ -51,6 +51,7 @@ namespace RaspaAction
 				{
 					case enumStato.nessuno:
 						break;
+					case enumStato.on:
 					case enumStato.read:
 						// restiutuisci esito
 						notify.ActionNotify(Protocol, true, "Bell Read", enumSubribe.central, enumComponente.bell, enumComando.notify, enumStato.on, 0);

@@ -68,17 +68,6 @@ namespace RaspaAction
 					valoreOFF = GpioPinValue.Low;
 				}
 				#endregion
-				#region EVENTS
-				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
-				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
-				{
-					gpioPIN.ValueChanged -= Light_ValueChanged;
-					gpioPIN.ValueChanged += Light_ValueChanged;
-
-					// memorizzo che ho già impostato evento
-					EVENTS[chiave] = true;
-				}
-				#endregion
 
 				//-------------------
 				// SCEGLI AZIONE
@@ -126,6 +115,18 @@ namespace RaspaAction
 
 
 				}
+
+				#region EVENTS
+				string chiave = PinNum + "|" + ((int)Protocol.Destinatario.Tipo).ToString();
+				if (!EVENTS.ContainsKey(chiave) || !EVENTS[chiave])
+				{
+					gpioPIN.ValueChanged -= Light_ValueChanged;
+					gpioPIN.ValueChanged += Light_ValueChanged;
+
+					// memorizzo che ho già impostato evento
+					EVENTS[chiave] = true;
+				}
+				#endregion
 
 			}
 			catch (Exception ex)

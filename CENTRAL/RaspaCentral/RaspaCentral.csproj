@@ -321,6 +321,7 @@
     <Content Include="Assets\moisture_err.png" />
     <Content Include="Assets\moisture_off.png" />
     <Content Include="Assets\moisture_on.png" />
+    <Content Include="Assets\mosquitto.png" />
     <Content Include="Assets\music.png" />
     <Content Include="Assets\new.png" />
     <Content Include="Assets\note.png" />

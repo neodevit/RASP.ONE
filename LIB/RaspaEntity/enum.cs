@@ -85,7 +85,7 @@ namespace RaspaEntity
 		nessuno = 0,
 		notify  = 1,
 		comando = 4,
-		nodeInit=5,
+		nodeSaveConfig=5,
 		nodeReload = 6,
 	}
 	public enum enumStato
@@ -153,6 +153,6 @@ namespace RaspaEntity
 		central=1,
 		rules=2,            // only one in network
 		heartbit =3,         
-		reload =4,			// only one in network
+		nodeINIT =4,		// only one in network
 	}
 }
